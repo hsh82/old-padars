@@ -4,6 +4,12 @@ Updated: 2026-11-04
 
 ## Implemented
 
+- Stage 1 WP01–WP03 authorization hardening started on branch `codex/stage1-tenancy-security`; `kara.loc` remains untouched.
+- Added explicit Platform Administrator, School Manager, Academic Staff, Teacher, Student, and denied-by-default Guardian authorization matrix.
+- Replaced broad school membership permissions with actor-aware direct/list guards and protected exposed Education RPC methods through Frappe overrides.
+- Added school-context Custom Fields for schedules, assessments, and attendance; role synchronization and duplicate-safe constraints/indexes are delivered through post-model-sync patches.
+- Created and migrated disposable `stage1.local`; the first fixture migration failure was fixed and the second migration completed successfully.
+
 - Repository audit and version/source review completed.
 - `AGENTS.md` and three repository skills added.
 - Architecture, product, decision, setup, testing, and progress documentation added.
@@ -27,6 +33,8 @@ Updated: 2026-11-04
 
 ## Blocked
 
+- The full Frappe test runner is currently blocked before Padars tests by an existing duplicate ERPNext fixture on disposable `stage1.local`; the new Stage 1 negative suite remains unexecuted until that isolated fixture state is repaired.
+
 - Database-backed Frappe tests and migration are not yet executed: the Bench virtualenv wrappers point to `/workspace/frappe-bench`, and the host cannot load `libmariadb.so.3`; the configured DB hostname is also environment-specific.
 - Ruff is not installed in the available runtime, so the configured lint command was not executed.
 - Browser behavior, asset build, and database-backed frontend tests remain unexecuted because the local Bench runtime/site is unavailable; the focused Node smoke tests are passing.
@@ -38,5 +46,5 @@ Updated: 2026-11-04
 
 ## Next milestone
 
-Install Padars on an isolated disposable site with a working Frappe/MariaDB runtime, run migrations and `bench --site <site> run-tests --app padars`, then run browser smoke tests for Course Offering → LMS Monitor.
+Repair or recreate the disposable fixture state, run the Stage 1 two-school negative suite and relevant existing tests, then stop for approval before WP04.
 

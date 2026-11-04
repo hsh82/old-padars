@@ -2,6 +2,22 @@
 
 Updated: 2026-11-04
 
+## Stage 1 WP01–WP03 runtime evidence
+
+Environment: disposable `stage1.local` only. `kara.loc` was not migrated,
+restarted, or modified.
+
+| Check | Result | Evidence / limitation |
+| --- | --- | --- |
+| Migration with roles, scheduler sync, constraints, and Custom Fields | Passed | The first migration exposed unnamed fixture records; after the corrective fixture fix the rerun completed. |
+| Runtime two-school authorization smoke | Passed | `bench --site stage1.local execute padars.tests.test_stage1_security.run_runtime_smoke` returned six passed checks: recovery access, manager list isolation, student direct-document denial, Education endpoint denials, Custom Fields, and indexes. Synthetic School A/B, two students, two managers, and an assigned teacher exist only on the disposable site. |
+| Frappe suite invocation | Blocked | `bench run-tests --module padars.tests.test_stage1_security` aborts before Padars tests because ERPNext tries to create an already present `_Test Opening Invoice Company` fixture. Recorded as PAD-018. |
+| Python / fixture / diff checks | Passed | `python -m compileall -q padars`, `jq empty padars/fixtures/custom_field.json`, and `git diff --check`. |
+| Changed JavaScript syntax | Passed | `node --check padars/public/js/education/student_group.js`. |
+
+The direct runtime smoke supplements, but does not replace, the blocked Frappe
+test runner or remaining browser, report, file, job, and live-integration tests.
+
 ## Passed
 
 Executed from the Padars app root:
@@ -18,8 +34,8 @@ The existing Frappe test files cover School uniqueness/permissions, Course Offer
 
 ## Blocked or not executed
 
-- `bench --site <isolated-site> migrate`: not executed; Padars is not installed on `kara.loc`.
-- `bench --site <isolated-site> run-tests --app padars`: blocked by the local runtime. The available interpreter cannot load the cached Python 3.14 `orjson` extension, and the configured MariaDB host/library is unavailable from this environment.
+- `bench --site stage1.local migrate`: passed on the disposable site; it was never run against `kara.loc`.
+- `bench --site stage1.local run-tests --module padars.tests.test_stage1_security`: blocked before Padars tests by the existing duplicate ERPNext test fixture (PAD-018). The isolated direct runtime smoke passed separately.
 - `ruff check .`: not executed because Ruff is not installed.
 - `bench build`: not executed because the Bench wrapper/runtime is unavailable.
 - Browser/UI smoke tests: not executed because no working Desk site/browser harness is available.

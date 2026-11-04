@@ -7,7 +7,9 @@
   "insert_after": "academic_year",
   "label": "School",
   "module": "Padars",
-  "options": "School"
+  "name": "Program Enrollment-padars_school",
+  "options": "School",
+  "reqd": 1
  },
  {
   "doctype": "Custom Field",
@@ -17,7 +19,22 @@
   "insert_after": "academic_year",
   "label": "School",
   "module": "Padars",
-  "options": "School"
+  "name": "Student Group-padars_school",
+  "options": "School",
+  "reqd": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Course Schedule",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "student_group",
+  "label": "School",
+  "module": "Padars",
+  "name": "Course Schedule-padars_school",
+  "options": "School",
+  "read_only": 1,
+  "reqd": 1
  },
  {
   "doctype": "Custom Field",
@@ -27,7 +44,21 @@
   "insert_after": "student_group",
   "label": "School Course Offering",
   "module": "Padars",
+  "name": "Course Schedule-padars_course_offering",
   "options": "School Course Offering"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Plan",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School",
+  "module": "Padars",
+  "name": "Assessment Plan-padars_school",
+  "options": "School",
+  "read_only": 1,
+  "reqd": 1
  },
  {
   "doctype": "Custom Field",
@@ -37,7 +68,21 @@
   "insert_after": "academic_year",
   "label": "School Course Offering",
   "module": "Padars",
+  "name": "Assessment Plan-padars_course_offering",
   "options": "School Course Offering"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Result",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School",
+  "module": "Padars",
+  "name": "Assessment Result-padars_school",
+  "options": "School",
+  "read_only": 1,
+  "reqd": 1
  },
  {
   "doctype": "Custom Field",
@@ -47,6 +92,20 @@
   "insert_after": "academic_year",
   "label": "School Course Offering",
   "module": "Padars",
+  "name": "Assessment Result-padars_course_offering",
   "options": "School Course Offering"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Student Attendance",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "student_group",
+  "label": "School",
+  "module": "Padars",
+  "name": "Student Attendance-padars_school",
+  "options": "School",
+  "read_only": 1,
+  "reqd": 1
  }
 ]

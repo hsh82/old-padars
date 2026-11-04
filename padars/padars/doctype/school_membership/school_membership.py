@@ -10,8 +10,10 @@ class SchoolMembership(Document):
 			frappe.throw(_("A membership must identify a User or Instructor."))
 		if not frappe.db.exists("School", {"name": self.school, "status": "Active"}):
 			frappe.throw(_("Membership School {0} does not exist or is inactive.").format(self.school))
-		if self.school_role in {"Student", "Guardian", "School Administrator"} and not self.user:
+		if self.school_role in {"Student", "Guardian", "School Administrator", "Academic Staff"} and not self.user:
 			frappe.throw(_("This School Role requires a User."))
+		if self.school_role == "Teacher" and (not self.user or not self.instructor):
+			frappe.throw(_("A Teacher membership requires both a User and an Instructor."))
 		if self.school_role in {"Academic Staff", "Teacher"} and not self.instructor:
 			frappe.throw(_("This School Role requires an Instructor."))
 		if self.valid_from and self.valid_to and getdate(self.valid_from) > getdate(self.valid_to):
@@ -22,12 +24,13 @@ class SchoolMembership(Document):
 		filters = {
 			"school": self.school,
 			"school_role": self.school_role,
-			"status": "Active",
 			"name": ["!=", self.name],
 		}
+		# The database uniqueness constraint mirrors this identity and prevents
+		# races; this friendly validation produces a useful Desk error first.
 		if self.user:
 			filters["user"] = self.user
-		if self.instructor:
+		elif self.instructor:
 			filters["instructor"] = self.instructor
 		if frappe.db.exists("School Membership", filters):
 			frappe.throw(_("This active school membership already exists."))

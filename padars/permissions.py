@@ -187,3 +187,8 @@ def has_school_permission(doc, ptype, user=None):
 
 	return school in (get_user_schools(user) or [])
 
+
+# Stage 1 replaces the earlier school-only filter with actor-aware, fail-closed
+# authorization.  Keep this module path stable for hooks and downstream apps.
+from padars.permissions_stage1 import *  # noqa: E402,F403
+

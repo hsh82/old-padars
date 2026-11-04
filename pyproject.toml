@@ -4,7 +4,7 @@ authors = [
     { name = "HSH82", email = "sh.hamed1254@gmail.com"}
 ]
 description = "A Tms-lms manger for Managing Online schools. Using Moodle lms[mutms],based on education"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<3.15"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [

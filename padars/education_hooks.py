@@ -24,16 +24,20 @@ def validate_student_identity(doc, method=None):
 
 
 def validate_program_enrollment(doc, method=None):
-	if not frappe.get_meta("Program Enrollment").has_field("padars_school") or not doc.padars_school:
-		return
+	if not frappe.get_meta("Program Enrollment").has_field("padars_school"):
+		frappe.throw(_("Padars School context is not installed. Run migrate before creating enrollments."))
+	if not doc.padars_school:
+		frappe.throw(_("School is required for Program Enrollment."))
 
 	_validate_school_context(doc.padars_school)
 	_validate_student_membership(doc.student, doc.padars_school)
 
 
 def validate_student_group(doc, method=None):
-	if not frappe.get_meta("Student Group").has_field("padars_school") or not doc.padars_school:
-		return
+	if not frappe.get_meta("Student Group").has_field("padars_school"):
+		frappe.throw(_("Padars School context is not installed. Run migrate before creating student groups."))
+	if not doc.padars_school:
+		frappe.throw(_("School is required for Student Group."))
 
 	_validate_school_context(doc.padars_school)
 	for row in doc.students:
@@ -92,17 +96,24 @@ def _validate_student_membership(student, school, academic_year=None, program=No
 
 
 def validate_linked_education_context(doc, method=None):
+	if not frappe.get_meta(doc.doctype).has_field("padars_school"):
+		frappe.throw(_("Padars School context is not installed. Run migrate before saving this record."))
+
 	if doc.doctype == "Student Attendance":
 		school = frappe.db.get_value("Student Group", doc.student_group, "padars_school")
-		if school:
-			_validate_school_context(school)
+		if not school:
+			frappe.throw(_("Student Attendance requires a Student Group with a School."))
+		if doc.padars_school and doc.padars_school != school:
+			frappe.throw(_("Student Attendance School must match its Student Group."))
+		doc.padars_school = school
+		_validate_school_context(school)
 		return
 
 	if not frappe.get_meta(doc.doctype).has_field("padars_course_offering"):
-		return
+		frappe.throw(_("Padars Course Offering context is not installed. Run migrate before saving this record."))
 	offering_name = doc.get("padars_course_offering")
 	if not offering_name:
-		return
+		frappe.throw(_("School Course Offering is required for this record."))
 	offering = frappe.db.get_value(
 		"School Course Offering",
 		offering_name,
@@ -112,6 +123,9 @@ def validate_linked_education_context(doc, method=None):
 	if not offering:
 		frappe.throw(_("School Course Offering {0} does not exist.").format(offering_name))
 	_validate_school_context(offering.school)
+	if doc.padars_school and doc.padars_school != offering.school:
+		frappe.throw(_("School must match School Course Offering {0}.").format(offering_name))
+	doc.padars_school = offering.school
 	for field in ("academic_year", "program", "course", "student_group"):
 		if doc.get(field) and doc.get(field) != offering.get(field):
 			frappe.throw(

@@ -6,6 +6,13 @@ Updated: 2026-11-04
 
 | ID | Severity | Defect | Fix |
 | --- | --- | --- | --- |
+| PAD-014 | Blocker | A Student or Teacher with ordinary Education roles could list/read other pupils' records in the same school because the earlier hook treated any membership as broad school access. | Replaced it with actor-aware, fail-closed list and direct-document checks; student own-record and teacher assigned-group rules have regression coverage. |
+| PAD-015 | Blocker | Education roster, attendance, applicant-enrollment, and report-card RPC endpoints accepted caller-controlled identifiers or used unscoped queries. | Added narrow `override_whitelisted_methods`: scoped roster/attendance reads require authorized groups; unsafe generic and write/report paths fail closed pending reviewed services. |
+| PAD-016 | High | Custom Field fixture could not migrate because records lacked required fixture names. | Added deterministic names; migration was rerun successfully on `stage1.local`. |
+| PAD-017 | High | Required school context fields, scoped roles, and supporting database constraints were not synchronized or guarded by migration checks. | Added named fixtures, role patch/install hook, duplicate preflight, unique constraints, and lookup indexes; validated on the disposable site. |
+
+| ID | Severity | Defect | Fix |
+| --- | --- | --- | --- |
 | PAD-001 | High | Education Program Enrollment and Student Group records were not included in Padars school query conditions. | Added school-aware permission query and direct permission hooks, with safe handling for optional fixture fields. |
 | PAD-002 | High | A mapping could identify one School while pointing at an unrelated local record or arbitrary DocType. | Restricted local mapping types and validate the local record's school context. |
 | PAD-003 | High | LMS Enrollment State validated only the Course Offering school, not the enrolled User or role. | Require active school membership and role-compatible Student/Instructor identity. |
@@ -24,3 +31,4 @@ Updated: 2026-11-04
 | PAD-011 | High | Database-backed multi-school and browser tests cannot run locally. | Repair the Bench Python/MariaDB runtime and run the isolated-site test plan. |
 | PAD-012 | Blocker | No named non-production staging site or verified Frappe deployment service was discovered. | Provision/identify an isolated staging site and document its authorized deployment owner before running migrations or backups. |
 | PAD-013 | Medium | Checked-out Education repository is tagged `v16.1.0` but its `__version__` string reports `16.0.1`. | Resolve the upstream/package metadata discrepancy in the pinned build, without editing upstream source in Padars. |
+| PAD-018 | High | ERPNext test-fixture preload on the disposable site fails on an existing duplicate `_Test Opening Invoice Company`, preventing the full Frappe runner from reaching Padars tests. | Repair/recreate only the disposable test site or upstream fixture state, then rerun the full Stage 1 suite. No Padars test is marked passed from that runner attempt. |

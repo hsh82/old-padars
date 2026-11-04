@@ -43,6 +43,13 @@ frappe.ui.form.on("Student Group", {
   },
 
   refresh(frm) {
+	// Education's generic roster action has no school context. It is replaced
+	// server-side with a fail-closed endpoint; leave the scoped Link query as
+	// the supported way to add individually selected students.
+	frm.remove_custom_button(__("Get Students"));
+	if (frm.fields_dict.get_students) {
+		frm.set_df_property("get_students", "hidden", 1);
+	}
     if (!frm.doc.max_strength || !frm.doc.students) return;
     if (frm.doc.students.length >= frm.doc.max_strength) {
       frm.dashboard.set_headline_alert(

@@ -1,7 +1,13 @@
 import frappe
 from frappe import _
 
-from padars.permissions import get_user_schools, has_school_access, is_school_admin
+from padars.permissions import (
+	can_manage_school,
+	get_user_schools,
+	has_school_access,
+	is_platform_admin,
+	is_school_manager,
+)
 
 from padars.integrations.moodle.service import (
 	request_enrollment_sync as create_enrollment_sync,
@@ -15,7 +21,8 @@ from padars.integrations.moodle.service import (
 @frappe.whitelist()
 def request_course_offering_sync(course_offering):
 	offering = frappe.get_doc("School Course Offering", course_offering)
-	offering.check_permission("read")
+	if not is_school_manager(offering.school):
+		frappe.throw(_("Only a School Manager can request Moodle course provisioning."), frappe.PermissionError)
 	operation = create_course_offering_sync(offering)
 	return operation.as_dict()
 
@@ -23,23 +30,26 @@ def request_course_offering_sync(course_offering):
 @frappe.whitelist()
 def retry_sync_operation(operation):
 	operation_doc = frappe.get_doc("LMS Sync Operation", operation)
-	operation_doc.check_permission("write")
+	if not is_school_manager(operation_doc.school):
+		frappe.throw(_("Only a School Manager can retry a synchronization operation."), frappe.PermissionError)
 	return retry_operation(operation_doc.name).as_dict()
 
 
 @frappe.whitelist()
 def request_school_tenant_sync(school):
 	school_doc = frappe.get_doc("School", school)
-	school_doc.check_permission("read")
+	if not is_platform_admin():
+		frappe.throw(_("Only a Platform Administrator can provision a Moodle tenant."), frappe.PermissionError)
 	return create_school_tenant_sync(school_doc).as_dict()
 
 
 @frappe.whitelist()
 def request_student_user_provisioning(student, school):
 	student_doc = frappe.get_doc("Student", student)
-	student_doc.check_permission("read")
-	if not has_school_access(school):
+	if not is_school_manager(school):
 		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
+	if not frappe.db.exists("School Membership", {"school": school, "user": student_doc.user, "school_role": "Student", "status": "Active"}):
+		frappe.throw(_("Student {0} is not an active member of School {1}.").format(student, school), frappe.PermissionError)
 	if not student_doc.user:
 		frappe.throw(_("Student {0} does not have a linked Frappe User yet.").format(student))
 	return create_user_sync(frappe.get_doc("User", student_doc.user), frappe.get_doc("School", school)).as_dict()
@@ -48,14 +58,15 @@ def request_student_user_provisioning(student, school):
 @frappe.whitelist()
 def request_enrollment_state_sync(enrollment_state):
 	enrollment_doc = frappe.get_doc("LMS Enrollment State", enrollment_state)
-	enrollment_doc.check_permission("read")
+	if not is_school_manager(enrollment_doc.school):
+		frappe.throw(_("Only a School Manager can request enrollment synchronization."), frappe.PermissionError)
 	return create_enrollment_sync(enrollment_doc).as_dict()
 
 
 @frappe.whitelist()
 def get_authorized_schools():
 	"""Return only active schools available to the current user for frontend context."""
-	if is_school_admin():
+	if is_platform_admin():
 		filters = {"status": "Active"}
 	else:
 		schools = get_user_schools() or []
@@ -79,7 +90,7 @@ def _get_link_query_filters(filters):
 
 
 def _require_school_context(school):
-	if not school or not has_school_access(school):
+	if not school or not can_manage_school(school):
 		frappe.throw(_("You do not have access to this School."), frappe.PermissionError)
 
 

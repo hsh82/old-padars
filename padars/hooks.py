@@ -26,9 +26,24 @@ doctype_js = {
 	"School Course Offering": "public/js/school_course_offering.js",
 }
 
+# Education's generic RPC surface predates Padars' shared-site tenancy model.
+# These narrow replacements validate an explicit school/group context or fail
+# closed; upstream source is never modified.
+override_whitelisted_methods = {
+	"education.education.api.enroll_student": "padars.education_api.enroll_student",
+	"education.education.api.check_attendance_records_exist": "padars.education_api.check_attendance_records_exist",
+	"education.education.api.mark_attendance": "padars.education_api.mark_attendance",
+	"education.education.doctype.student_group.student_group.get_students": "padars.education_api.get_students",
+	"education.education.doctype.student_group.student_group.fetch_students": "padars.education_api.fetch_school_group_students",
+	"education.education.doctype.student_attendance_tool.student_attendance_tool.get_student_attendance_records": "padars.education_api.get_student_attendance_records",
+	"education.education.doctype.student_report_generation_tool.student_report_generation_tool.preview_report_card": "padars.education_api.preview_report_card",
+}
+
 fixtures = [
 	{"dt": "Custom Field", "filters": [["module", "=", "Padars"]]},
 ]
+
+after_install = "padars.install.after_install"
 
 permission_query_conditions = {
 	"School": "padars.permissions.school_permission_query_conditions",

@@ -7,6 +7,24 @@ app_license = "mit"
 
 required_apps = ["education"]
 
+app_include_js = [
+	"/assets/padars/js/common/school_context.js",
+	"/assets/padars/js/common/lms_sync.js",
+]
+app_include_css = "/assets/padars/css/padars.css"
+
+doctype_js = {
+	"Student": "public/js/education/student.js",
+	"Program Enrollment": "public/js/education/program_enrollment.js",
+	"Student Group": "public/js/education/student_group.js",
+	"Course Schedule": "public/js/education/course_schedule.js",
+	"Assessment Plan": "public/js/education/assessment_plan.js",
+	"Assessment Result": "public/js/education/assessment_result.js",
+	"Student Attendance": "public/js/education/student_attendance.js",
+	"Assessment Result Tool": "public/js/education/assessment_result_tool.js",
+	"School Course Offering": "public/js/school_course_offering.js",
+}
+
 fixtures = [
 	{"dt": "Custom Field", "filters": [["module", "=", "Padars"]]},
 ]

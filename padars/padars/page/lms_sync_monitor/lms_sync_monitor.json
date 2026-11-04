@@ -1,0 +1,15 @@
+{
+ "content": null,
+ "creation": "2026-11-04 00:00:00",
+ "docstatus": 0,
+ "doctype": "Page",
+ "module": "Padars",
+ "name": "lms-sync-monitor",
+ "page_name": "lms-sync-monitor",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "Education Manager"}
+ ],
+ "standard": "Yes",
+ "title": "LMS Synchronization Monitor"
+}

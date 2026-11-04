@@ -12,6 +12,9 @@ Updated: 2026-11-04
 - Mock Moodle adapter and course-offering sync service added with idempotency, mapping, retry, and failure persistence.
 - Focused tests added for DocType validation, direct school-permission conditions, idempotent mock provisioning, failure recording, and retry-to-success behavior.
 - CI updated to install ERPNext and Education before Padars on clean test sites.
+- Junior School frontend audit completed at commit `3567e3f11c1ac553929f9bd3b111c306fe689d60`; AGPL source was used only as a reference.
+- Frontend assets added for school-aware Education forms, Course Offering synchronization actions, and the LMS Synchronization Monitor page.
+- Frontend JavaScript syntax checks and two dependency-free shared-helper smoke tests pass.
 
 ## Verified
 
@@ -24,10 +27,11 @@ Updated: 2026-11-04
 
 - Database-backed Frappe tests and migration are not yet executed: the Bench virtualenv wrappers point to `/workspace/frappe-bench`, and the host cannot load `libmariadb.so.3`; the configured DB hostname is also environment-specific.
 - Ruff is not installed in the available runtime, so the configured lint command was not executed.
+- Browser behavior, asset build, and database-backed frontend tests remain unexecuted because the local Bench runtime/site is unavailable; the focused Node smoke tests are passing.
 - Padars is not installed on `kara.loc`; no schema or data was changed there.
 - Live Moodle/MuTMS API, tenant/category mapping, and SSO contract are not available, so only the mock adapter is implemented.
 
 ## Next milestone
 
-Install Padars on an isolated disposable site with a working Frappe/MariaDB runtime, run migrations and `bench --site <site> run-tests --app padars`, then add the student/teacher provisioning vertical slice.
+Install Padars on an isolated disposable site with a working Frappe/MariaDB runtime, run migrations and `bench --site <site> run-tests --app padars`, then run browser smoke tests for Course Offering → LMS Monitor.
 

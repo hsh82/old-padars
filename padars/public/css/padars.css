@@ -1,0 +1,44 @@
+.padars-sync-monitor {
+  --padars-status-pending: var(--orange-500);
+  --padars-status-running: var(--blue-500);
+  --padars-status-success: var(--green-600);
+  --padars-status-failed: var(--red-600);
+}
+
+.padars-sync-monitor .padars-sync-table {
+  direction: inherit;
+}
+
+.padars-sync-monitor .padars-status-badge {
+  border-radius: var(--border-radius-sm);
+  display: inline-block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 2px 8px;
+}
+
+.padars-sync-monitor .padars-status-pending {
+  background: var(--orange-100);
+  color: var(--padars-status-pending);
+}
+
+.padars-sync-monitor .padars-status-running {
+  background: var(--blue-100);
+  color: var(--padars-status-running);
+}
+
+.padars-sync-monitor .padars-status-success {
+  background: var(--green-100);
+  color: var(--padars-status-success);
+}
+
+.padars-sync-monitor .padars-status-failed {
+  background: var(--red-100);
+  color: var(--padars-status-failed);
+}
+
+.padars-sync-monitor .padars-sync-error {
+  color: var(--red-600);
+  max-width: 360px;
+  white-space: normal;
+}

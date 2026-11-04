@@ -30,6 +30,11 @@ def get_user_schools(user=None):
 	)
 
 
+def has_school_access(school, user=None):
+	user = user or frappe.session.user
+	return is_school_admin(user) or school in (get_user_schools(user) or [])
+
+
 def school_permission_query_conditions(user=None, doctype=None):
 	user = user or frappe.session.user
 	if is_school_admin(user):

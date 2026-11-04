@@ -4,8 +4,14 @@
 
 ```bash
 ruff check .
+find padars -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+node --test tests/frontend/*.test.js
+python3 -m compileall -q padars
+find padars -type f -name '*.json' -print0 | xargs -0 -n1 jq empty
 git diff --check
 ```
+
+The dependency-free frontend smoke tests cover shared school-context and LMS status helpers. They do not replace browser tests against a running Desk site.
 
 ## Database-backed checks
 

@@ -88,9 +88,13 @@ jobs:
       - name: Install
         working-directory: /home/runner/frappe-bench
         run: |
+          bench get-app erpnext https://github.com/frappe/erpnext --branch version-16
+          bench get-app education https://github.com/frappe/education --branch version-16
           bench get-app padars $GITHUB_WORKSPACE
           bench setup requirements --dev
           bench new-site --db-root-password root --admin-password admin test_site
+          bench --site test_site install-app erpnext
+          bench --site test_site install-app education
           bench --site test_site install-app padars
           bench build
         env:

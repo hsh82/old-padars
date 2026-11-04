@@ -5,6 +5,35 @@ app_description = "A Tms-lms manger for Managing Online schools. Using Moodle lm
 app_email = "sh.hamed1254@gmail.com"
 app_license = "mit"
 
+required_apps = ["education"]
+
+fixtures = [
+	{"dt": "Custom Field", "filters": [["module", "=", "Padars"]]},
+]
+
+permission_query_conditions = {
+	"School": "padars.permissions.school_permission_query_conditions",
+	"School Membership": "padars.permissions.school_permission_query_conditions",
+	"School Course Offering": "padars.permissions.school_permission_query_conditions",
+	"LMS Entity Mapping": "padars.permissions.school_permission_query_conditions",
+	"LMS Enrollment State": "padars.permissions.school_permission_query_conditions",
+	"LMS Sync Operation": "padars.permissions.school_permission_query_conditions",
+}
+
+has_permission = {
+	"School": "padars.permissions.has_school_permission",
+	"School Membership": "padars.permissions.has_school_permission",
+	"School Course Offering": "padars.permissions.has_school_permission",
+	"LMS Entity Mapping": "padars.permissions.has_school_permission",
+	"LMS Enrollment State": "padars.permissions.has_school_permission",
+	"LMS Sync Operation": "padars.permissions.has_school_permission",
+}
+
+doc_events = {
+	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
+	"Student Group": {"validate": "padars.education_hooks.validate_student_group"},
+}
+
 # Apps
 # ------------------
 

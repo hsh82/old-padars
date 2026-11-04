@@ -1,0 +1,26 @@
+{
+ "actions": [],
+ "autoname": "format:PAD-MEM-{#####}",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["school", "user", "instructor", "school_role", "status", "valid_from", "valid_to"],
+ "fields": [
+  {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User"},
+  {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor"},
+  {"fieldname": "school_role", "fieldtype": "Select", "in_list_view": 1, "label": "School Role", "options": "School Administrator\nAcademic Staff\nTeacher\nStudent\nGuardian", "reqd": 1},
+  {"default": "Active", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "label": "Status", "options": "Active\nInactive", "reqd": 1},
+  {"fieldname": "valid_from", "fieldtype": "Date", "label": "Valid From"},
+  {"fieldname": "valid_to", "fieldtype": "Date", "label": "Valid To"}
+ ],
+ "module": "Padars",
+ "name": "School Membership",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

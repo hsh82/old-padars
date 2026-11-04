@@ -1,0 +1,31 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "school", "operation_type", "target_doctype", "target_name", "idempotency_key", "state", "attempt_count", "last_attempt_at", "next_retry_at", "last_error", "diagnostics"],
+ "fields": [
+  {"default": "PAD-SYNC-.YYYY.-", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-SYNC-.YYYY.-"},
+  {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
+  {"fieldname": "operation_type", "fieldtype": "Select", "in_list_view": 1, "label": "Operation Type", "options": "Provision Tenant\nProvision User\nProvision Course\nSync Enrollment", "reqd": 1},
+  {"fieldname": "target_doctype", "fieldtype": "Link", "label": "Target DocType", "options": "DocType", "reqd": 1},
+  {"fieldname": "target_name", "fieldtype": "Dynamic Link", "label": "Target Record", "options": "target_doctype", "reqd": 1},
+  {"fieldname": "idempotency_key", "fieldtype": "Data", "in_list_view": 1, "label": "Idempotency Key", "reqd": 1, "unique": 1},
+  {"default": "Pending", "fieldname": "state", "fieldtype": "Select", "in_list_view": 1, "label": "State", "options": "Pending\nQueued\nRunning\nSucceeded\nFailed", "reqd": 1},
+  {"default": "0", "fieldname": "attempt_count", "fieldtype": "Int", "label": "Attempt Count"},
+  {"fieldname": "last_attempt_at", "fieldtype": "Datetime", "label": "Last Attempt At"},
+  {"fieldname": "next_retry_at", "fieldtype": "Datetime", "label": "Next Retry At"},
+  {"fieldname": "last_error", "fieldtype": "Small Text", "label": "Last Error"},
+  {"fieldname": "diagnostics", "fieldtype": "Code", "label": "Diagnostics", "options": "JSON"}
+ ],
+ "module": "Padars",
+ "name": "LMS Sync Operation",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

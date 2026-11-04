@@ -1,0 +1,28 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "school", "local_doctype", "local_name", "remote_type", "remote_id", "remote_context", "status", "last_verified_at"],
+ "fields": [
+  {"default": "PAD-MAP-.#####", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-MAP-.#####"},
+  {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
+  {"fieldname": "local_doctype", "fieldtype": "Link", "label": "Local DocType", "options": "DocType", "reqd": 1},
+  {"fieldname": "local_name", "fieldtype": "Dynamic Link", "in_list_view": 1, "label": "Local Record", "options": "local_doctype", "reqd": 1},
+  {"fieldname": "remote_type", "fieldtype": "Data", "label": "Remote Type", "reqd": 1},
+  {"fieldname": "remote_id", "fieldtype": "Data", "in_list_view": 1, "label": "Remote ID", "reqd": 1},
+  {"fieldname": "remote_context", "fieldtype": "Data", "label": "Remote Context", "reqd": 1},
+  {"default": "Active", "fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Active\nDisabled", "reqd": 1},
+  {"fieldname": "last_verified_at", "fieldtype": "Datetime", "label": "Last Verified At"}
+ ],
+ "module": "Padars",
+ "name": "LMS Entity Mapping",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

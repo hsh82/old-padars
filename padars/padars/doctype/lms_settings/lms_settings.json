@@ -1,0 +1,21 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["enabled", "adapter", "base_url", "api_token", "tenant_strategy"],
+ "fields": [
+  {"default": "1", "fieldname": "enabled", "fieldtype": "Check", "label": "Enabled"},
+  {"default": "Mock", "fieldname": "adapter", "fieldtype": "Select", "label": "Adapter", "options": "Mock\nMoodle", "reqd": 1},
+  {"fieldname": "base_url", "fieldtype": "Data", "label": "Base URL", "options": "URL"},
+  {"fieldname": "api_token", "fieldtype": "Password", "label": "API Token"},
+  {"default": "External Tenant", "fieldname": "tenant_strategy", "fieldtype": "Select", "label": "Tenant Strategy", "options": "External Tenant\nMoodle Category", "reqd": 1}
+ ],
+ "issingle": 1,
+ "module": "Padars",
+ "name": "LMS Settings",
+ "permissions": [
+  {"create": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+ ]
+}

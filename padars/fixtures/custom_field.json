@@ -1,0 +1,52 @@
+[
+ {
+  "doctype": "Custom Field",
+  "dt": "Program Enrollment",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School",
+  "module": "Padars",
+  "options": "School"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Student Group",
+  "fieldname": "padars_school",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School",
+  "module": "Padars",
+  "options": "School"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Course Schedule",
+  "fieldname": "padars_course_offering",
+  "fieldtype": "Link",
+  "insert_after": "student_group",
+  "label": "School Course Offering",
+  "module": "Padars",
+  "options": "School Course Offering"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Plan",
+  "fieldname": "padars_course_offering",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School Course Offering",
+  "module": "Padars",
+  "options": "School Course Offering"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Result",
+  "fieldname": "padars_course_offering",
+  "fieldtype": "Link",
+  "insert_after": "academic_year",
+  "label": "School Course Offering",
+  "module": "Padars",
+  "options": "School Course Offering"
+ }
+]

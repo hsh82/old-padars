@@ -1,0 +1,31 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "school", "academic_year", "program", "course", "student_group", "instructor", "offering_identifier", "status", "description"],
+ "fields": [
+  {"default": "PAD-OFF-.YYYY.-", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-OFF-.YYYY.-"},
+  {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
+  {"fieldname": "academic_year", "fieldtype": "Link", "in_list_view": 1, "label": "Academic Year", "options": "Academic Year", "reqd": 1},
+  {"fieldname": "program", "fieldtype": "Link", "label": "Program", "options": "Program", "reqd": 1},
+  {"fieldname": "course", "fieldtype": "Link", "in_list_view": 1, "label": "Course", "options": "Course", "reqd": 1},
+  {"fieldname": "student_group", "fieldtype": "Link", "in_list_view": 1, "label": "Student Group", "options": "Student Group", "reqd": 1},
+  {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor"},
+  {"fieldname": "offering_identifier", "fieldtype": "Data", "in_list_view": 1, "label": "Offering Identifier", "reqd": 1},
+  {"default": "Draft", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "label": "Status", "options": "Draft\nActive\nArchived", "reqd": 1},
+  {"fieldname": "description", "fieldtype": "Small Text", "label": "Description"}
+ ],
+ "module": "Padars",
+ "name": "School Course Offering",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"},
+  {"read": 1, "role": "Instructor"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

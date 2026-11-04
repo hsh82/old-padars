@@ -1,0 +1,27 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:school_code",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["school_code", "school_name", "status", "current_academic_year", "company", "configuration"],
+ "fields": [
+  {"fieldname": "school_code", "fieldtype": "Data", "in_list_view": 1, "label": "School Code", "reqd": 1, "unique": 1},
+  {"fieldname": "school_name", "fieldtype": "Data", "in_list_view": 1, "label": "School Name", "reqd": 1},
+  {"default": "Active", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "label": "Status", "options": "Active\nInactive", "reqd": 1},
+  {"fieldname": "current_academic_year", "fieldtype": "Link", "label": "Current Academic Year", "options": "Academic Year"},
+  {"fieldname": "company", "fieldtype": "Link", "label": "Company", "options": "Company"},
+  {"fieldname": "configuration", "fieldtype": "Code", "label": "Configuration", "options": "JSON"}
+ ],
+ "module": "Padars",
+ "name": "School",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"},
+  {"read": 1, "role": "Academics User"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

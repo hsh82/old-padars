@@ -1,0 +1,28 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-04 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "school", "user", "course_offering", "role", "desired_state", "remote_state", "last_verified_at", "last_error"],
+ "fields": [
+  {"default": "PAD-ENR-.#####", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-ENR-.#####"},
+  {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "reqd": 1},
+  {"fieldname": "course_offering", "fieldtype": "Link", "in_list_view": 1, "label": "Course Offering", "options": "School Course Offering", "reqd": 1},
+  {"default": "Student", "fieldname": "role", "fieldtype": "Select", "label": "Role", "options": "Student\nTeacher", "reqd": 1},
+  {"default": "Enrolled", "fieldname": "desired_state", "fieldtype": "Select", "label": "Desired State", "options": "Enrolled\nNot Enrolled", "reqd": 1},
+  {"default": "Unknown", "fieldname": "remote_state", "fieldtype": "Select", "label": "Remote State", "options": "Unknown\nEnrolled\nNot Enrolled", "reqd": 1},
+  {"fieldname": "last_verified_at", "fieldtype": "Datetime", "label": "Last Verified At"},
+  {"fieldname": "last_error", "fieldtype": "Small Text", "label": "Last Error"}
+ ],
+ "module": "Padars",
+ "name": "LMS Enrollment State",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

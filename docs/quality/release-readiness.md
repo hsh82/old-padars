@@ -8,6 +8,8 @@ Updated: 2026-11-04
 
 The code contains a coherent mock-backed vertical slice and strengthened school isolation, but essential acceptance workflows remain unimplemented or unverified. The local environment cannot run migrations, Frappe tests, browser tests, or live MuTMS verification.
 
+The canonical 39-ID traceability and deployment-specific decision are maintained in `docs/releases/phase1-requirements-matrix.md` and `docs/releases/phase1-release-readiness.md`.
+
 ## Acceptance checklist
 
 ### Academic core

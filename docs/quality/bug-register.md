@@ -22,3 +22,5 @@ Updated: 2026-11-04
 | PAD-009 | Blocker | No report-card publication/versioning service. | Approve publication model and workflow before adding student-facing controls. |
 | PAD-010 | High | Live MuTMS adapter and SSO contract are unavailable. | Confirm tenant, category, user, role, enrollment, and SSO API contracts in a sandbox. |
 | PAD-011 | High | Database-backed multi-school and browser tests cannot run locally. | Repair the Bench Python/MariaDB runtime and run the isolated-site test plan. |
+| PAD-012 | Blocker | No named non-production staging site or verified Frappe deployment service was discovered. | Provision/identify an isolated staging site and document its authorized deployment owner before running migrations or backups. |
+| PAD-013 | Medium | Checked-out Education repository is tagged `v16.1.0` but its `__version__` string reports `16.0.1`. | Resolve the upstream/package metadata discrepancy in the pinned build, without editing upstream source in Padars. |

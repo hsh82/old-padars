@@ -33,6 +33,8 @@ Updated: 2026-11-04
 - Padars is not installed on `kara.loc`; no schema or data was changed there.
 - Live Moodle/MuTMS API, tenant/category mapping, and SSO contract are not available, so only the mock adapter is implemented.
 - Phase 1 release assessment is `NOT READY`: bulk registration, report-card publication/versioning, student portal access, SSO, and live MuTMS verification remain incomplete.
+- Canonical Phase 1 roadmap located at `docs/input/Padars_Phase1_Requirements_and_MVP_Plan.md`; the 39 committed IDs are traced in `docs/releases/phase1-requirements-matrix.md`.
+- Deployment discovery found only the development site `kara.loc`; no named staging site or running Frappe web/worker service was verified. No migration, backup, install, restart, or deployment command was run.
 
 ## Next milestone
 

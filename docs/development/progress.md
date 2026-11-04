@@ -15,6 +15,8 @@ Updated: 2026-11-04
 - Junior School frontend audit completed at commit `3567e3f11c1ac553929f9bd3b111c306fe689d60`; AGPL source was used only as a reference.
 - Frontend assets added for school-aware Education forms, Course Offering synchronization actions, and the LMS Synchronization Monitor page.
 - Frontend JavaScript syntax checks and two dependency-free shared-helper smoke tests pass.
+- Phase 1 audit, defect register, test results, and release-readiness assessment added under `docs/quality/`.
+- School isolation was extended to supported Education records; Student identity reuse, mock tenant/user/enrollment operations, retry limits, and stale-worker recovery were added.
 
 ## Verified
 
@@ -30,6 +32,7 @@ Updated: 2026-11-04
 - Browser behavior, asset build, and database-backed frontend tests remain unexecuted because the local Bench runtime/site is unavailable; the focused Node smoke tests are passing.
 - Padars is not installed on `kara.loc`; no schema or data was changed there.
 - Live Moodle/MuTMS API, tenant/category mapping, and SSO contract are not available, so only the mock adapter is implemented.
+- Phase 1 release assessment is `NOT READY`: bulk registration, report-card publication/versioning, student portal access, SSO, and live MuTMS verification remain incomplete.
 
 ## Next milestone
 

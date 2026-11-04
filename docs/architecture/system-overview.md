@@ -12,5 +12,5 @@ School ──< School Membership
                     └──> LMS Sync Operation ──> Moodle adapter ──> LMS Entity Mapping
 ```
 
-The Moodle adapter is server-side and mockable. A DocType save never performs an HTTP request. A sync request persists a local operation and enqueues processing after commit.
+The Moodle adapter is server-side and mockable. A DocType save never performs an HTTP request. Tenant, user, course, and enrollment requests persist local operations and enqueue processing after commit. The checked-in adapter is deterministic mock behavior; live MuTMS transport and SSO remain external release prerequisites.
 

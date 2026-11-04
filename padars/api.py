@@ -4,7 +4,10 @@ from frappe import _
 from padars.permissions import get_user_schools, has_school_access, is_school_admin
 
 from padars.integrations.moodle.service import (
+	request_enrollment_sync as create_enrollment_sync,
 	request_course_offering_sync as create_course_offering_sync,
+	request_school_tenant_sync as create_school_tenant_sync,
+	request_user_sync as create_user_sync,
 	retry_sync_operation as retry_operation,
 )
 
@@ -22,6 +25,31 @@ def retry_sync_operation(operation):
 	operation_doc = frappe.get_doc("LMS Sync Operation", operation)
 	operation_doc.check_permission("write")
 	return retry_operation(operation_doc.name).as_dict()
+
+
+@frappe.whitelist()
+def request_school_tenant_sync(school):
+	school_doc = frappe.get_doc("School", school)
+	school_doc.check_permission("read")
+	return create_school_tenant_sync(school_doc).as_dict()
+
+
+@frappe.whitelist()
+def request_student_user_provisioning(student, school):
+	student_doc = frappe.get_doc("Student", student)
+	student_doc.check_permission("read")
+	if not has_school_access(school):
+		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
+	if not student_doc.user:
+		frappe.throw(_("Student {0} does not have a linked Frappe User yet.").format(student))
+	return create_user_sync(frappe.get_doc("User", student_doc.user), frappe.get_doc("School", school)).as_dict()
+
+
+@frappe.whitelist()
+def request_enrollment_state_sync(enrollment_state):
+	enrollment_doc = frappe.get_doc("LMS Enrollment State", enrollment_state)
+	enrollment_doc.check_permission("read")
+	return create_enrollment_sync(enrollment_doc).as_dict()
 
 
 @frappe.whitelist()
@@ -68,6 +96,8 @@ def get_school_students(doctype, txt, searchfield, start, page_len, filters):
 		pluck="user",
 		ignore_permissions=True,
 	)
+	if not membership_users:
+		return []
 	student_filters = {"user": ["in", membership_users], "enabled": 1}
 
 	if frappe.get_meta("Program Enrollment").has_field("padars_school"):

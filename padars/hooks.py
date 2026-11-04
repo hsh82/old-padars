@@ -14,6 +14,7 @@ app_include_js = [
 app_include_css = "/assets/padars/css/padars.css"
 
 doctype_js = {
+	"School": "public/js/school.js",
 	"Student": "public/js/education/student.js",
 	"Program Enrollment": "public/js/education/program_enrollment.js",
 	"Student Group": "public/js/education/student_group.js",
@@ -36,6 +37,15 @@ permission_query_conditions = {
 	"LMS Entity Mapping": "padars.permissions.school_permission_query_conditions",
 	"LMS Enrollment State": "padars.permissions.school_permission_query_conditions",
 	"LMS Sync Operation": "padars.permissions.school_permission_query_conditions",
+	"Program Enrollment": "padars.permissions.school_permission_query_conditions",
+	"Student Group": "padars.permissions.school_permission_query_conditions",
+	"Course Enrollment": "padars.permissions.school_permission_query_conditions",
+	"Course Schedule": "padars.permissions.school_permission_query_conditions",
+	"Assessment Plan": "padars.permissions.school_permission_query_conditions",
+	"Assessment Result": "padars.permissions.school_permission_query_conditions",
+	"Student Attendance": "padars.permissions.school_permission_query_conditions",
+	"Student": "padars.permissions.school_permission_query_conditions",
+	"Instructor": "padars.permissions.school_permission_query_conditions",
 }
 
 has_permission = {
@@ -45,11 +55,29 @@ has_permission = {
 	"LMS Entity Mapping": "padars.permissions.has_school_permission",
 	"LMS Enrollment State": "padars.permissions.has_school_permission",
 	"LMS Sync Operation": "padars.permissions.has_school_permission",
+	"Program Enrollment": "padars.permissions.has_school_permission",
+	"Student Group": "padars.permissions.has_school_permission",
+	"Course Enrollment": "padars.permissions.has_school_permission",
+	"Course Schedule": "padars.permissions.has_school_permission",
+	"Assessment Plan": "padars.permissions.has_school_permission",
+	"Assessment Result": "padars.permissions.has_school_permission",
+	"Student Attendance": "padars.permissions.has_school_permission",
+	"Student": "padars.permissions.has_school_permission",
+	"Instructor": "padars.permissions.has_school_permission",
 }
 
 doc_events = {
+	"Student": {"validate": "padars.education_hooks.validate_student_identity"},
 	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
 	"Student Group": {"validate": "padars.education_hooks.validate_student_group"},
+	"Course Schedule": {"validate": "padars.education_hooks.validate_linked_education_context"},
+	"Assessment Plan": {"validate": "padars.education_hooks.validate_linked_education_context"},
+	"Assessment Result": {"validate": "padars.education_hooks.validate_linked_education_context"},
+	"Student Attendance": {"validate": "padars.education_hooks.validate_linked_education_context"},
+}
+
+scheduler_events = {
+	"hourly": ["padars.integrations.moodle.service.recover_stale_sync_operations"],
 }
 
 # Apps

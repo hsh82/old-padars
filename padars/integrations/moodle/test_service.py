@@ -4,11 +4,18 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 
 from padars.integrations.moodle.mock import MockMoodleAdapter
-from padars.integrations.moodle.service import process_sync_operation, request_course_offering_sync
+from padars.integrations.moodle.service import (
+	process_sync_operation,
+	request_course_offering_sync,
+	request_school_tenant_sync,
+)
 
 
 class FailingMoodleAdapter:
 	name = "Failing Mock"
+
+	def ensure_tenant(self, school):
+		raise RuntimeError("mock remote failure")
 
 	def create_course(self, offering):
 		raise RuntimeError("mock remote failure")
@@ -76,6 +83,21 @@ class TestMoodleService(FrappeTestCase):
 		self.assertEqual(processed.state, "Succeeded")
 		self.assertEqual(
 			frappe.db.count("LMS Entity Mapping", {"local_name": self.offering.name}), 1
+		)
+
+	def test_tenant_provisioning_is_idempotent(self):
+		with patch("frappe.enqueue"):
+			first = request_school_tenant_sync(self.school)
+			second = request_school_tenant_sync(self.school)
+		self.assertEqual(first.name, second.name)
+		processed = process_sync_operation(first.name, adapter=MockMoodleAdapter())
+		self.assertEqual(processed.state, "Succeeded")
+		self.assertEqual(
+			frappe.db.count(
+				"LMS Entity Mapping",
+				{"local_doctype": "School", "local_name": self.school.name},
+			),
+			1,
 		)
 
 	def test_failure_is_recorded_and_retry_can_succeed(self):

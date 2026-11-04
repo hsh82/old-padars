@@ -2,6 +2,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from padars.permissions import has_school_access, has_school_membership
+
 
 class SchoolCourseOffering(Document):
 	def validate(self):
@@ -15,6 +17,8 @@ class SchoolCourseOffering(Document):
 			frappe.throw(_("School {0} does not exist.").format(self.school))
 		if frappe.db.get_value("School", self.school, "status") != "Active":
 			frappe.throw(_("School {0} is not active.").format(self.school))
+		if not has_school_access(self.school):
+			frappe.throw(_("You do not have access to School {0}.").format(self.school), frappe.PermissionError)
 
 	def validate_education_context(self):
 		group = frappe.db.get_value(
@@ -34,14 +38,11 @@ class SchoolCourseOffering(Document):
 
 		if frappe.get_meta("Student Group").has_field("padars_school"):
 			group_school = frappe.db.get_value("Student Group", self.student_group, "padars_school")
-			if group_school and group_school != self.school:
+			if group_school != self.school:
 				frappe.throw(_("The Student Group belongs to another School."))
 
 	def validate_instructor_membership(self):
-		if self.instructor and not frappe.db.exists(
-			"School Membership",
-			{"school": self.school, "instructor": self.instructor, "status": "Active"},
-		):
+		if self.instructor and not has_school_membership(self.school, instructor=self.instructor):
 			frappe.throw(_("The Instructor must have an active membership in this School."))
 
 	def validate_duplicate(self):

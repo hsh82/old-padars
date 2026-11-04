@@ -18,7 +18,7 @@ Single DocType for adapter selection and server-side endpoint/token configuratio
 
 ## LMS Entity Mapping
 
-Maps a local Dynamic Link to a remote type/id inside an explicit remote context. Duplicate local and remote identities are rejected.
+Maps an approved local record type to a remote type/id inside an explicit remote context. School consistency and duplicate local/remote identities are validated; arbitrary Dynamic Link targets are rejected.
 
 ## LMS Enrollment State
 
@@ -26,5 +26,9 @@ Stores desired and observed enrollment separately, with role, verification times
 
 ## LMS Sync Operation
 
-Persistent job intent with target Dynamic Link, operation type, school, unique idempotency key, state, attempts, retry timestamp, and diagnostic text. State transitions are controlled by the controller/service.
+Persistent job intent with target Dynamic Link, operation type, school, unique idempotency key, state, attempts, retry timestamp, and diagnostic text. Supported operation/target pairs are tenant/School, user/User, course/School Course Offering, and enrollment/LMS Enrollment State. State transitions, retry exhaustion, target-school consistency, and safe diagnostics are controlled by the controller/service.
+
+## Not implemented
+
+Report Card Publication, School Enrollment, bulk import result storage, and portal/SSO session records are not present. The existing Education records remain authoritative until those contracts are approved.
 

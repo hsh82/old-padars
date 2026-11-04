@@ -36,7 +36,7 @@ class PadarsLMSMonitor {
       label: __("Entity Type"),
       fieldtype: "Select",
       fieldname: "target_doctype",
-      options: ["", "School", "User", "School Course Offering"],
+      options: ["", "School", "User", "School Course Offering", "LMS Enrollment State"],
     });
     this.targetName = this.page.add_field({
       label: __("Target Record"),

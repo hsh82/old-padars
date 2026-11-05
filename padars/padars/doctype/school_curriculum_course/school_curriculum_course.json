@@ -1,0 +1,16 @@
+{
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["course", "course_name", "required", "weekly_hours"],
+ "fields": [
+  {"fieldname": "course", "fieldtype": "Link", "in_list_view": 1, "label": "Course", "options": "Course", "reqd": 1},
+  {"fieldname": "course_name", "fieldtype": "Data", "in_list_view": 1, "label": "Course Name Snapshot", "read_only": 1},
+  {"default": "1", "fieldname": "required", "fieldtype": "Check", "in_list_view": 1, "label": "Required"},
+  {"default": "0", "fieldname": "weekly_hours", "fieldtype": "Float", "in_list_view": 1, "label": "Expected Weekly Hours"}
+ ],
+ "istable": 1,
+ "module": "Padars",
+ "name": "School Curriculum Course",
+ "permissions": []
+}

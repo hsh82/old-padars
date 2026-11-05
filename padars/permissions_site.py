@@ -13,6 +13,7 @@ STAFF_ROLES = {"Padars Academic Staff", "Padars Teacher", "Padars Grade Entry St
 MANAGER_ROLE = "Padars School Manager"
 SCOPED_DOCTYPES = {
 	"School", "School Membership", "Academic Assignment", "School Course Offering", "LMS Entity Mapping",
+	"School Curriculum Adoption",
 	"LMS Enrollment State", "LMS Sync Operation", "Program Enrollment", "Student Group", "Course Enrollment",
 	"Course Schedule", "Assessment Plan", "Assessment Result", "Student Attendance", "Student", "Instructor",
 	"Student Log", "Guardian", "Program",

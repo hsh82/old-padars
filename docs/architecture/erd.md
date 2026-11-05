@@ -3,11 +3,19 @@
 ```text
 School (school_code unique)
   ├──< School Membership >── User
+  ├──< School Curriculum Adoption >── Education Program
+  │       ├── Academic Year
+  │       └──< School Curriculum Course >── Education Course
   └──< School Course Offering >── Academic Year
                               ├── Program
                               ├── Course
                               ├── Student Group
+                              ├── Academic Term (derived when set on group)
+                              ├── School Curriculum Adoption (optional snapshot link)
                               └── Instructor
+
+Education Student Group (extended with school/class-section fields and optional
+  School Curriculum Adoption link) ── Education Program Enrollment roster
 
 School ──< LMS Sync Operation (tenant provisioning)
 User ──< LMS Sync Operation (user provisioning)

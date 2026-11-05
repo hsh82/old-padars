@@ -20,7 +20,13 @@ also requires the appropriate Frappe role and action permission.
 
 ## School Course Offering
 
-Represents one annual teaching instance. The business key is School + Academic Year + Course + Student Group. The controller verifies compatible group/year/program context and an active instructor. Teacher LMS enrollment requires a matching active academic assignment.
+Represents one annual teaching instance. The business key is School + Academic Year + Course + Student Group. The controller verifies compatible group/year/program/term context, curriculum membership for adopted class sections, and an active instructor. A curriculum-generated offering retains its adoption version and copied required-course/weekly-hours metadata. Teacher LMS enrollment requires a matching active academic assignment.
+
+## School Curriculum Adoption and School Curriculum Course
+
+An annual, school-specific snapshot of an Education Program's course template. A unique version key identifies School + Academic Year + Program + Version; at most one version is Active. Drafts can be edited, Active snapshots can only be archived, and Archived snapshots remain immutable. Child rows snapshot the Education Course link, course name, required flag, and optional expected weekly hours. Education remains authoritative for Programs and Courses.
+
+Education Student Groups marked as Padars class sections link to an active adoption at creation. School, year, Program, and term must match. A stable unique key prevents duplicate section codes within a School + year + Program. After offerings exist, the section's academic identity is fixed. Students must have a submitted Education Program Enrollment for that School, year, Program, and, when selected, term; a student can belong to only one Padars class section for that scope. Roster assignment and annual offering generation are idempotent manager actions.
 
 ## Student Identity
 

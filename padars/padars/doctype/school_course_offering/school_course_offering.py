@@ -9,6 +9,8 @@ class SchoolCourseOffering(Document):
 	def validate(self):
 		self.validate_school()
 		self.validate_education_context()
+		from padars.curriculum import validate_offering_curriculum
+		validate_offering_curriculum(self)
 		self.validate_instructor()
 		self.validate_duplicate()
 

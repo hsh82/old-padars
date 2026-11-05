@@ -16,6 +16,7 @@ web_include_js = ["/assets/padars/js/first_login.js"]
 
 doctype_js = {
 	"School": "public/js/school.js",
+	"Program": "public/js/education/program_curriculum.js",
 	"Student": "public/js/education/student.js",
 	"Program Enrollment": "public/js/education/program_enrollment.js",
 	"Student Group": "public/js/education/student_group.js",
@@ -102,6 +103,7 @@ permission_query_conditions = {
 	"Data Import": "padars.import_permissions.query_conditions",
 	"File": "padars.file_security.permission_query_conditions",
 	"User": "padars.user_permissions.query_conditions",
+	"School Curriculum Adoption": "padars.curriculum_permissions.query_conditions",
 	"School": "padars.permissions.school_permission_query_conditions",
 	"School Membership": "padars.permissions.school_permission_query_conditions",
 	"School Course Offering": "padars.permissions.school_permission_query_conditions",
@@ -127,6 +129,7 @@ has_permission = {
 	"Data Import": "padars.import_permissions.has_permission",
 	"File": "padars.file_security.has_permission",
 	"User": "padars.user_permissions.has_permission",
+	"School Curriculum Adoption": "padars.curriculum_permissions.has_permission",
 	"School": "padars.permissions.has_school_permission",
 	"School Membership": "padars.permissions.has_school_permission",
 	"School Course Offering": "padars.permissions.has_school_permission",
@@ -164,6 +167,7 @@ doc_events = {
 	"DocShare": {"validate": "padars.file_security.validate_share"},
 	"Student": {"validate": "padars.education_hooks.validate_student_identity", "on_update": "padars.student_identity.attach_matching_user"},
 	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
+	"Program": {"validate": "padars.curriculum.validate_program"},
 	"Student Group": {"validate": "padars.education_hooks.validate_student_group"},
 	"Course Schedule": {"validate": "padars.education_hooks.validate_linked_education_context"},
 	"Assessment Plan": {"validate": "padars.education_hooks.validate_linked_education_context"},

@@ -1,0 +1,30 @@
+{
+ "autoname": "hash",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["adoption_title", "school", "academic_year", "program", "version", "source_program_modified", "status", "version_key", "active_key", "section_courses", "courses"],
+ "fields": [
+  {"fieldname": "adoption_title", "fieldtype": "Data", "in_list_view": 1, "label": "Adoption", "read_only": 1, "reqd": 1},
+  {"fieldname": "school", "fieldtype": "Link", "label": "School", "options": "School", "read_only": 1, "reqd": 1},
+  {"fieldname": "academic_year", "fieldtype": "Link", "in_list_view": 1, "label": "Academic Year", "options": "Academic Year", "read_only": 1, "reqd": 1},
+  {"fieldname": "program", "fieldtype": "Link", "in_list_view": 1, "label": "Program", "options": "Program", "read_only": 1, "reqd": 1},
+  {"default": "1", "fieldname": "version", "fieldtype": "Int", "label": "Version", "read_only": 1, "reqd": 1},
+  {"fieldname": "source_program_modified", "fieldtype": "Datetime", "label": "Program Template Modified", "read_only": 1},
+  {"default": "Draft", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "label": "Status", "options": "Draft\nActive\nArchived", "reqd": 1},
+  {"fieldname": "version_key", "fieldtype": "Data", "hidden": 1, "label": "Version Key", "read_only": 1, "unique": 1},
+  {"fieldname": "active_key", "fieldtype": "Data", "hidden": 1, "label": "Active Key", "read_only": 1, "unique": 1},
+  {"fieldname": "section_courses", "fieldtype": "Section Break", "label": "Curriculum Courses"},
+  {"fieldname": "courses", "fieldtype": "Table", "label": "Courses", "options": "School Curriculum Course", "reqd": 1}
+ ],
+ "module": "Padars",
+ "name": "School Curriculum Adoption",
+ "permissions": [
+  {"create": 1, "read": 1, "role": "System Manager", "write": 1},
+  {"create": 1, "read": 1, "role": "Padars Platform Administrator", "write": 1},
+  {"create": 1, "read": 1, "role": "Padars School Manager", "write": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "adoption_title",
+ "track_changes": 1
+}

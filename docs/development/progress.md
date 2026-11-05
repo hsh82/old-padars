@@ -15,6 +15,18 @@ and production release verification remain pending. The status matrix and
 backlog are in [Phase 3 results](../quality/phase3-progress.md). See also
 [student registration](../architecture/student-registration.md).
 
+## Phase 4 implementation handoff
+
+Curriculum Adoption and Offerings implementation is complete for development
+handoff. The schema migrated and 5 focused curriculum tests plus 2 existing
+Course Offering tests passed on the disposable Phase 12 site. Education's
+academic records remain authoritative; Padars stores the annual immutable
+curriculum snapshot and generates the existing Course Offering records. See
+[curriculum model](../architecture/curriculum-model.md),
+[ADR-006](../decisions/ADR-006-curriculum-adoption.md), and
+[Phase 4 results](../quality/phase4-progress.md). Comprehensive browser and
+cross-app verification is deferred to Phase 11.
+
 ## Current Phase 1–2 work
 
 Site-per-school setup, scoped academic assignments and permissions, a school

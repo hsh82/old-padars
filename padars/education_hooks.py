@@ -47,10 +47,13 @@ def validate_student_group(doc, method=None):
 			doc.padars_school,
 			academic_year=doc.academic_year,
 			program=doc.program,
+			academic_term=doc.academic_term,
 		)
 	for row in doc.instructors:
 		if row.instructor and not frappe.db.exists("Instructor", row.instructor):
 			frappe.throw(_("Instructor {0} does not exist.").format(row.instructor))
+	from padars.curriculum import validate_student_group
+	validate_student_group(doc, method)
 
 
 def _validate_school_context(school):
@@ -60,7 +63,7 @@ def _validate_school_context(school):
 		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
 
 
-def _validate_student(student, school, academic_year=None, program=None):
+def _validate_student(student, school, academic_year=None, program=None, academic_term=None):
 	student_data = frappe.db.get_value("Student", student, ["enabled"], as_dict=True)
 	if not student_data or not student_data.enabled:
 		frappe.throw(
@@ -76,6 +79,8 @@ def _validate_student(student, school, academic_year=None, program=None):
 		}
 		if program:
 			filters["program"] = program
+		if academic_term and frappe.get_meta("Program Enrollment").has_field("academic_term"):
+			filters["academic_term"] = academic_term
 		if not frappe.db.exists("Program Enrollment", filters):
 			frappe.throw(
 				_("Student {0} must have a submitted enrollment for School {1} and Academic Year {2}.").format(

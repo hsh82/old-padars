@@ -13,7 +13,8 @@ from frappe.utils import validate_email_address
 from frappe.utils.password import get_decrypted_password
 
 from padars.registration import _identity_key, _phone, _prepare, _register, _require_manager, normalize_national_id
-from padars.student_activation import _sms_configured, _sms_required
+from padars.student_activation import _queue_otp_sms, _sms_configured, _sms_required
+from padars.sensitive_requests import protect_registration_request
 
 
 def _digest(value):
@@ -34,6 +35,7 @@ def _otp_key(identity_key, phone):
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@protect_registration_request
 @rate_limit(limit=5, seconds=3600)
 def send_code(national_id, phone):
 	identity_key = _identity_key(national_id)
@@ -41,16 +43,17 @@ def send_code(national_id, phone):
 	_attempt(identity_key)
 	if not _sms_required() or not _sms_configured():
 		frappe.throw(_("SMS verification is unavailable. Contact the school."))
-	from frappe.twofactor import send_token_via_sms
 	secret = base64.b32encode(secrets.token_bytes(20)).decode("ascii")
 	counter = secrets.randbelow(2**31)
 	otp = pyotp.HOTP(secret).at(counter)
-	frappe.cache.set_value(_otp_key(identity_key, phone), _digest("application:" + identity_key + ":" + otp), expires_in_sec=300)
-	frappe.db.after_commit.add(lambda: send_token_via_sms(secret, token=counter, phone_no=phone))
+	cache_key = _otp_key(identity_key, phone)
+	frappe.cache.set_value(cache_key, _digest("application:" + identity_key + ":" + otp), expires_in_sec=300)
+	_queue_otp_sms(secret, counter, phone, cache_key)
 	return {"queued": True}
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@protect_registration_request
 @rate_limit(limit=10, seconds=3600)
 def submit(first_name, national_id, phone, email, guardian_consent, last_name=None, otp=None):
 	data = _prepare({"first_name": first_name, "last_name": last_name, "national_id": national_id, "phone": phone, "email": email})
@@ -77,6 +80,7 @@ def submit(first_name, national_id, phone, email, guardian_consent, last_name=No
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@protect_registration_request
 @rate_limit(limit=60, seconds=3600)
 def status(status_token):
 	if not isinstance(status_token, str) or len(status_token) > 128:
@@ -88,6 +92,7 @@ def status(status_token):
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@protect_registration_request
 @rate_limit(limit=20, seconds=3600)
 def update_details(status_token, first_name, email, last_name=None):
 	if not isinstance(status_token, str) or len(status_token) > 128:
@@ -108,6 +113,7 @@ def update_details(status_token, first_name, email, last_name=None):
 
 
 @frappe.whitelist(methods=["POST"])
+@protect_registration_request
 def approve(application):
 	_require_manager()
 	frappe.get_doc("Student Registration Application", application).check_permission("read")

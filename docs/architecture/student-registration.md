@@ -15,16 +15,30 @@ and real email address because the installed Education Student and Frappe User
 require email. Returning enrollment uses the existing Student and Education
 Program Enrollment.
 
-Phase 3 is being revised to use Frappe's native Data Import provider for
-Student CSV and Excel imports. The provider invokes the same registration
-rules, and imports must use private local files. Frappe's Data Import remains
-restricted by its native roles and DocType permissions.
+For two-column imports, a Student Identity may be provisional: it stores a
+keyed identity digest, a mobile number and a Frappe password hash, but has no
+Student, User, Frappe session or academic permissions. The initial secret is
+invalidated transactionally when first-login setup collects a real Gmail address,
+name and new password and creates the Education Student and Frappe User.
+Per-identity locking serializes competing claims. Native Student creation is
+not blocked; existing records without identity information require review.
+
+Frappe's native Data Import is used for Student Identity CSV and Excel
+intake. The provider requires national ID and phone only; names are optional.
+The School Manager's Data Import access is restricted to this DocType and to
+imports they own. Frappe's
+native Student import retains its ordinary Education behavior. Import files
+must be private, and IDs and phone numbers must be formatted as text to
+preserve leading zeroes. Frappe previews, import logs, and retry are reused.
 
 Iranian national IDs are checked for ten digits, repeated-digit values and a
 modulo-11 check digit; this does not establish ownership or legal validity.
-Phone syntax is not proof of ownership. New accounts are disabled until the
-student visits `/student-activation`, supplies their national ID and mobile
-number in `09...` format as the temporary password, and chooses a new password.
+Phone syntax is not proof of ownership. Imported identities have no User until
+the student uses the first-login link at `/login`, supplies their national ID
+and mobile number in `09...` format at `/student-activation`, and completes
+Gmail and password setup. Existing staff-created accounts stay disabled until
+their password is changed. Shared phone numbers are stored in the non-unique
+Frappe User `phone` field, which Frappe's SMS 2FA can also use as a fallback.
 The school may require SMS verification at activation using Frappe's configured
 SMS provider. With SMS disabled, national ID and phone are predictable, and an
 attacker who knows both may activate the account first. Configure SMS to reduce

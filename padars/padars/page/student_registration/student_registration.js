@@ -1,6 +1,7 @@
 frappe.pages["student-registration"].on_page_load = function (wrapper) {
   const page = frappe.ui.make_app_page({parent: wrapper, title: __("Student Registration"), single_column: true});
   $(page.body).html(`<p>${__("Register a student or use Data Import for CSV and Excel. Use an Iranian mobile number.")}</p><div class="registration-actions"></div>`);
+  $(page.body).prepend($("<p class='alert alert-warning'>").text(__("Without SMS verification, someone who knows a student's national ID and phone number can claim the account first.")));
   const actions = $(page.body).find(".registration-actions");
   const button = (label, handler) => $("<button class='btn btn-default mr-2'>").text(__(label)).appendTo(actions).on("click", handler);
   button("Register Student", () => {
@@ -27,7 +28,17 @@ frappe.pages["student-registration"].on_page_load = function (wrapper) {
     dialog.show();
   });
   button("Import CSV or Excel", () => {
-    frappe.set_route("Form", "Data Import", "new-data-import", {reference_doctype: "Student", import_type: "Insert New Records"});
+    frappe.call({method: "padars.student_import.create_student_intake", freeze: true}).then(({message}) => {
+      frappe.set_route("Form", "Data Import", message.name);
+    });
+  });
+  button("Reset Pending First Login", () => {
+    frappe.prompt([
+      {fieldname: "national_id", label: __("National ID"), fieldtype: "Data", reqd: 1},
+      {fieldname: "phone", label: __("New Mobile Number"), fieldtype: "Data", reqd: 1},
+    ], (values) => frappe.call({method: "padars.student_identity.reset_provisional_credentials", args: values})
+      .then(() => frappe.show_alert({message: __("Pending first-login credential reset."), indicator: "green"})),
+    __("Verify the student's identity before resetting"), __("Reset"));
   });
   button("Review Applications", () => frappe.set_route("List", "Student Registration Application"));
 };

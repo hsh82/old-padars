@@ -14,7 +14,7 @@
   {"fieldname": "current_academic_year", "fieldtype": "Link", "label": "Current Academic Year", "options": "Academic Year", "reqd": 1},
   {"fieldname": "primary_school_manager", "fieldtype": "Link", "label": "Primary School Manager", "options": "User", "reqd": 1},
   {"fieldname": "company", "fieldtype": "Link", "label": "Company", "options": "Company"},
-  {"default": "0", "fieldname": "require_sms_verification", "fieldtype": "Check", "label": "Require SMS for Student Activation"},
+  {"default": "0", "fieldname": "require_sms_verification", "fieldtype": "Check", "label": "Require SMS for Student Activation", "description": "Without SMS, someone who knows a student's national ID and phone may claim the account first."},
   {"fieldname": "configuration", "fieldtype": "Code", "label": "Configuration", "options": "JSON"}
  ],
  "module": "Padars",

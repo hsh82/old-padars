@@ -9,6 +9,15 @@ frappe.ui.form.on("Student", {
       );
     }
 		if (frm.is_new() || !frm.doc.user) return;
+		if (frappe.user.has_role("Padars School Manager") || frappe.user.has_role("System Manager")) {
+			frm.add_custom_button(__("Reconcile National ID"), () => {
+				frappe.prompt([{fieldname: "national_id", fieldtype: "Data", label: __("National ID"), reqd: 1}],
+					(values) => frappe.call({method: "padars.student_identity.reconcile_existing_student",
+						args: {student: frm.doc.name, national_id: values.national_id}}).then(() => {
+						frappe.show_alert({message: __("Identity reconciled."), indicator: "green"});
+					}), __("Reconcile Student Identity"), __("Reconcile"));
+			}, __("Registration"));
+		}
 		frm.remove_custom_button(__("Request Moodle User Provisioning"), __("Moodle"));
 		frm.add_custom_button(
 			__("Request Moodle User Provisioning"),

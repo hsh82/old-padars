@@ -7,6 +7,16 @@
   <input class="form-control" id="national-id" required inputmode="numeric" autocomplete="username">
   <label for="temporary-password">{{ _("Mobile number (temporary password)") }}</label>
   <input class="form-control" id="temporary-password" type="password" required autocomplete="current-password">
+  <button class="btn btn-default mt-3" type="button" id="verify-credentials">{{ _("Continue") }}</button>
+  <div id="setup-fields" hidden>
+  <div id="personal-details" hidden>
+  <label for="first-name">{{ _("First name") }}</label>
+  <input class="form-control" id="first-name" autocomplete="given-name">
+  <label for="last-name">{{ _("Last name") }}</label>
+  <input class="form-control" id="last-name" autocomplete="family-name">
+  <label for="email">{{ _("Personal Gmail address") }}</label>
+  <input class="form-control" id="email" type="email" autocomplete="email">
+  </div>
   {% if sms_required %}
   <button class="btn btn-default mt-3" type="button" id="send-code">{{ _("Send verification code") }}</button>
   <label for="otp">{{ _("Verification code") }}</label>
@@ -14,7 +24,10 @@
   {% endif %}
   <label for="new-password">{{ _("New password") }}</label>
   <input class="form-control" id="new-password" type="password" minlength="10" required autocomplete="new-password">
+  <label for="confirm-password">{{ _("Confirm new password") }}</label>
+  <input class="form-control" id="confirm-password" type="password" minlength="10" autocomplete="new-password">
   <button class="btn btn-primary mt-3" type="submit">{{ _("Activate account") }}</button>
+  </div>
 </form>
 <p id="activation-message" role="status"></p>
 <script>
@@ -29,14 +42,24 @@
         body: JSON.stringify(args), credentials: "same-origin",
       });
       if (!response.ok) throw new Error("request failed");
-      status.textContent = method === "activate" ? {{ _("Account activated. You can now sign in.") | tojson }} : {{ _("Verification code requested.") | tojson }};
+      const result = (await response.json()).message;
+      if (method === "verify_first_login") {
+        document.getElementById("setup-fields").hidden = false;
+        document.getElementById("personal-details").hidden = !result.needs_details;
+        document.getElementById("verify-credentials").hidden = true;
+        status.textContent = {{ _("Complete your account setup.") | tojson }};
+      } else {
+        status.textContent = method === "activate" ? {{ _("Account activated. You can now sign in.") | tojson }} : {{ _("Verification code requested.") | tojson }};
+      }
     } catch (_) { status.textContent = {{ _("Unable to complete the request. Check your details or contact your school.") | tojson }}; }
   };
   const credentials = () => ({national_id: value("national-id"), temporary_password: value("temporary-password")});
+  document.getElementById("verify-credentials").addEventListener("click", () => call("verify_first_login", credentials()));
   document.getElementById("send-code")?.addEventListener("click", () => call("send_activation_code", credentials()));
   document.getElementById("student-activation").addEventListener("submit", (event) => {
     event.preventDefault();
-    call("activate", {...credentials(), new_password: value("new-password"), otp: value("otp")});
+    call("activate", {...credentials(), new_password: value("new-password"), confirm_password: value("confirm-password"),
+      first_name: value("first-name"), last_name: value("last-name"), email: value("email"), otp: value("otp")});
   });
 })();
 </script>

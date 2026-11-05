@@ -11,6 +11,7 @@ from frappe.utils import today, validate_email_address
 
 from padars.permissions import can_manage_school
 from padars.school_context import get_primary_school
+from padars.sensitive_requests import protect_registration_request
 
 def _require_manager():
 	school = get_primary_school(required=True)
@@ -84,7 +85,7 @@ def _register(row):
 	identity.insert(ignore_permissions=True)
 	# Keep the account disabled until the first password change succeeds.
 	user = frappe.get_doc({"doctype": "User", "email": data["email"], "first_name": data["first_name"],
-		"last_name": data["last_name"], "mobile_no": data["phone"], "enabled": 0,
+		"last_name": data["last_name"], "phone": data["phone"], "enabled": 0,
 		"user_type": "Website User", "send_welcome_email": 0}).insert(ignore_permissions=True)
 	user.add_roles("Student")
 	from frappe.utils.password import update_password
@@ -100,6 +101,7 @@ def _register(row):
 
 
 @frappe.whitelist(methods=["POST"])
+@protect_registration_request
 def register_student(first_name, national_id, phone, email, last_name=None):
 	_require_manager()
 	return _register(dict(first_name=first_name, national_id=national_id, phone=phone, email=email, last_name=last_name))

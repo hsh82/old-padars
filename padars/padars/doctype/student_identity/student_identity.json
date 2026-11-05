@@ -2,16 +2,20 @@
  "autoname": "hash",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["identity_key", "student", "user", "pending_activation"],
+ "allow_import": 1,
+ "field_order": ["identity_key", "student", "user", "pending_activation", "phone", "first_name", "last_name"],
  "fields": [
   {"fieldname": "identity_key", "fieldtype": "Data", "hidden": 1, "label": "Identity Key", "reqd": 1, "unique": 1, "read_only": 1},
   {"fieldname": "student", "fieldtype": "Link", "label": "Student", "options": "Student", "unique": 1, "read_only": 1},
   {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "unique": 1, "read_only": 1},
-  {"fieldname": "pending_activation", "fieldtype": "Check", "label": "Pending Activation", "read_only": 1}
+  {"fieldname": "pending_activation", "fieldtype": "Check", "label": "Pending Activation", "read_only": 1},
+  {"fieldname": "phone", "fieldtype": "Data", "label": "Mobile", "hidden": 1, "read_only": 1},
+  {"fieldname": "first_name", "fieldtype": "Data", "label": "First Name", "hidden": 1, "read_only": 1},
+  {"fieldname": "last_name", "fieldtype": "Data", "label": "Last Name", "hidden": 1, "read_only": 1}
  ],
  "module": "Padars",
  "name": "Student Identity",
- "permissions": [],
+ "permissions": [{"role":"Padars School Manager","read":1,"import":1}],
  "sort_field": "modified",
  "sort_order": "DESC"
 }

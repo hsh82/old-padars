@@ -25,9 +25,12 @@ Represents one annual teaching instance. The business key is School + Academic Y
 ## Student Identity
 
 Private registration reservation with a unique keyed national-identifier digest
-and unique Student link. It is managed by the registration service; access is
-not granted through a user-facing DocType role. The Student and Program
-Enrollment remain Education records. See [student registration](student-registration.md)
+and unique optional Student and User links. A provisional identity may hold a
+mobile number and a separately hashed first-login credential before those links
+exist. School managers have read/import permission; creation and changes are
+controlled by registration services. Data Import access is limited to each
+manager's own Student Identity imports. The Student and Program Enrollment
+remain Education records. See [student registration](student-registration.md)
 for requirements, key management and current limitations.
 
 ## Student Registration Application

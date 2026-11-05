@@ -12,6 +12,7 @@ app_include_js = [
 	"/assets/padars/js/common/lms_sync.js",
 ]
 app_include_css = "/assets/padars/css/padars.css"
+web_include_js = ["/assets/padars/js/first_login.js"]
 
 doctype_js = {
 	"School": "public/js/school.js",
@@ -95,9 +96,10 @@ fixtures = [
 
 after_install = "padars.install.after_install"
 after_sync = "padars.install.ensure_action_permissions"
-after_migrate = ["padars.install.ensure_action_permissions", "padars.install.validate_security_baseline"]
+after_migrate = ["padars.install.ensure_action_permissions", "padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline"]
 
 permission_query_conditions = {
+	"Data Import": "padars.import_permissions.query_conditions",
 	"File": "padars.file_security.permission_query_conditions",
 	"School": "padars.permissions.school_permission_query_conditions",
 	"School Membership": "padars.permissions.school_permission_query_conditions",
@@ -121,6 +123,7 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	"Data Import": "padars.import_permissions.has_permission",
 	"File": "padars.file_security.has_permission",
 	"School": "padars.permissions.has_school_permission",
 	"School Membership": "padars.permissions.has_school_permission",
@@ -149,14 +152,15 @@ has_permission = {
 	"Student Report Generation Tool": "padars.permissions.has_school_permission",
 }
 
-data_import_providers = {"Student": "padars.student_import.StudentImportProvider"}
+data_import_providers = {"Student Identity": "padars.student_import.ProvisionalStudentImportProvider"}
+extend_doctype_class = {"Student": ["padars.student_extension.StudentOnboardingExtension"]}
 before_login = ["padars.student_activation.resolve_student_login"]
 
 doc_events = {
 	"Data Import": {"validate": "padars.student_import.validate_import"},
 	"File": {"validate": "padars.file_security.validate_private_attachment"},
 	"DocShare": {"validate": "padars.file_security.validate_share"},
-	"Student": {"validate": "padars.education_hooks.validate_student_identity"},
+	"Student": {"validate": "padars.education_hooks.validate_student_identity", "on_update": "padars.student_identity.attach_matching_user"},
 	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
 	"Student Group": {"validate": "padars.education_hooks.validate_student_group"},
 	"Course Schedule": {"validate": "padars.education_hooks.validate_linked_education_context"},

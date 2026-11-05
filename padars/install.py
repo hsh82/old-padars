@@ -26,7 +26,19 @@ def ensure_stage1_roles():
 def after_install():
 	ensure_stage1_roles()
 	ensure_academic_permissions()
+	ensure_registration_import_permissions()
 	validate_security_baseline()
+
+
+def ensure_registration_import_permissions():
+	from frappe.permissions import add_permission, update_permission_property
+
+	filters = {"parent": "Data Import", "role": "Padars School Manager", "permlevel": 0, "if_owner": 0}
+	if not frappe.db.exists("Custom DocPerm", filters):
+		add_permission("Data Import", "Padars School Manager", 0, "read")
+		for ptype in ("write", "create"):
+			update_permission_property("Data Import", "Padars School Manager", 0, ptype, 1, validate=False)
+	frappe.clear_cache(doctype="Data Import")
 
 
 def validate_security_baseline():

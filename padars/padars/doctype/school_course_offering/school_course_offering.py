@@ -2,14 +2,14 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from padars.permissions import has_school_access, has_school_membership
+from padars.permissions import has_school_access
 
 
 class SchoolCourseOffering(Document):
 	def validate(self):
 		self.validate_school()
 		self.validate_education_context()
-		self.validate_instructor_membership()
+		self.validate_instructor()
 		self.validate_duplicate()
 
 	def validate_school(self):
@@ -41,9 +41,9 @@ class SchoolCourseOffering(Document):
 			if group_school != self.school:
 				frappe.throw(_("The Student Group belongs to another School."))
 
-	def validate_instructor_membership(self):
-		if self.instructor and not has_school_membership(self.school, instructor=self.instructor):
-			frappe.throw(_("The Instructor must have an active membership in this School."))
+	def validate_instructor(self):
+		if self.instructor and not frappe.db.exists("Instructor", {"name": self.instructor, "status": "Active"}):
+			frappe.throw(_("The Instructor must be active."))
 
 	def validate_duplicate(self):
 		if frappe.db.exists(
@@ -53,7 +53,6 @@ class SchoolCourseOffering(Document):
 				"academic_year": self.academic_year,
 				"course": self.course,
 				"student_group": self.student_group,
-				"offering_identifier": self.offering_identifier,
 				"name": ["!=", self.name],
 			},
 		):

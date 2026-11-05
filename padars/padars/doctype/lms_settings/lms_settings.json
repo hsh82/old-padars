@@ -16,6 +16,6 @@
  "name": "LMS Settings",
  "permissions": [
   {"create": 1, "read": 1, "write": 1, "role": "System Manager"},
-  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+  {"read": 1, "write": 1, "role": "Padars Moodle Manager"}
  ]
 }

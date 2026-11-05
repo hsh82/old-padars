@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from padars.permissions import has_school_access, has_school_membership
+from padars.permissions import has_school_access
 
 
 MAX_SYNC_ATTEMPTS = 5
@@ -50,6 +50,6 @@ class LMSSyncOperation(Document):
 		if self.target_doctype in {"School", "School Course Offering", "LMS Enrollment State"}:
 			return frappe.db.get_value(self.target_doctype, self.target_name, "name" if self.target_doctype == "School" else "school")
 		if self.target_doctype == "User":
-			return self.school if has_school_membership(self.school, user=self.target_name) else None
+			return self.school if frappe.db.exists("User", {"name": self.target_name, "enabled": 1}) else None
 		return None
 

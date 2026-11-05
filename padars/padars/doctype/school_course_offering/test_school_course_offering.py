@@ -5,13 +5,6 @@ from frappe.tests.utils import FrappeTestCase
 class TestSchoolCourseOffering(FrappeTestCase):
 	def setUp(self):
 		self.key = frappe.generate_hash(length=6).upper()
-		self.school = frappe.get_doc(
-			{
-				"doctype": "School",
-				"school_code": f"OFFERING-{self.key}",
-				"school_name": "Offering Test School",
-			}
-		).insert()
 		self.year = frappe.get_doc(
 			{
 				"doctype": "Academic Year",
@@ -20,6 +13,8 @@ class TestSchoolCourseOffering(FrappeTestCase):
 				"year_end_date": "2100-01-01",
 			}
 		).insert()
+		from padars.tests.utils import get_or_create_test_school
+		self.school = get_or_create_test_school(self.year.name, f"OFFERING-{self.key}")
 		self.program = frappe.get_doc(
 			{"doctype": "Program", "program_name": f"Grade 12 {self.key}"}
 		).insert()

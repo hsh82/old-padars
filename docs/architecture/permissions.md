@@ -1,19 +1,39 @@
 # Permissions and tenancy
 
-> This is the legacy Stage 1 permission implementation for a shared-site
-> topology. It is not the accepted target. See
-> [ADR-005](../decisions/ADR-005-site-per-school.md) and
-> [target architecture](target-system.md); Phase 1 will replace cross-customer
-> membership gating with within-school resource scopes.
+Each school has its own Frappe site and database. One active School identifies
+the site; School Membership is not an access prerequisite. Platform
+administrators and System Managers retain the recovery path. The initial
+primary manager receives Padars School Manager and Academics User roles;
+changing that manager does not automatically revoke roles from the old user.
 
-> Stage 1 supersedes the earlier broad same-school access model. The exact
-> enforced role matrix is in [stage1-authorization.md](stage1-authorization.md).
-> `Education Manager` is no longer a Padars platform bypass; `Administrator`
-> and `System Manager` retain the documented recovery path.
+School managers have school-wide academic access, subject to action permissions.
+Academic staff, teachers, grade-entry staff and read-only users need both the
+relevant role and an active, date-valid Academic Assignment. Assignments cover
+a Program, Student Group or School Course Offering, and carry separate flags
+for editing, marks, attendance and sensitive records. Program scope includes
+its groups; offering scope remains narrower. List filters and document checks
+both enforce scope. Scoped staff cannot change defining relationships or a
+group roster to expand their own access. Student accounts can access their own
+supported records, but do not receive a full Student Group roster. Guardian
+access is closed pending verified relationships.
 
-The provisional architecture is one shared Frappe site with multiple schools. Platform administrators can administer all Padars records. Other users require both the appropriate Frappe role and an active School Membership for the record's School.
+Frappe custom permission types control `enter_grade`, `manage_attendance`,
+`view_sensitive_student_data`, and `manage_moodle`; `approve_grade` is
+reserved for a future approval workflow. Submission and cancellation of
+Assessment Results by non-platform users remain disabled. A Moodle manager is
+separate from a school manager; credentials remain server-side. Tenant
+provisioning is platform-only.
 
-Padars uses both `permission_query_conditions` for list/report filtering and `has_permission` for direct document access. The hooks cover Padars records plus the school-linked Education records used by Phase 1: Program Enrollment, Student Group, Course Enrollment, Student, Instructor, Course Schedule, Assessment Plan, Assessment Result, and Student Attendance. Controller validation repeats school-link checks because query conditions do not protect background jobs or arbitrary server-side writes.
+Initial installation adds role permissions and initializes action defaults
+after fixtures are synchronized. Frappe copies standard permissions into
+Custom DocPerm when customization starts. Subsequent administrator changes to
+the action defaults are preserved; review role permissions after upstream
+Education changes.
 
-Program Enrollment and Student Group receive Padars Custom Fields; schedule and assessment records use the optional Course Offering link for school context, while attendance resolves through Student Group. Future APIs must require an explicit school context before returning Education data. File/report/API authorization needs dedicated tests before exposing portals.
-
+Academic attachments must be private site files and require access to their
+parent record. Direct DocShares of protected records or their files are
+rejected. Install and migration validate existing shares and attachments and
+stop for unsafe records without deleting them. Reports and selected Education
+RPCs that have not been reviewed for scope are disabled for academic users;
+some native workflows therefore remain unavailable until scoped replacements
+are implemented. This is not a complete audit of all upstream endpoints.

@@ -1,0 +1,20 @@
+[
+ {
+  "doctype":"Module Onboarding",
+  "name":"Padars School Onboarding",
+  "title":"Set up your school",
+  "module":"Padars",
+  "allow_roles":[{"role":"System Manager"},{"role":"Padars School Manager"}],
+  "steps":[
+   {"step":"Padars Academic Year","is_optional":0},
+   {"step":"Padars School","is_optional":0},
+   {"step":"Padars Program","is_optional":1},
+   {"step":"Padars Student","is_optional":1},
+   {"step":"Padars Instructor","is_optional":1},
+   {"step":"Padars Student Group","is_optional":1},
+   {"step":"Padars Offering","is_optional":1},
+   {"step":"Padars Schedule","is_optional":1},
+   {"step":"Padars Assessment","is_optional":1}
+  ]
+ }
+]

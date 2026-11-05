@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from padars.permissions import has_school_access, has_school_membership
+from padars.permissions import has_school_access
 
 
 ALLOWED_LOCAL_DOCTYPES = {
@@ -52,16 +52,9 @@ class LMSEntityMapping(Document):
 		if self.local_doctype in {"School Course Offering", "LMS Enrollment State"}:
 			return frappe.db.get_value(self.local_doctype, self.local_name, "school")
 		if self.local_doctype == "User":
-			memberships = frappe.get_all(
-				"School Membership",
-				filters={"school": self.school, "user": self.local_name, "status": "Active"},
-				pluck="name",
-				ignore_permissions=True,
-			)
-			return self.school if memberships else None
+			return self.school if frappe.db.exists("User", {"name": self.local_name, "enabled": 1}) else None
 		if self.local_doctype == "Student":
-			user = frappe.db.get_value("Student", self.local_name, "user")
-			return self.school if user and has_school_membership(self.school, user=user) else None
+			return self.school if frappe.db.exists("Student", {"name": self.local_name, "enabled": 1}) else None
 		if self.local_doctype == "Instructor":
-			return self.school if has_school_membership(self.school, instructor=self.local_name) else None
+			return self.school if frappe.db.exists("Instructor", {"name": self.local_name, "status": "Active"}) else None
 

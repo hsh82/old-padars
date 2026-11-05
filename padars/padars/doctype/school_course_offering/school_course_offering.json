@@ -26,7 +26,9 @@
   {"read": 1, "role": "Instructor"},
   {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "Padars School Manager"},
   {"create": 1, "read": 1, "write": 1, "role": "Padars Academic Staff"},
-  {"read": 1, "role": "Padars Teacher"}
+  {"read": 1, "write": 1, "create": 1, "role": "Padars Teacher"},
+  {"read": 1, "role": "Padars Grade Entry Staff"},
+  {"read": 1, "role": "Padars Read Only"}
  ],
  "sort_field": "modified",
  "sort_order": "DESC",

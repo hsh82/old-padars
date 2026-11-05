@@ -1,7 +1,8 @@
 import frappe
 from frappe import _
 
-from padars.permissions import has_school_access, has_school_membership
+from padars.permissions import has_school_access
+from padars.school_context import get_primary_school
 
 
 def validate_student_identity(doc, method=None):
@@ -27,55 +28,43 @@ def validate_program_enrollment(doc, method=None):
 	if not frappe.get_meta("Program Enrollment").has_field("padars_school"):
 		frappe.throw(_("Padars School context is not installed. Run migrate before creating enrollments."))
 	if not doc.padars_school:
-		frappe.throw(_("School is required for Program Enrollment."))
+		doc.padars_school = get_primary_school(required=True)
 
 	_validate_school_context(doc.padars_school)
-	_validate_student_membership(doc.student, doc.padars_school)
+	_validate_student(doc.student, doc.padars_school)
 
 
 def validate_student_group(doc, method=None):
 	if not frappe.get_meta("Student Group").has_field("padars_school"):
 		frappe.throw(_("Padars School context is not installed. Run migrate before creating student groups."))
 	if not doc.padars_school:
-		frappe.throw(_("School is required for Student Group."))
+		doc.padars_school = get_primary_school(required=True)
 
 	_validate_school_context(doc.padars_school)
 	for row in doc.students:
-		_validate_student_membership(
+		_validate_student(
 			row.student,
 			doc.padars_school,
 			academic_year=doc.academic_year,
 			program=doc.program,
 		)
 	for row in doc.instructors:
-		if row.instructor and not has_school_membership(
-			doc.padars_school, instructor=row.instructor
-		):
-			frappe.throw(
-				_("Instructor {0} must have an active membership in School {1}.").format(
-					row.instructor, doc.padars_school
-				)
-			)
+		if row.instructor and not frappe.db.exists("Instructor", row.instructor):
+			frappe.throw(_("Instructor {0} does not exist.").format(row.instructor))
 
 
 def _validate_school_context(school):
 	if not frappe.db.exists("School", {"name": school, "status": "Active"}):
 		frappe.throw(_("School {0} does not exist or is inactive.").format(school))
-	if not has_school_access(school):
+	if school != get_primary_school(required=True) or not has_school_access(school):
 		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
 
 
-def _validate_student_membership(student, school, academic_year=None, program=None):
-	student_data = frappe.db.get_value("Student", student, ["user", "enabled"], as_dict=True)
-	if not student_data or not student_data.user or not student_data.enabled:
+def _validate_student(student, school, academic_year=None, program=None):
+	student_data = frappe.db.get_value("Student", student, ["enabled"], as_dict=True)
+	if not student_data or not student_data.enabled:
 		frappe.throw(
-			_("Student {0} must be enabled and have an active User membership in School {1}.").format(
-				student, school
-			)
-		)
-	if not has_school_membership(school, user=student_data.user):
-		frappe.throw(
-			_("Student {0} must have an active User membership in School {1}.").format(student, school)
+			_("Student {0} must exist and be enabled.").format(student)
 		)
 
 	if academic_year and frappe.get_meta("Program Enrollment").has_field("padars_school"):
@@ -113,7 +102,9 @@ def validate_linked_education_context(doc, method=None):
 		frappe.throw(_("Padars Course Offering context is not installed. Run migrate before saving this record."))
 	offering_name = doc.get("padars_course_offering")
 	if not offering_name:
-		frappe.throw(_("School Course Offering is required for this record."))
+		doc.padars_school = doc.padars_school or get_primary_school(required=True)
+		_validate_school_context(doc.padars_school)
+		return
 	offering = frappe.db.get_value(
 		"School Course Offering",
 		offering_name,

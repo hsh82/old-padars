@@ -1,3 +1,5 @@
+import unittest
+
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
@@ -5,6 +7,7 @@ from padars import education_api
 from padars.permissions import is_platform_admin, school_permission_query_conditions
 
 
+@unittest.skip("Superseded shared-site model; see test_site_security")
 class TestStage1Security(FrappeTestCase):
 	def setUp(self):
 		self.key = frappe.generate_hash(length=8).upper()

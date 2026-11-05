@@ -33,11 +33,11 @@ functional gap. No Moodle content-delivery or activity model is duplicated.
 
 ## Current implementation versus target
 
-The current branch contains shared-site School Membership checks and selected
-Education school-context fields. Those mechanisms were built under the
-superseded provisional decision in ADR-001. They must be audited, simplified,
-or removed in Phase 1; this architecture page does not claim the target
-permissions are implemented.
+Phase 1 uses one active School per site and within-school Academic Assignments
+for scoped access. School Membership remains as historical affiliation and is
+not an authorization prerequisite. See [permissions](permissions.md) for the
+implemented boundaries and remaining restrictions. Phase 2 adds a setup page,
+workspace, and record-based onboarding steps.
 
 The current Moodle adapter is deterministic mock behavior. The local Moodle
 code tree is Moodle 5.2.4 with MuTMS 5.2.4.01, but enabled web-service

@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "module": "Padars",
+ "name": "padars-setup",
+ "page_name": "padars-setup",
+ "roles": [{"role": "System Manager"}, {"role": "Padars Platform Administrator"}],
+ "standard": "Yes",
+ "title": "School Setup"
+}

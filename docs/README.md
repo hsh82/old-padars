@@ -17,4 +17,6 @@ For the target ownership map, see
 [`architecture/target-system.md`](architecture/target-system.md); for the
 current development stack and clean-install site, see
 [`operations/version-baseline.md`](operations/version-baseline.md).
+Phase 1–2 implementation and verification are recorded in
+[`quality/phase1-2-results.md`](quality/phase1-2-results.md).
 

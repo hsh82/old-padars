@@ -1,0 +1,11 @@
+[
+ {"doctype":"Onboarding Step","name":"Padars Academic Year","title":"Create an academic year","action":"Create Entry","reference_document":"Academic Year","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars School","title":"Create the school profile","action":"Create Entry","reference_document":"School","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Program","title":"Add a program","action":"Create Entry","reference_document":"Program","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Student","title":"Add a student","action":"Create Entry","reference_document":"Student","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Instructor","title":"Add an instructor","action":"Create Entry","reference_document":"Instructor","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Student Group","title":"Create a class section","action":"Create Entry","reference_document":"Student Group","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Offering","title":"Add a course offering","action":"Create Entry","reference_document":"School Course Offering","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Schedule","title":"Schedule a lesson","action":"Create Entry","reference_document":"Course Schedule","show_full_form":1,"validate_action":1},
+ {"doctype":"Onboarding Step","name":"Padars Assessment","title":"Create an assessment plan","action":"Create Entry","reference_document":"Assessment Plan","show_full_form":1,"validate_action":1}
+]

@@ -24,13 +24,6 @@ class FailingMoodleAdapter:
 class TestMoodleService(FrappeTestCase):
 	def setUp(self):
 		self.key = frappe.generate_hash(length=6).upper()
-		self.school = frappe.get_doc(
-			{
-				"doctype": "School",
-				"school_code": f"SYNC-{self.key}",
-				"school_name": "Sync Test School",
-			}
-		).insert()
 		self.year = frappe.get_doc(
 			{
 				"doctype": "Academic Year",
@@ -39,6 +32,8 @@ class TestMoodleService(FrappeTestCase):
 				"year_end_date": "2100-01-01",
 			}
 		).insert()
+		from padars.tests.utils import get_or_create_test_school
+		self.school = get_or_create_test_school(self.year.name, f"SYNC-{self.key}")
 		self.program = frappe.get_doc(
 			{"doctype": "Program", "program_name": f"Sync Grade 12 {self.key}"}
 		).insert()

@@ -20,7 +20,8 @@
  "name": "LMS Entity Mapping",
  "permissions": [
   {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "System Manager"},
-  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"}
+  {"create": 1, "read": 1, "write": 1, "role": "Education Manager"},
+  {"read": 1, "role": "Padars Moodle Manager"}
  ],
  "sort_field": "modified",
  "sort_order": "DESC",

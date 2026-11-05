@@ -6,6 +6,7 @@ from frappe.utils import add_to_date, now_datetime
 
 from padars.integrations.moodle.mock import MockMoodleAdapter
 from padars.padars.doctype.lms_sync_operation.lms_sync_operation import MAX_SYNC_ATTEMPTS
+from padars.permissions import can_manage_moodle, is_platform_admin
 
 
 def get_adapter():
@@ -55,6 +56,8 @@ def request_enrollment_sync(enrollment_state):
 
 def request_sync_operation(school, operation_type, target_doctype, target_name, idempotency_key):
 	"""Persist one idempotent integration request and enqueue it after commit."""
+	if not can_manage_moodle(school) or (operation_type == "Provision Tenant" and not is_platform_admin()):
+		frappe.throw(_("You are not authorized to request this Moodle operation."), frappe.PermissionError)
 	existing = frappe.db.exists("LMS Sync Operation", {"idempotency_key": idempotency_key})
 	if existing:
 		return frappe.get_doc("LMS Sync Operation", existing)
@@ -70,7 +73,7 @@ def request_sync_operation(school, operation_type, target_doctype, target_name, 
 				"idempotency_key": idempotency_key,
 				"state": "Queued",
 			}
-		).insert()
+		).insert(ignore_permissions=True)
 	except frappe.exceptions.DuplicateEntryError:
 		return frappe.get_doc(
 			"LMS Sync Operation", frappe.db.get_value("LMS Sync Operation", {"idempotency_key": idempotency_key})
@@ -200,6 +203,8 @@ def upsert_entity_mapping(local_doctype, local_name, school, remote):
 
 def retry_sync_operation(operation):
 	operation = frappe.get_doc("LMS Sync Operation", operation)
+	if not can_manage_moodle(operation.school):
+		frappe.throw(_("You are not authorized to retry this Moodle operation."), frappe.PermissionError)
 	if operation.state != "Failed":
 		frappe.throw(_("Only failed sync operations can be retried."))
 	if (operation.attempt_count or 0) >= MAX_SYNC_ATTEMPTS:

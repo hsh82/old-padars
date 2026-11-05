@@ -1,4 +1,4 @@
-"""Security boundaries for Education RPC endpoints used in a shared Padars site.
+"""Security boundaries for Education RPC endpoints on a Padars site.
 
 Education endpoints below pre-date Padars school tenancy and either query with
 ``get_all`` or accept arbitrary document names. We override them instead of
@@ -9,7 +9,7 @@ arrive in later work packages.
 import frappe
 from frappe import _
 
-from padars.permissions import can_manage_school, get_teacher_instructors
+from padars.permissions import can_manage_school
 
 
 def _deny_unsupported(action):
@@ -30,13 +30,8 @@ def _group_school(student_group):
 
 def _can_read_group(student_group, user=None):
 	user = user or frappe.session.user
-	school = _group_school(student_group)
-	if can_manage_school(school, user):
-		return True
-	instructors = get_teacher_instructors(user, school)
-	return bool(instructors and frappe.db.exists(
-		"Student Group Instructor", {"parent": student_group, "instructor": ["in", instructors]}
-	))
+	_group_school(student_group)
+	return frappe.has_permission("Student Group", "read", student_group, user=user)
 
 
 def _require_group_manager(student_group):
@@ -87,6 +82,19 @@ def fetch_school_group_students(doctype, txt, searchfield, start, page_len, filt
 
 
 @frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_program_courses(doctype, txt, searchfield, start, page_len, filters):
+	filters = frappe.parse_json(filters) if isinstance(filters, str) else (filters or {})
+	program = filters.get("program")
+	if not program or not frappe.has_permission("Program", "read", program):
+		frappe.throw(_("You are not authorized to view this Program."), frappe.PermissionError)
+	return list(frappe.get_all("Program Course", filters={"parent": program},
+		or_filters=[["course", "like", f"%{txt}%"], ["course_name", "like", f"%{txt}%"]],
+		fields=["course", "course_name"], as_list=True, start=frappe.utils.cint(start),
+		page_length=min(max(frappe.utils.cint(page_len), 1), 50)))
+
+
+@frappe.whitelist()
 def get_student_attendance_records(based_on, date=None, student_group=None, course_schedule=None):
 	if course_schedule:
 		student_group = frappe.db.get_value("Course Schedule", course_schedule, "student_group")
@@ -132,3 +140,51 @@ def enroll_student(*args, **kwargs):
 @frappe.whitelist()
 def preview_report_card(*args, **kwargs):
 	_deny_unsupported(_("Report card preview"))
+
+
+@frappe.whitelist()
+def deny_unreviewed(*args, **kwargs):
+	_deny_unsupported(_("This Education action"))
+
+
+def _require_student_self(student):
+	user = frappe.session.user
+	if user != "Administrator" and (frappe.db.get_value("Student", student, "user") != user
+		or not frappe.has_permission("Student", "read", student, user=user, ignore_share_permissions=True)):
+		frappe.throw(_("You are not authorized to access this student."), frappe.PermissionError)
+
+
+@frappe.whitelist()
+def get_student_context(student):
+	_require_student_self(student)
+	from education.education.api import get_student_context as native
+	return native(student)
+
+
+@frappe.whitelist()
+def get_student_programs(student):
+	_require_student_self(student)
+	from education.education.api import get_student_programs as native
+	return native(student)
+
+
+@frappe.whitelist()
+def get_student_invoices(student):
+	_require_student_self(student)
+	from education.education.api import get_student_invoices as native
+	return native(student)
+
+
+@frappe.whitelist()
+def get_student_attendance(student, student_group):
+	_require_student_self(student)
+	from education.education.api import get_student_attendance as native
+	return native(student, student_group)
+
+
+@frappe.whitelist()
+def get_portal_context():
+	from education.education.api import get_portal_context as native, get_user_role
+	if get_user_role() == "Guardian":
+		_deny_unsupported(_("Guardian access"))
+	return native()

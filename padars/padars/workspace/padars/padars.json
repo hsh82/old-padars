@@ -1,0 +1,24 @@
+{
+ "doctype":"Workspace",
+ "name":"Padars",
+ "label":"Padars",
+ "title":"Padars",
+ "module":"Padars",
+ "public":1,
+ "icon":"education",
+ "module_onboarding":"Padars School Onboarding",
+ "roles":[{"role":"System Manager"},{"role":"Padars School Manager"}],
+ "content":"[{\"id\":\"padars-onboarding\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Padars School Onboarding\",\"col\":12}},{\"id\":\"padars-setup\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"School Setup\",\"col\":3}},{\"id\":\"padars-year\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Year\",\"col\":3}},{\"id\":\"padars-program\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Program\",\"col\":3}},{\"id\":\"padars-students\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student\",\"col\":3}},{\"id\":\"padars-instructors\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Instructor\",\"col\":3}},{\"id\":\"padars-groups\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Group\",\"col\":3}},{\"id\":\"padars-offerings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Offering\",\"col\":3}},{\"id\":\"padars-assignments\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Assignment\",\"col\":3}},{\"id\":\"padars-schedule\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Schedule\",\"col\":3}},{\"id\":\"padars-moodle\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"LMS Synchronization\",\"col\":3}}]",
+ "shortcuts":[
+  {"label":"School Setup","link_to":"padars-setup","type":"Page"},
+  {"label":"Academic Year","link_to":"Academic Year","type":"DocType"},
+  {"label":"Program","link_to":"Program","type":"DocType"},
+  {"label":"Student","link_to":"Student","type":"DocType"},
+  {"label":"Instructor","link_to":"Instructor","type":"DocType"},
+  {"label":"Student Group","link_to":"Student Group","type":"DocType"},
+  {"label":"Course Offering","link_to":"School Course Offering","type":"DocType"},
+  {"label":"Academic Assignment","link_to":"Academic Assignment","type":"DocType"},
+  {"label":"Course Schedule","link_to":"Course Schedule","type":"DocType"},
+  {"label":"LMS Synchronization","link_to":"lms-sync-monitor","type":"Page"}
+ ]
+}

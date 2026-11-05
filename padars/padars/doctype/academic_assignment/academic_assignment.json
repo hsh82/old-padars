@@ -1,0 +1,30 @@
+{
+ "autoname": "naming_series:",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "user", "scope_type", "scope_name", "instructor", "status", "valid_from", "valid_to", "can_edit", "can_enter_marks", "can_manage_attendance", "can_view_sensitive", "active_key"],
+ "fields": [
+  {"default": "PAD-ASG-.#####", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-ASG-.#####"},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "scope_type", "fieldtype": "Link", "label": "Scope Type", "options": "DocType", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "scope_name", "fieldtype": "Dynamic Link", "label": "Scope", "options": "scope_type", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor"},
+  {"default": "Active", "fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Active\nInactive", "reqd": 1},
+  {"fieldname": "valid_from", "fieldtype": "Date", "label": "Valid From"},
+  {"fieldname": "valid_to", "fieldtype": "Date", "label": "Valid To"},
+  {"fieldname": "can_edit", "fieldtype": "Check", "label": "Edit Academic Records"},
+  {"fieldname": "can_enter_marks", "fieldtype": "Check", "label": "Enter Marks"},
+  {"fieldname": "can_manage_attendance", "fieldtype": "Check", "label": "Manage Attendance"},
+  {"fieldname": "can_view_sensitive", "fieldtype": "Check", "label": "View Sensitive Student Records"},
+  {"fieldname": "active_key", "fieldtype": "Data", "hidden": 1, "label": "Active Key", "read_only": 1, "unique": 1}
+ ],
+ "module": "Padars",
+ "name": "Academic Assignment",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "Padars School Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

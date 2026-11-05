@@ -8,6 +8,13 @@
 
 Updated: 2026-11-05
 
+## Current Phase 1–2 work
+
+Site-per-school setup, scoped academic assignments and permissions, a school
+setup page, Workspace and onboarding records are implemented. The current
+verification and limitations are in [Phase 1–2 results](../quality/phase1-2-results.md).
+The sections below record earlier work and do not supersede that evidence.
+
 ## Implemented
 
 - Stage 1 WP01–WP03 authorization hardening started on branch `codex/stage1-tenancy-security`; `kara.loc` remains untouched.
@@ -63,8 +70,7 @@ Updated: 2026-11-05
 
 ## Next milestone
 
-Phase 0 is complete. The next approved work package is Phase 1: replace the
-legacy shared-site tenancy assumptions with site-per-school setup and
-within-school scoped permissions. The test-preloader blocker is recorded; do
-not spend time on historical migration or patch compatibility.
+Phases 1 and 2 were approved together. Further work requires the next phase's
+approval under the master phased-development brief. Historical schema migration
+compatibility is outside the pre-release clean-site scope.
 

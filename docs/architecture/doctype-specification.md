@@ -1,21 +1,26 @@
 # DocType specification
 
-> This specification documents the experimental shared-site model currently
-> in source. Review it against [ADR-005](../decisions/ADR-005-site-per-school.md)
-> before changing schemas. Since Padars is pre-release, Phase 1 may simplify or
-> replace these models without an old-schema compatibility promise.
+This describes the site-per-school model. Padars is pre-release; installing on
+a clean site is supported without an old experimental schema migration promise.
 
 ## School
 
-`school_code` is the stable unique local identity. `school_name`, status, current academic year, and optional company/configuration metadata are stored here. System Manager and Education Manager manage records; non-privileged access is membership-scoped.
+`school_code` is the stable unique local identity. School name, status, current academic year, primary school manager, and optional configuration are stored here. A unique active key enforces one active School per site. Platform administrators control status and the primary manager.
 
 ## School Membership
 
-Links User to School with a school role, status, and optional validity dates. One active membership is allowed per User/School/role combination. It is the authorization source for shared-site school access.
+Retained as historical affiliation; it does not grant or gate authorization.
+
+## Academic Assignment
+
+Links an enabled User, optionally an Instructor, to a Program, Student Group,
+or School Course Offering, with status, validity dates, and action flags.
+The same active user/scope combination cannot be duplicated. Effective access
+also requires the appropriate Frappe role and action permission.
 
 ## School Course Offering
 
-Represents one annual teaching instance. The business key is School + Academic Year + Course + Student Group + Offering Identifier. The controller verifies that the group year and program/course context are compatible and that the instructor has an active school membership.
+Represents one annual teaching instance. The business key is School + Academic Year + Course + Student Group. The controller verifies compatible group/year/program context and an active instructor. Teacher LMS enrollment requires a matching active academic assignment.
 
 ## LMS Settings
 

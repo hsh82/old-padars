@@ -1,6 +1,6 @@
 # Phase 1 defect register
 
-Updated: 2026-11-04
+Updated: 2026-11-05
 
 ## Fixed
 
@@ -10,6 +10,7 @@ Updated: 2026-11-04
 | PAD-015 | Blocker | Education roster, attendance, applicant-enrollment, and report-card RPC endpoints accepted caller-controlled identifiers or used unscoped queries. | Added narrow `override_whitelisted_methods`: scoped roster/attendance reads require authorized groups; unsafe generic and write/report paths fail closed pending reviewed services. |
 | PAD-016 | High | Custom Field fixture could not migrate because records lacked required fixture names. | Added deterministic names; migration was rerun successfully on `stage1.local`. |
 | PAD-017 | High | Required school context fields, scoped roles, and supporting database constraints were not synchronized or guarded by migration checks. | Added named fixtures, role patch/install hook, duplicate preflight, unique constraints, and lookup indexes; validated on the disposable site. |
+| PAD-019 | High | Education's `Academics User` Custom DocPerm allowed school managers to read, edit, create, and export arbitrary User records; User attachments were not scoped for manager sessions. | Added Padars per-User checks, list conditions, and attachment checks for school managers without changing Education's shared DocPerm. Focused direct/API and upload-parent regression tests pass. |
 
 | ID | Severity | Defect | Fix |
 | --- | --- | --- | --- |

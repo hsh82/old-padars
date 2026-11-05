@@ -101,6 +101,7 @@ after_migrate = ["padars.install.ensure_action_permissions", "padars.install.ens
 permission_query_conditions = {
 	"Data Import": "padars.import_permissions.query_conditions",
 	"File": "padars.file_security.permission_query_conditions",
+	"User": "padars.user_permissions.query_conditions",
 	"School": "padars.permissions.school_permission_query_conditions",
 	"School Membership": "padars.permissions.school_permission_query_conditions",
 	"School Course Offering": "padars.permissions.school_permission_query_conditions",
@@ -125,6 +126,7 @@ permission_query_conditions = {
 has_permission = {
 	"Data Import": "padars.import_permissions.has_permission",
 	"File": "padars.file_security.has_permission",
+	"User": "padars.user_permissions.has_permission",
 	"School": "padars.permissions.has_school_permission",
 	"School Membership": "padars.permissions.has_school_permission",
 	"School Course Offering": "padars.permissions.has_school_permission",

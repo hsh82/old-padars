@@ -6,6 +6,15 @@ administrators and System Managers retain the recovery path. The initial
 primary manager receives Padars School Manager and Academics User roles;
 changing that manager does not automatically revoke roles from the old user.
 
+Education grants `Academics User` broad level-0 User permissions. Padars does
+not alter that shared DocPerm. For school-manager sessions, Padars User list
+conditions and document checks limit User records to the manager's own account;
+User attachments are similarly limited. This preserves Education's role for
+other users while blocking a manager's direct reads, edits, password changes,
+and uploads against another account. User role and API credential fields remain
+at Education's System Manager-only permission level. Registration services
+create student accounts through their narrowly scoped server-side paths.
+
 School managers have school-wide academic access, subject to action permissions.
 Academic staff, teachers, grade-entry staff and read-only users need both the
 relevant role and an active, date-valid Academic Assignment. Assignments cover

@@ -59,6 +59,15 @@ def assert_no_protected_shares():
 
 
 def has_permission(doc, ptype, user=None, **kwargs):
+	if doc.attached_to_doctype == "User":
+		from padars.user_permissions import is_restricted_school_manager
+
+		if is_restricted_school_manager(user):
+			if doc.attached_to_name != (user or frappe.session.user):
+				return False
+			parent_type = "write" if ptype in {"write", "create", "delete", "share"} else "read"
+			return frappe.has_permission("User", parent_type, doc.attached_to_name, user=user)
+
 	is_intake_file = False
 	if doc.attached_to_doctype == "Data Import":
 		target = frappe.db.get_value("Data Import", doc.attached_to_name, "reference_doctype") if doc.attached_to_name else None
@@ -85,6 +94,10 @@ def permission_query_conditions(user=None, doctype=None):
 	if is_platform_admin(user):
 		return ""
 	conditions = []
+	from padars.user_permissions import is_restricted_school_manager
+	if is_restricted_school_manager(user):
+		conditions.append("(`tabFile`.`attached_to_doctype` != 'User' or `tabFile`.`attached_to_name` = "
+			+ frappe.db.escape(user) + ")")
 	for parent in sorted(PRIVATE_PARENT_DOCTYPES):
 		quoted = frappe.db.escape(parent)
 		if frappe.has_permission(parent, "read", user=user):

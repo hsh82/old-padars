@@ -8,12 +8,11 @@
 
 Updated: 2026-11-05
 
-## Phase 3 work in progress
+## Phase 3 implementation handoff
 
-Staff registration, returning-student draft enrollment, native CSV/Excel Data
-Import, Iranian ID checksum validation, and an initial account activation flow
-are being implemented using Education records and private identity reservations.
-Public applications and manager approval are also being verified. See
+Phase 3 implementation is complete. Development handoff is accepted; integration
+and production release verification remain pending. The status matrix and
+backlog are in [Phase 3 results](../quality/phase3-progress.md). See also
 [student registration](../architecture/student-registration.md).
 
 ## Current Phase 1–2 work
@@ -78,7 +77,7 @@ The sections below record earlier work and do not supersede that evidence.
 
 ## Next milestone
 
-Phases 1 and 2 were approved together. Further work requires the next phase's
-approval under the master phased-development brief. Historical schema migration
-compatibility is outside the pre-release clean-site scope.
+Phase 4 Curriculum Adoption and Offerings is approved and is the next milestone.
+Historical schema migration compatibility remains outside the pre-release
+clean-site scope.
 

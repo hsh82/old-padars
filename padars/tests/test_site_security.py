@@ -2,6 +2,8 @@ from unittest.mock import patch
 
 import frappe
 import frappe.client
+from frappe.core.doctype.user.user import change_password
+from frappe.handler import check_write_permission
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, today
 
@@ -202,6 +204,42 @@ class TestSiteSecurity(FrappeTestCase):
 			frappe.set_user("Administrator")
 			file_doc.on_rollback()
 
+	def test_school_manager_user_access_is_scoped(self):
+		manager = self._user("user-manager", ["Padars School Manager", "Academics User"])
+		other_manager = self._user("other-manager", ["Padars School Manager", "Academics User"])
+		target = frappe.get_doc("User", other_manager)
+		file_doc = frappe.get_doc({"doctype": "File", "file_name": f"manager-user-{self.key}.txt",
+			"is_private": 1, "content": f"private-{self.key}", "attached_to_doctype": "User",
+			"attached_to_name": other_manager}).insert(ignore_permissions=True)
+		try:
+			self.assertFalse(frappe.has_permission("User", "read", other_manager, user=manager))
+			self.assertFalse(frappe.has_permission("User", "write", other_manager, user=manager))
+			self.assertFalse(frappe.has_permission("File", "read", file_doc.name, user=manager))
+			self.assertTrue(frappe.has_permission("User", "read", manager, user=manager))
+			self.assertTrue(frappe.has_permission("User", "write", manager, user=manager))
+			self.assertEqual(frappe.get_meta("User").get_field("roles").permlevel, 1)
+			self.assertEqual(frappe.get_meta("User").get_field("api_secret").permlevel, 1)
+			self.assertTrue(frappe.has_permission("Student", "create", user=manager))
+
+			frappe.set_user(manager)
+			self.assertEqual(frappe.get_list("User", pluck="name"), [manager])
+			self.assertNotIn(file_doc.name, frappe.get_list("File", pluck="name"))
+			with self.assertRaises(frappe.PermissionError):
+				check_write_permission("User", other_manager)
+			with self.assertRaises(frappe.PermissionError):
+				frappe.client.get("User", other_manager)
+			target.phone = "+989120000001"
+			target.enabled = 0
+			with self.assertRaises(frappe.PermissionError):
+				target.save()
+			with self.assertRaises(frappe.PermissionError):
+				frappe.client.set_value("User", other_manager, "phone", "+989120000002")
+			with self.assertRaises(frappe.PermissionError):
+				change_password(other_manager, "Synthetic!Password51Blue")
+		finally:
+			frappe.set_user("Administrator")
+			file_doc.on_rollback()
+
 	def test_marks_entry_is_limited_to_assigned_offering(self):
 		student, _ = self._student("marks", self.group_a)
 		courses = [frappe.get_doc({"doctype": "Course", "course_name": f"{suffix}-{self.key}"}).insert()
@@ -305,6 +343,7 @@ def run_runtime_checks():
 		"test_student_records_are_scoped_without_membership", "test_sensitive_attachments_must_be_private", "test_academic_records_cannot_be_shared_directly", "test_existing_academic_shares_block_setup_without_deletion",
 		"test_guardian_portal_is_closed_until_relationship_verification_exists",
 		"test_private_file_obeys_parent_scope_even_for_owner",
+		"test_school_manager_user_access_is_scoped",
 		"test_marks_entry_is_limited_to_assigned_offering", "test_native_onboarding_uses_records",
 		"test_scoped_staff_cannot_move_an_offering_to_another_class",
 		"test_sensitive_notes_require_role_and_scope", "test_moodle_role_is_separate_and_requests_are_idempotent",

@@ -30,6 +30,14 @@ not granted through a user-facing DocType role. The Student and Program
 Enrollment remain Education records. See [student registration](student-registration.md)
 for requirements, key management and current limitations.
 
+## Student Registration Application
+
+Stores a pending application, encrypted national ID, keyed identity and status
+reference digests, consent declaration, phone verification state, and approval
+status. School managers may read and approve/reject; public access uses an
+opaque bearer reference and does not grant a Frappe session. Education Student
+and Program Enrollment continue to own academic records.
+
 ## LMS Settings
 
 Single DocType for adapter selection and server-side endpoint/token configuration. The MVP defaults to `Mock`; the real Moodle adapter is not claimed complete.

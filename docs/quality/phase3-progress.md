@@ -1,27 +1,44 @@
 # Phase 3 progress and verification
 
-Date: 2026-11-05. Phase 3 is not complete.
+Date: 2026-11-05. Phase 3 has been implemented for review; release acceptance
+requires the remaining checks below.
 
-Implemented staff-facing individual registration, returning-student draft
-enrollment, and CSV preview and bounded partial processing. A private keyed
-digest reservation prevents duplicate identities created through these
-services. Tests exercise manager and guest authorization, retries, mismatched
-contacts, batch isolation, native Education Student hooks, and prevention of
-automatic account creation.
+Staff can register individuals and create returning-student draft enrollments.
+Frappe Data Import handles CSV/Excel template, preview, execution, retries and
+row results through a Student import provider; the earlier separate CSV batch
+processor was removed. Native Data Import remains limited to users with its
+Frappe permissions, normally System Manager. Student import files must be
+private. Format ID and phone spreadsheet columns as text to preserve zeros.
 
-On disposable `padars-phase12-fresh.local`, the Padars-only light-mode suite
-ran 43 tests successfully with six obsolete shared-site tests skipped. Other
-apps' test suites were not run. The new page has not been browser-tested.
+Iranian national ID check digits and mobile formats are validated. Public
+applicants submit a consent declaration and can check or update a pending
+application using a private bearer reference. A manager approves or rejects
+applications. Approved students receive a disabled Frappe user; a mandatory
+password change at `/student-activation` enables the account. Initial login is
+national ID and mobile number in `09...` format. The School setting can require
+SMS at application and activation through Frappe's configured SMS provider.
+SMS jobs are queued after commit and no fallback is allowed while enabled.
 
-Outstanding: country-specific identifier/checksum policy, an SMS provider and
-phone verification, public self-registration and its abuse controls, approval,
-secure activation, minor/guardian policy, Excel upload, and durable downloadable
-import results. Existing Students outside this service need a reviewed identity
-reconciliation process before site-wide duplicate prevention can be claimed.
-Review Frappe error and request logging settings for sensitive request data
-before handling real national identifiers; verbose diagnostic tracebacks may
-include function arguments. The current service is not production-ready.
+On disposable `padars-phase12-fresh.local`, the Padars-only `--lightmode`
+suite ran 50 tests successfully, with six legacy shared-site tests skipped.
+Other apps' test suites were not run. Python/JSON parsing and JavaScript syntax
+checks passed. The suite includes CSV/Excel parsing and mocked SMS delivery.
 
-Real student creation requires a configured, backed-up site encryption key,
-Education's Skip User Creation setting, and a genuine email address. Contact
-phone format validation does not verify phone ownership.
+## Remaining acceptance limits
+
+- With SMS disabled, a person who knows a student's ID and phone may activate
+  their account before the student. The first password change does not establish
+  identity. This fallback was explicitly requested and is not suitable where
+  those values are considered secret or account takeover is unacceptable.
+- SMS uses mocked delivery in tests; no live provider or end-to-end browser flow
+  has been verified. A consent declaration is not independent verification of
+  guardian authority or compliance with local requirements for minors.
+- The site needs a persistent, backed-up Frappe encryption key and a genuine
+  student email. Review Frappe request/error logging before processing real
+  national IDs; verbose diagnostics can contain request arguments.
+- Duplicate prevention applies to identities registered through these services
+  and the configured Data Import provider. Existing Students or records created
+  directly through other Education paths need reconciliation; site-wide
+  duplicate prevention has not been established.
+- Review import file and status-reference retention practices before use. The
+  bearer reference is the applicant's only access to their pending application.

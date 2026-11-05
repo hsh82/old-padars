@@ -1,0 +1,24 @@
+{
+ "autoname": "hash",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["first_name", "last_name", "email", "phone", "national_id", "identity_key", "status_token_hash", "guardian_consent", "phone_verified", "status", "student"],
+ "fields": [
+  {"fieldname":"first_name","fieldtype":"Data","label":"First Name","reqd":1,"in_list_view":1},
+  {"fieldname":"last_name","fieldtype":"Data","label":"Last Name"},
+  {"fieldname":"email","fieldtype":"Data","label":"Email","reqd":1},
+  {"fieldname":"phone","fieldtype":"Data","label":"Mobile","reqd":1},
+  {"fieldname":"national_id","fieldtype":"Password","label":"National ID","reqd":1,"hidden":1},
+  {"fieldname":"identity_key","fieldtype":"Data","label":"Identity Key","reqd":1,"hidden":1,"unique":1},
+  {"fieldname":"status_token_hash","fieldtype":"Data","label":"Status Token Hash","reqd":1,"hidden":1,"unique":1},
+  {"fieldname":"guardian_consent","fieldtype":"Check","label":"Adult or Guardian Consent"},
+  {"fieldname":"phone_verified","fieldtype":"Check","label":"Phone Verified","read_only":1},
+  {"fieldname":"status","fieldtype":"Select","label":"Status","options":"Submitted\nApproved\nRejected","default":"Submitted","read_only":1,"in_list_view":1},
+  {"fieldname":"student","fieldtype":"Link","label":"Student","options":"Student","read_only":1}
+ ],
+ "module":"Padars",
+ "name":"Student Registration Application",
+ "permissions":[{"role":"System Manager","read":1},{"role":"Padars School Manager","read":1}],
+ "sort_field":"modified",
+ "sort_order":"DESC"
+}

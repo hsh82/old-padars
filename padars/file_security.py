@@ -7,11 +7,14 @@ PRIVATE_PARENT_DOCTYPES = {
 	"Student", "Guardian", "Student Log", "Student Group", "Program Enrollment", "Course Enrollment",
 	"Student Attendance", "Assessment Plan", "Assessment Result", "Academic Assignment", "Course Schedule",
 	"School Course Offering", "LMS Entity Mapping", "LMS Enrollment State", "LMS Sync Operation",
+	"Student Registration Application",
 }
 
 
 def validate_private_attachment(doc, method=None):
-	if doc.attached_to_doctype in PRIVATE_PARENT_DOCTYPES:
+	is_student_import = (doc.attached_to_doctype == "Data Import" and doc.attached_to_name
+		and frappe.db.get_value("Data Import", doc.attached_to_name, "reference_doctype") == "Student")
+	if doc.attached_to_doctype in PRIVATE_PARENT_DOCTYPES or is_student_import:
 		if not doc.is_private or (doc.file_url and not doc.file_url.startswith("/private/files/")):
 			frappe.throw(_("Academic attachments must use private site files."), frappe.PermissionError)
 
@@ -21,7 +24,10 @@ def validate_share(doc, method=None):
 
 	parent = doc.share_doctype
 	if parent == "File":
-		parent = frappe.db.get_value("File", doc.share_name, "attached_to_doctype")
+		file = frappe.db.get_value("File", doc.share_name, ["attached_to_doctype", "attached_to_name"], as_dict=True)
+		parent = file.attached_to_doctype if file else None
+		if parent == "Data Import" and frappe.db.get_value("Data Import", file.attached_to_name, "reference_doctype") == "Student":
+			frappe.throw(_("Student import files cannot be shared directly."), frappe.PermissionError)
 	if parent in SCOPED_DOCTYPES or parent in PRIVATE_PARENT_DOCTYPES:
 		frappe.throw(_("Academic records and their files cannot be shared directly; use an academic assignment."),
 			frappe.PermissionError)

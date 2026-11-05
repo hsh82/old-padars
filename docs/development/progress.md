@@ -10,10 +10,10 @@ Updated: 2026-11-05
 
 ## Phase 3 work in progress
 
-Staff registration, returning-student draft enrollment and bounded CSV batch
-registration are implemented using Education records and private identity
-reservations. Public self-registration, verified phone ownership, identity
-checksum policy, approval and activation remain outstanding. See
+Staff registration, returning-student draft enrollment, native CSV/Excel Data
+Import, Iranian ID checksum validation, and an initial account activation flow
+are being implemented using Education records and private identity reservations.
+Public applications and manager approval are also being verified. See
 [student registration](../architecture/student-registration.md).
 
 ## Current Phase 1–2 work

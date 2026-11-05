@@ -1,6 +1,6 @@
 frappe.pages["student-registration"].on_page_load = function (wrapper) {
   const page = frappe.ui.make_app_page({parent: wrapper, title: __("Student Registration"), single_column: true});
-  $(page.body).html(`<p>${__("Register one student or preview a CSV batch. Phone numbers must use international format. Education must have Skip User Creation enabled.")}</p><p>${__("CSV columns: first_name, last_name, national_id, phone, email. Up to 100 rows.")}</p><div class="registration-actions"></div>`);
+  $(page.body).html(`<p>${__("Register a student or use Data Import for CSV and Excel. Use an Iranian mobile number.")}</p><div class="registration-actions"></div>`);
   const actions = $(page.body).find(".registration-actions");
   const button = (label, handler) => $("<button class='btn btn-default mr-2'>").text(__(label)).appendTo(actions).on("click", handler);
   button("Register Student", () => {
@@ -26,34 +26,8 @@ frappe.pages["student-registration"].on_page_load = function (wrapper) {
     }).then(({message}) => { dialog.hide(); frappe.set_route("Form", "Program Enrollment", message.enrollment); })});
     dialog.show();
   });
-  button("CSV Batch", () => {
-    const dialog = new frappe.ui.Dialog({title: __("CSV Batch"), fields: [
-      {fieldname: "file", label: __("CSV File"), fieldtype: "HTML"},
-      {fieldname: "result", fieldtype: "HTML"},
-    ]});
-    const file = $('<input type="file" accept=".csv,text/csv">').appendTo(dialog.fields_dict.file.$wrapper);
-    let rows = null;
-    // Frappe's CSV parser handles quoted cells and embedded delimiters.
-    file.on("change", async () => {
-      rows = null;
-      try {
-        const text = await file[0].files[0].text();
-        const parsed = frappe.utils.csv_to_array(text);
-        const headers = parsed.shift().map((v) => v.trim().toLowerCase());
-        rows = parsed.filter((row) => row.some((cell) => cell.trim())).map((row) => Object.fromEntries(headers.map((name, i) => [name, row[i] || ""])));
-        dialog.fields_dict.result.$wrapper.text(__("Ready to preview {0} rows.", [rows.length]));
-      } catch (err) { dialog.fields_dict.result.$wrapper.text(__("Unable to read the CSV file.")); }
-    });
-    const run = (preview) => {
-      if (!rows) { frappe.msgprint(__("Choose a CSV file first.")); return; }
-      frappe.call({method: "padars.registration.register_batch", args: {rows, preview: preview ? 1 : 0}, freeze: true}).then(({message}) => {
-        const summary = message.map((row) => __("Row {0}: {1}", [row.row, row.status])).join("\n");
-        dialog.fields_dict.result.$wrapper.empty().append($("<pre>").text(summary));
-      });
-    };
-    dialog.set_primary_action(__("Preview"), () => run(true));
-    dialog.set_secondary_action_label(__("Register Rows"));
-    dialog.set_secondary_action(() => run(false));
-    dialog.show();
+  button("Import CSV or Excel", () => {
+    frappe.set_route("Form", "Data Import", "new-data-import", {reference_doctype: "Student", import_type: "Insert New Records"});
   });
+  button("Review Applications", () => frappe.set_route("List", "Student Registration Application"));
 };

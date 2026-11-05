@@ -1,0 +1,53 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<h1>{{ _("Student Application") }}</h1>
+<p>{{ _("Submit an application for school review. An account is created only after approval.") }}</p>
+<p><a href="/student-activation">{{ _("Activate an approved account") }}</a></p>
+<form id="student-application" autocomplete="off">
+  <label for="first-name">{{ _("First name") }}</label><input class="form-control" id="first-name" required>
+  <label for="last-name">{{ _("Last name") }}</label><input class="form-control" id="last-name">
+  <label for="national-id">{{ _("National ID") }}</label><input class="form-control" id="national-id" required inputmode="numeric">
+  <label for="phone">{{ _("Mobile number") }}</label><input class="form-control" id="phone" required inputmode="tel">
+  <label for="email">{{ _("Email") }}</label><input class="form-control" id="email" type="email" required>
+  {% if sms_required %}
+  <button class="btn btn-default mt-3" type="button" id="send-code">{{ _("Send verification code") }}</button>
+  <label for="otp">{{ _("Verification code") }}</label><input class="form-control" id="otp" inputmode="numeric" required>
+  {% endif %}
+  <p><label><input id="consent" type="checkbox" required> {{ _("I am an adult or have my guardian's consent to apply.") }}</label></p>
+  <button class="btn btn-primary" type="submit">{{ _("Submit application") }}</button>
+</form>
+<p id="application-message" role="status"></p>
+<p>{{ _("Save the reference shown after submission to check your status.") }}</p>
+<input class="form-control" id="status-token" placeholder="{{ _('Application reference') }}">
+<button class="btn btn-default mt-2" id="check-status">{{ _("Check status") }}</button>
+<button class="btn btn-default mt-2" id="update-details">{{ _("Update name and email") }}</button>
+<script>
+(() => {
+  const value = (id) => document.getElementById(id)?.value || "";
+  const message = document.getElementById("application-message");
+  const call = async (method, args) => {
+    message.textContent = {{ _("Please wait…") | tojson }};
+    try {
+      const response = await fetch("/api/method/padars.student_application." + method, {
+        method: "POST", headers: {"Content-Type": "application/json", "X-Frappe-CSRF-Token": window.csrf_token || ""},
+        body: JSON.stringify(args), credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error("request failed");
+      const result = (await response.json()).message;
+      if (result.status_token) document.getElementById("status-token").value = result.status_token;
+      message.textContent = result.status || {{ _("Verification code requested.") | tojson }};
+    } catch (_) { message.textContent = {{ _("Unable to complete the request. Check your details or contact your school.") | tojson }}; }
+  };
+  document.getElementById("send-code")?.addEventListener("click", () => call("send_code", {national_id: value("national-id"), phone: value("phone")}));
+  document.getElementById("student-application").addEventListener("submit", (event) => {
+    event.preventDefault();
+    call("submit", {first_name: value("first-name"), last_name: value("last-name"), national_id: value("national-id"),
+      phone: value("phone"), email: value("email"), guardian_consent: document.getElementById("consent").checked ? 1 : 0, otp: value("otp")});
+  });
+  document.getElementById("check-status").addEventListener("click", () => call("status", {status_token: value("status-token")}));
+  document.getElementById("update-details").addEventListener("click", () => call("update_details", {
+    status_token: value("status-token"), first_name: value("first-name"), last_name: value("last-name"), email: value("email"),
+  }));
+})();
+</script>
+{% endblock %}

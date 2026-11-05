@@ -12,9 +12,6 @@ from frappe.utils import today, validate_email_address
 from padars.permissions import can_manage_school
 from padars.school_context import get_primary_school
 
-MAX_BATCH_SIZE = 100
-
-
 def _require_manager():
 	school = get_primary_school(required=True)
 	if not can_manage_school(school):
@@ -22,11 +19,19 @@ def _require_manager():
 	return school
 
 
-def _identity_key(value):
+def normalize_national_id(value):
 	value = unicodedata.normalize("NFKC", str(value or "")).strip()
 	value = "".join(str(unicodedata.decimal(c)) if c.isdecimal() else c.upper() for c in value)
-	if not re.fullmatch(r"[A-Z0-9]{6,32}", value):
-		frappe.throw(_("Enter a valid national identifier (6–32 letters or digits)."))
+	if not re.fullmatch(r"[0-9]{10}", value) or len(set(value)) == 1:
+		frappe.throw(_("Enter a valid 10-digit Iranian national ID."))
+	remainder = sum(int(value[i]) * (10 - i) for i in range(9)) % 11
+	if int(value[9]) != (remainder if remainder < 2 else 11 - remainder):
+		frappe.throw(_("Enter a valid 10-digit Iranian national ID."))
+	return value
+
+
+def _identity_key(value):
+	value = normalize_national_id(value)
 	key = frappe.local.conf.get("encryption_key")
 	if not key:
 		frappe.throw(_("The site encryption key must be configured before registration."))
@@ -37,8 +42,10 @@ def _phone(value):
 	value = unicodedata.normalize("NFKC", str(value or "")).strip()
 	value = "".join(str(unicodedata.decimal(c)) if c.isdecimal() else c for c in value)
 	value = re.sub(r"[ ()-]", "", value)
-	if not re.fullmatch(r"\+[1-9][0-9]{7,14}", value):
-		frappe.throw(_("Enter a phone number in international format, beginning with +."))
+	if re.fullmatch(r"09[0-9]{9}", value):
+		value = "+98" + value[1:]
+	if not re.fullmatch(r"\+989[0-9]{9}", value):
+		frappe.throw(_("Enter an Iranian mobile number beginning with 09 or +989."))
 	return value
 
 
@@ -63,8 +70,6 @@ def _review(data):
 		if student.student_mobile_number != data["phone"] or student.student_email_id.lower() != data["email"]:
 			frappe.throw(_("An existing identity needs staff review before registration."))
 		return student.name
-	if frappe.db.get_single_value("Education Settings", "user_creation_skip") != 1:
-		frappe.throw(_("Enable Skip User Creation in Education Settings before registering students."))
 	if frappe.db.exists("User", data["email"]) or frappe.db.exists("Student", {"student_email_id": data["email"]}):
 		frappe.throw(_("The supplied contact details require staff review."))
 	return None
@@ -77,10 +82,19 @@ def _register(row):
 		return {"student": existing, "created": False}
 	identity = frappe.get_doc({"doctype": "Student Identity", "identity_key": data["identity_key"]})
 	identity.insert(ignore_permissions=True)
+	# Keep the account disabled until the first password change succeeds.
+	user = frappe.get_doc({"doctype": "User", "email": data["email"], "first_name": data["first_name"],
+		"last_name": data["last_name"], "mobile_no": data["phone"], "enabled": 0,
+		"user_type": "Website User", "send_welcome_email": 0}).insert(ignore_permissions=True)
+	user.add_roles("Student")
+	from frappe.utils.password import update_password
+	update_password(user.name, "0" + data["phone"][3:])
 	student = frappe.get_doc({"doctype": "Student", "first_name": data["first_name"],
 		"last_name": data["last_name"], "student_email_id": data["email"],
-		"student_mobile_number": data["phone"]}).insert()
+		"student_mobile_number": data["phone"], "user": user.name}).insert()
 	identity.student = student.name
+	identity.user = user.name
+	identity.pending_activation = 1
 	identity.save(ignore_permissions=True)
 	return {"student": student.name, "created": True}
 
@@ -89,39 +103,6 @@ def _register(row):
 def register_student(first_name, national_id, phone, email, last_name=None):
 	_require_manager()
 	return _register(dict(first_name=first_name, national_id=national_id, phone=phone, email=email, last_name=last_name))
-
-
-@frappe.whitelist(methods=["POST"])
-def register_batch(rows, preview=True):
-	_require_manager()
-	rows = frappe.parse_json(rows) if isinstance(rows, str) else rows
-	if not isinstance(rows, list) or not 1 <= len(rows) <= MAX_BATCH_SIZE:
-		frappe.throw(_("Provide between 1 and 100 registration rows."))
-	preview = frappe.utils.cint(preview) == 1
-	results = []
-	seen = set()
-	seen_emails = set()
-	for index, row in enumerate(rows, 1):
-		savepoint = f"padars_registration_{index}"
-		frappe.db.savepoint(savepoint)
-		try:
-			data = _prepare(row)
-			if data["identity_key"] in seen:
-				frappe.throw(_("This identity appears more than once in the batch."))
-			if data["email"] in seen_emails:
-				frappe.throw(_("This email appears more than once in the batch."))
-			seen.add(data["identity_key"])
-			seen_emails.add(data["email"])
-			if preview:
-				result = {"status": "valid", "existing": bool(_review(data))}
-			else:
-				result = {"status": "success", **_register(row)}
-		except Exception:
-			frappe.db.rollback(save_point=savepoint)
-			frappe.clear_messages()
-			result = {"status": "error", "message": _("Row could not be processed; check its values and existing records.")}
-		results.append({"row": index, **result})
-	return results
 
 
 @frappe.whitelist(methods=["POST"])

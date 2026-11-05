@@ -149,7 +149,11 @@ has_permission = {
 	"Student Report Generation Tool": "padars.permissions.has_school_permission",
 }
 
+data_import_providers = {"Student": "padars.student_import.StudentImportProvider"}
+before_login = ["padars.student_activation.resolve_student_login"]
+
 doc_events = {
+	"Data Import": {"validate": "padars.student_import.validate_import"},
 	"File": {"validate": "padars.file_security.validate_private_attachment"},
 	"DocShare": {"validate": "padars.file_security.validate_share"},
 	"Student": {"validate": "padars.education_hooks.validate_student_identity"},

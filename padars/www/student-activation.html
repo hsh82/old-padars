@@ -1,0 +1,43 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<h1>{{ _("Activate Student Account") }}</h1>
+<p>{{ _("Enter your national ID and your mobile number in 09 format. Choose a new password before signing in.") }}</p>
+<form id="student-activation" autocomplete="off">
+  <label for="national-id">{{ _("National ID") }}</label>
+  <input class="form-control" id="national-id" required inputmode="numeric" autocomplete="username">
+  <label for="temporary-password">{{ _("Mobile number (temporary password)") }}</label>
+  <input class="form-control" id="temporary-password" type="password" required autocomplete="current-password">
+  {% if sms_required %}
+  <button class="btn btn-default mt-3" type="button" id="send-code">{{ _("Send verification code") }}</button>
+  <label for="otp">{{ _("Verification code") }}</label>
+  <input class="form-control" id="otp" inputmode="numeric" required autocomplete="one-time-code">
+  {% endif %}
+  <label for="new-password">{{ _("New password") }}</label>
+  <input class="form-control" id="new-password" type="password" minlength="10" required autocomplete="new-password">
+  <button class="btn btn-primary mt-3" type="submit">{{ _("Activate account") }}</button>
+</form>
+<p id="activation-message" role="status"></p>
+<script>
+(() => {
+  const value = (id) => document.getElementById(id)?.value || "";
+  const status = document.getElementById("activation-message");
+  const call = async (method, args) => {
+    status.textContent = {{ _("Please wait…") | tojson }};
+    try {
+      const response = await fetch("/api/method/padars.student_activation." + method, {
+        method: "POST", headers: {"Content-Type": "application/json", "X-Frappe-CSRF-Token": window.csrf_token || ""},
+        body: JSON.stringify(args), credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error("request failed");
+      status.textContent = method === "activate" ? {{ _("Account activated. You can now sign in.") | tojson }} : {{ _("Verification code requested.") | tojson }};
+    } catch (_) { status.textContent = {{ _("Unable to complete the request. Check your details or contact your school.") | tojson }}; }
+  };
+  const credentials = () => ({national_id: value("national-id"), temporary_password: value("temporary-password")});
+  document.getElementById("send-code")?.addEventListener("click", () => call("send_activation_code", credentials()));
+  document.getElementById("student-activation").addEventListener("submit", (event) => {
+    event.preventDefault();
+    call("activate", {...credentials(), new_password: value("new-password"), otp: value("otp")});
+  });
+})();
+</script>
+{% endblock %}

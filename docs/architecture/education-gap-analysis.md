@@ -1,5 +1,10 @@
 # Education gap analysis
 
+> This analysis includes gaps created by the former shared-site design. Reuse
+> findings about Education lifecycles remain useful; school-context fields and
+> membership-dependent claims require revalidation under
+> [ADR-005](../decisions/ADR-005-site-per-school.md).
+
 Source inspected: local Education 16.1.0 checkout, paired with Frappe 16.52.0.
 
 ## Confirmed reusable behavior

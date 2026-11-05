@@ -1,5 +1,11 @@
 # Permissions and tenancy
 
+> This is the legacy Stage 1 permission implementation for a shared-site
+> topology. It is not the accepted target. See
+> [ADR-005](../decisions/ADR-005-site-per-school.md) and
+> [target architecture](target-system.md); Phase 1 will replace cross-customer
+> membership gating with within-school resource scopes.
+
 > Stage 1 supersedes the earlier broad same-school access model. The exact
 > enforced role matrix is in [stage1-authorization.md](stage1-authorization.md).
 > `Education Manager` is no longer a Padars platform bypass; `Administrator`

@@ -1,5 +1,8 @@
 # ADR-001: Shared Frappe site with school-scoped authorization
 
+> **Superseded.** This records the original provisional decision only.
+> [ADR-005](ADR-005-site-per-school.md) is the accepted target architecture.
+
 ## Context
 
 The product must support independent schools, potentially with shared parent/teacher identities and a shared Moodle MuTMS. A site-per-school model would simplify isolation but multiply upgrade, backup, and support cost.
@@ -11,7 +14,10 @@ The product must support independent schools, potentially with shared parent/tea
 
 ## Decision
 
-Use a shared site provisionally. Enforce school context with membership-aware query conditions, direct permission checks, and server-side relationship validation. Keep tenancy-specific logic in Padars so a future site-per-school deployment does not require duplicating the Education academic core.
+Original decision: use a shared site provisionally. That implementation is
+historical and must not guide new work. The accepted target is one Frappe site
+and database per independent school. Existing membership checks and fields are
+to be reviewed in Phase 1.
 
 ## Consequences
 

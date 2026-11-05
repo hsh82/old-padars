@@ -8,5 +8,12 @@ The integration boundary is `padars.integrations.moodle`.
 - `LMS Entity Mapping`: preserves local/remote identifiers and remote context.
 - `LMS Sync Operation`: records pending, running, succeeded, and failed states with attempts and safe diagnostics.
 
-The configured real Moodle/MuTMS API, tenant allocation rules, category semantics, role/enrollment semantics, and SSO contract are unresolved. No live success is claimed. Credentials remain in a Frappe Password field and are not returned by APIs. Mock operations have a bounded retry policy and stale-worker recovery.
+The local Moodle code tree is Moodle 5.2.4 (Build 20261005) with MuTMS
+`tool_mutenancy` v5.2.4.01; exact source metadata is in the
+[version baseline](../operations/version-baseline.md). This confirms the local
+code version only. The live site's enabled API functions, service-account
+capabilities, tenant allocation rules, category/cohort IDs, role/enrollment
+semantics, and SSO contract remain unverified. No live API success is claimed.
+Credentials remain in a Frappe Password field and are not returned by APIs.
+Mock operations have bounded retries and stale-worker recovery.
 

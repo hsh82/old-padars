@@ -11,3 +11,10 @@ This documentation records the verified architecture and implementation status f
 
 Start with [`development/progress.md`](development/progress.md), then [`architecture/system-overview.md`](architecture/system-overview.md).
 
+The accepted product topology is recorded in
+[`decisions/ADR-005-site-per-school.md`](decisions/ADR-005-site-per-school.md).
+For the target ownership map, see
+[`architecture/target-system.md`](architecture/target-system.md); for the
+current development stack and clean-install site, see
+[`operations/version-baseline.md`](operations/version-baseline.md).
+

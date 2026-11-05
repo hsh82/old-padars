@@ -1,5 +1,10 @@
 # DocType specification
 
+> This specification documents the experimental shared-site model currently
+> in source. Review it against [ADR-005](../decisions/ADR-005-site-per-school.md)
+> before changing schemas. Since Padars is pre-release, Phase 1 may simplify or
+> replace these models without an old-schema compatibility promise.
+
 ## School
 
 `school_code` is the stable unique local identity. `school_name`, status, current academic year, and optional company/configuration metadata are stored here. System Manager and Education Manager manage records; non-privileged access is membership-scoped.

@@ -17,7 +17,7 @@ The release candidate is not deployed to staging. The code and mock-backed integ
 ### Blocking reasons
 
 - No named non-production staging site or verified Frappe app service.
-- Padars is not installed on the only discovered site, `kara.loc`.
+- `kara.loc` is a development site whose config lists Padars as installed; it is not a release or staging target.
 - Frappe database tests, migration, asset build, and browser tests are unavailable in the local runtime.
 - Bulk import, SSO, direct Moodle course navigation, teacher/student Moodle enrollment orchestration, and report-card publication/versioning are incomplete.
 - Live MuTMS APIs and credentials are unavailable; mock behavior cannot be classified as live integration.

@@ -14,7 +14,7 @@ Updated: 2026-11-04
 
 **Staging target: NOT IDENTIFIED.**
 
-The only Frappe site configuration discovered is `kara.loc`. Its configuration identifies it as the local development site, and Padars is not installed. It is not approved for staging deployment.
+The inspected site `kara.loc` is a local development site; its current site config lists Padars as installed. It is not approved for staging deployment. Phase 0 uses the isolated `padars-phase0-fresh.local` site instead.
 
 The discovered topology is mixed:
 

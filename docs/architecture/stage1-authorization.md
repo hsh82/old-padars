@@ -1,5 +1,10 @@
 # Stage 1 authorization matrix
 
+> **Historical implementation record.** This matrix describes shared-site
+> Stage 1 checks, not the product target. The target is one site per school;
+> staff still need scoped permissions within that site. See
+> [ADR-005](../decisions/ADR-005-site-per-school.md).
+
 Updated: 2026-11-04. This is the enforced Stage 1 baseline for the provisional
 shared-site topology. A Frappe role and an active, date-valid School Membership
 are both required; neither is sufficient alone.

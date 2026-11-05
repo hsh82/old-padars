@@ -15,15 +15,19 @@ The dependency-free frontend smoke tests cover shared school-context and LMS sta
 
 ## Database-backed checks
 
-From a working Bench with the app installed:
+Use a fresh disposable site on the pinned app commits. The current local
+verification site is `padars-phase0-fresh.local` inside the Frappe container.
+Run these commands from that Bench; never substitute `kara.loc`:
 
 ```bash
-bench --site <isolated-site> migrate
-bench --site <isolated-site> set-config allow_tests true
-bench --site <isolated-site> run-tests --app padars
+bench --site padars-phase0-fresh.local set-config allow_tests true
+bench --site padars-phase0-fresh.local run-tests --app padars
 ```
 
 CI provisions the dependency chain in order: ERPNext, Education, then Padars, so the clean-site test matches the declared application dependencies.
 
-The checked-out Bench currently has a stale virtualenv shebang and the host lacks `libmariadb.so.3`; the commands must be re-run once the local runtime is repaired or in CI. Static metadata and syntax checks remain valid independently.
+Do not run migration-upgrade checks for experimental Padars schemas; the app is
+pre-release and old schema compatibility is out of scope. The host virtualenv
+symlink is stale, so use the verified Frappe container or pinned CI runtime.
+Static metadata and syntax checks do not substitute for the fresh-site test.
 

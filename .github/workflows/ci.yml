@@ -19,15 +19,15 @@ jobs:
 
     services:
       redis-cache:
-        image: redis:alpine
+        image: redis:8-alpine
         ports:
           - 13000:6379
       redis-queue:
-        image: redis:alpine
+        image: redis:8-alpine
         ports:
           - 11000:6379
       mariadb:
-        image: mariadb:11.8
+        image: mariadb:10.6
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
@@ -46,13 +46,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: '3.14.2'
 
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          check-latest: true
+          node-version: '24.19.0'
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -82,14 +81,17 @@ jobs:
 
       - name: Setup
         run: |
-          pip install frappe-bench
+          pip install frappe-bench==5.31.0
           bench init --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
+          git -C ~/frappe-bench/apps/frappe checkout 4515014c87ece6cb20ee91d2cfb121c5cbd1ff4a
 
       - name: Install
         working-directory: /home/runner/frappe-bench
         run: |
           bench get-app erpnext https://github.com/frappe/erpnext --branch version-16
           bench get-app education https://github.com/frappe/education --branch version-16
+          git -C apps/erpnext checkout 5af6561f5aa48104559692fb4fd82f2580e8d338
+          git -C apps/education checkout 93bc7075753369457919720690f80c6d2207b5f2
           bench get-app padars $GITHUB_WORKSPACE
           bench setup requirements --dev
           bench new-site --db-root-password root --admin-password admin test_site

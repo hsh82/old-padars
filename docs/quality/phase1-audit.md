@@ -9,7 +9,7 @@ Updated: 2026-11-04
 - Backend checkpoint: `40b7a74`.
 - Frappe source: 16.52.0 in the checked-out Bench.
 - Education source: 16.0.1 (`education/__init__.py`).
-- The development site configuration lists Frappe, ERPNext, HRMS, Airplane Mode, Draw, and Education; Padars is not installed on `kara.loc`.
+- This audit reflects the earlier Phase 1 discovery. The current `kara.loc` site config also lists Padars; Phase 0 did not run a command against that site.
 - Junior School was inspected independently at `3567e3f11c1ac553929f9bd3b111c306fe689d60` and was not installed or copied.
 
 ## Implementation inventory

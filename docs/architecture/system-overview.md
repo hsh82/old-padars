@@ -1,5 +1,10 @@
 # System overview
 
+> **Current code snapshot:** this page describes source records already on the
+> branch. The shared-site tenancy diagram below is transitional. The accepted
+> target is [site-per-school](target-system.md) and
+> [ADR-005](../decisions/ADR-005-site-per-school.md).
+
 Padars is a companion app to Frappe Education. Education remains the source of truth for students, academic years/terms, programs, courses, program enrollment, course enrollment, groups, instructors, schedules, assessment plans, and assessment results.
 
 Padars owns the independent-school boundary and external-LMS state:

@@ -1,5 +1,8 @@
 # Phase 1 test results
 
+> Historical Phase 1 evidence from 2026-11-04. The current clean-site install
+> and test-preloader result are in [Phase 0 results](phase0-results.md).
+
 Updated: 2026-11-04
 
 ## Stage 1 WP01–WP03 runtime evidence

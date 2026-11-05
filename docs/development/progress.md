@@ -1,6 +1,12 @@
 # Implementation progress
 
-Updated: 2026-11-04
+> Phase 0 established a fresh baseline on 2026-11-05. For the accepted product
+> topology and current source/runtime pins, see [ADR-005](../decisions/ADR-005-site-per-school.md),
+> [target architecture](../architecture/target-system.md), and
+> [Phase 0 results](../quality/phase0-results.md). This progress log retains
+> earlier shared-site work as implementation history.
+
+Updated: 2026-11-05
 
 ## Implemented
 
@@ -31,20 +37,34 @@ Updated: 2026-11-04
 - `git status` was clean before implementation.
 - JSON parsing, Python compilation, module imports, deterministic mock-adapter contract, and `git diff --check` passed.
 
-## Blocked
+## Verification limits
 
-- The full Frappe test runner is currently blocked before Padars tests by an existing duplicate ERPNext fixture on disposable `stage1.local`; the new Stage 1 negative suite remains unexecuted until that isolated fixture state is repaired.
-
-- Database-backed Frappe tests and migration are not yet executed: the Bench virtualenv wrappers point to `/workspace/frappe-bench`, and the host cannot load `libmariadb.so.3`; the configured DB hostname is also environment-specific.
-- Ruff is not installed in the available runtime, so the configured lint command was not executed.
-- Browser behavior, asset build, and database-backed frontend tests remain unexecuted because the local Bench runtime/site is unavailable; the focused Node smoke tests are passing.
-- Padars is not installed on `kara.loc`; no schema or data was changed there.
-- Live Moodle/MuTMS API, tenant/category mapping, and SSO contract are not available, so only the mock adapter is implemented.
-- Phase 1 release assessment is `NOT READY`: bulk registration, report-card publication/versioning, student portal access, SSO, and live MuTMS verification remain incomplete.
-- Canonical Phase 1 roadmap located at `docs/input/Padars_Phase1_Requirements_and_MVP_Plan.md`; the 39 committed IDs are traced in `docs/releases/phase1-requirements-matrix.md`.
-- Deployment discovery found only the development site `kara.loc`; no named staging site or running Frappe web/worker service was verified. No migration, backup, install, restart, or deployment command was run.
+- The clean-site Frappe test runner stopped in ERPNext preloading before any
+  Padars test ran: `BootStrapTestData.make_item_group()` could not find the
+  `All Item Groups` parent. Earlier `stage1.local` runs also hit a duplicate
+  ERPNext fixture. See [Phase 0 results](../quality/phase0-results.md).
+- Historical Padars schema migration tests were skipped because the app is
+  pre-release and the baseline is a fresh install.
+- Browser behavior and asset build were outside Phase 0; the local Bench runtime
+  is available through the Frappe container.
+- The current `kara.loc` site config lists Padars as installed; no Phase 0
+  command targeted it.
+- Moodle/MuTMS code versions are recorded, but live web-service functions,
+  tenant/category mapping, service-account capabilities, and SSO remain
+  unverified. The adapter remains mock-only.
+- Phase 1 release assessment remains `NOT READY`: bulk registration,
+  report-card publication/versioning, student portal access, SSO, and live
+  MuTMS verification remain incomplete.
+- The 39 Phase 1 requirement IDs are traced in
+  `docs/releases/phase1-requirements-matrix.md`.
+- Phase 0 created a temporary backup during initial inspection and removed it
+  after the scope was narrowed; no migration, restart, or deployment command
+  was run.
 
 ## Next milestone
 
-Repair or recreate the disposable fixture state, run the Stage 1 two-school negative suite and relevant existing tests, then stop for approval before WP04.
+Phase 0 is complete. The next approved work package is Phase 1: replace the
+legacy shared-site tenancy assumptions with site-per-school setup and
+within-school scoped permissions. The test-preloader blocker is recorded; do
+not spend time on historical migration or patch compatibility.
 

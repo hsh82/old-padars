@@ -8,7 +8,7 @@ This runbook is environment-specific to the discovered host, but deployment is c
 
 - Padars repository: `/home/weinno/projects/frappe/sites/kara.loc/workspace/frappe-bench/apps/padars`.
 - Bench root: `/home/weinno/projects/frappe/sites/kara.loc/workspace/frappe-bench`.
-- Development site: `kara.loc`; Padars is not installed.
+- Development site: `kara.loc`; its site config currently lists Padars as installed. It is not the disposable Phase 0 test site.
 - Shared infrastructure Compose file: `/home/weinno/frappe/services/docker-compose.yml`.
 - Moodle Compose file: `/home/weinno/projects/lms-moodle/docker-compose.yml`; it is not the Frappe stack.
 - No named staging site, Frappe app container, or deployment owner was discovered.

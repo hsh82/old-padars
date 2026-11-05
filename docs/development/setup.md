@@ -1,6 +1,6 @@
 # Development setup
 
-The repository is `/home/weinno/projects/frappe/sites/kara.loc/workspace/frappe-bench/apps/padars` inside a local Bench checkout. Checked-out tags are Frappe 16.52.0, Education 16.1.0, ERPNext 16.51.1, and HRMS 16.51.0. The Education package has a metadata discrepancy: its checkout tag is `v16.1.0` while `education/__init__.py` reports `16.0.1`; resolve this in the pinned build before release. The intended runtime is Python 3.14, but the local wrapper points to an unavailable `/workspace/frappe-bench` interpreter path.
+The repository is `/home/weinno/projects/frappe/sites/kara.loc/workspace/frappe-bench/apps/padars` inside a local Bench checkout. See [version-baseline.md](../operations/version-baseline.md) for exact source commits and runtime versions. Padars is pre-release; use a fresh disposable site on the pinned Frappe/Education branch as the baseline. Historical Padars schemas and patches do not need upgrade compatibility.
 
-The configured `kara.loc` site has Frappe, ERPNext, HRMS, Airplane Mode, Draw, and Education installed. Padars is not installed there at audit time. Treat it as a development site only; use an isolated disposable site for schema tests. No staging target was identified during the deployment audit.
+`kara.loc` is a development site and its site config lists Padars as installed. Do not use it for schema experiments. Use `padars-phase0-fresh.local` or recreate a disposable site in the Frappe container. The host virtualenv wrapper is stale; run database-backed Bench work through the verified container runtime. No production or staging target is configured.
 

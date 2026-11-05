@@ -22,6 +22,14 @@ also requires the appropriate Frappe role and action permission.
 
 Represents one annual teaching instance. The business key is School + Academic Year + Course + Student Group. The controller verifies compatible group/year/program context and an active instructor. Teacher LMS enrollment requires a matching active academic assignment.
 
+## Student Identity
+
+Private registration reservation with a unique keyed national-identifier digest
+and unique Student link. It is managed by the registration service; access is
+not granted through a user-facing DocType role. The Student and Program
+Enrollment remain Education records. See [student registration](student-registration.md)
+for requirements, key management and current limitations.
+
 ## LMS Settings
 
 Single DocType for adapter selection and server-side endpoint/token configuration. The MVP defaults to `Mock`; the real Moodle adapter is not claimed complete.
@@ -40,5 +48,5 @@ Persistent job intent with target Dynamic Link, operation type, school, unique i
 
 ## Not implemented
 
-Report Card Publication, School Enrollment, bulk import result storage, and portal/SSO session records are not present. The existing Education records remain authoritative until those contracts are approved.
+Report Card Publication, School Enrollment, durable bulk import result storage, and portal/SSO session records are not present. The existing Education records remain authoritative until those contracts are approved.
 

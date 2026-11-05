@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "student-registration",
+ "module": "Padars",
+ "page_name": "student-registration",
+ "title": "Student Registration",
+ "standard": "Yes",
+ "roles": [{"role": "System Manager"}, {"role": "Padars School Manager"}]
+}

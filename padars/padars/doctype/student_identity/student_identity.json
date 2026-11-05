@@ -1,0 +1,15 @@
+{
+ "autoname": "hash",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["identity_key", "student"],
+ "fields": [
+  {"fieldname": "identity_key", "fieldtype": "Data", "hidden": 1, "label": "Identity Key", "reqd": 1, "unique": 1, "read_only": 1},
+  {"fieldname": "student", "fieldtype": "Link", "label": "Student", "options": "Student", "unique": 1, "read_only": 1}
+ ],
+ "module": "Padars",
+ "name": "Student Identity",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

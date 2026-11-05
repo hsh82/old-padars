@@ -8,6 +8,14 @@
 
 Updated: 2026-11-05
 
+## Phase 3 work in progress
+
+Staff registration, returning-student draft enrollment and bounded CSV batch
+registration are implemented using Education records and private identity
+reservations. Public self-registration, verified phone ownership, identity
+checksum policy, approval and activation remain outstanding. See
+[student registration](../architecture/student-registration.md).
+
 ## Current Phase 1–2 work
 
 Site-per-school setup, scoped academic assignments and permissions, a school

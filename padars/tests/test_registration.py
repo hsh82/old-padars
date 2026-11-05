@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from concurrent.futures import ThreadPoolExecutor
 import csv
 import tempfile
 
@@ -193,6 +194,23 @@ class TestRegistration(FrappeTestCase):
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.PermissionError):
 			register_student(**self.row)
+
+	def test_public_application_page_renders_before_school_setup(self):
+		from padars.www.student_application import get_context
+		context = frappe._dict()
+		with patch("padars.www.student_application.get_primary_school", return_value=None):
+			get_context(context)
+		self.assertFalse(context.sms_required)
+		self.assertTrue(context.no_cache)
+
+	def test_public_application_page_responds_before_school_setup(self):
+		from frappe.utils import get_test_client
+		site = frappe.local.site
+		with patch("frappe.app.get_site_name", return_value=site), patch("padars.www.student_application.get_primary_school", return_value=None):
+			with ThreadPoolExecutor(max_workers=1) as executor:
+				response = executor.submit(lambda: get_test_client().get("/student-application")).result()
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b"Student Application", response.data)
 
 	def test_registration_runs_native_student_hooks(self):
 		self.student_hook.stop()

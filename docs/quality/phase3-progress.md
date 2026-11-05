@@ -24,6 +24,11 @@ suite ran 50 tests successfully, with six legacy shared-site tests skipped.
 Other apps' test suites were not run. Python/JSON parsing and JavaScript syntax
 checks passed. The suite includes CSV/Excel parsing and mocked SMS delivery.
 
+An additional focused run executed 17 registration tests, including a Frappe
+HTTP test for the public application page before school setup. The page now
+renders in that state; submission still requires a configured school. This HTTP
+check does not replace browser interaction testing.
+
 ## Remaining acceptance limits
 
 - With SMS disabled, a person who knows a student's ID and phone may activate
@@ -42,3 +47,14 @@ checks passed. The suite includes CSV/Excel parsing and mocked SMS delivery.
   duplicate prevention has not been established.
 - Review import file and status-reference retention practices before use. The
   bearer reference is the applicant's only access to their pending application.
+
+## Candidate for closing the direct-creation gap
+
+A possible change is a Student `before_insert` guard requiring a matching
+Padars Student Identity reservation, with registration creating that
+reservation before inserting the Education Student. Direct form, API, and
+upstream Education paths without a reservation would fail. Existing Students
+would still need a reviewed reconciliation process. This candidate was not
+applied: automatic approval review rejected the global guard because it could
+disrupt Education and administrator workflows. Its compatibility and rollout
+need explicit review before applying it.

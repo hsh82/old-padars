@@ -1,6 +1,9 @@
-from padars.student_activation import _sms_required
+import frappe
+
+from padars.school_context import get_primary_school
 
 
 def get_context(context):
-	context.sms_required = _sms_required()
+	school = get_primary_school()
+	context.sms_required = bool(school and frappe.db.get_value("School", school, "require_sms_verification"))
 	context.no_cache = 1

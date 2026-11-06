@@ -171,6 +171,27 @@ class TestScheduling(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			validate_assessment_result_relationships(result)
 
+	def test_assessment_scores_use_complete_plan_criteria_and_server_maxima(self):
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		criterion = plan.assessment_criteria[0].assessment_criteria
+		result = frappe.new_doc("Assessment Result")
+		result.assessment_plan = plan.name
+		result.maximum_score = 999
+		result.append("details", {"assessment_criteria": criterion, "score": 60})
+		result.run_method("before_validate")
+		self.assertEqual(result.maximum_score, 100)
+		for invalid in (-1, 101, float("nan")):
+			result.details[0].score = invalid
+			with self.assertRaises(frappe.ValidationError):
+				result.run_method("before_validate")
+		result.details[0].score = 60
+		result.append("details", {"assessment_criteria": criterion, "score": 10})
+		with self.assertRaises(frappe.ValidationError):
+			result.run_method("before_validate")
+		result.details = []
+		with self.assertRaises(frappe.ValidationError):
+			result.run_method("before_validate")
+
 	def test_past_exam_plans_cannot_be_deleted_or_rescheduled(self):
 		past_date = add_days(today(), -1)
 		plan = self._assessment_plan(self.group, past_date, examiner=self.instructor.name)

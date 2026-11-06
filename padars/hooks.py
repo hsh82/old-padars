@@ -213,6 +213,7 @@ doc_events = {
 		"on_cancel": "padars.scheduling.validate_assessment_plan_deletion",
 	},
 	"Assessment Result": {
+		"before_validate": "padars.assessment.validate_result_scores",
 		"validate": [
 			"padars.education_hooks.validate_linked_education_context",
 			"padars.scheduling.validate_assessment_result_relationships",

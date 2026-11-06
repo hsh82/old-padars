@@ -34,8 +34,10 @@ reached.
 4. Phase 8: implementation complete with offline verification; live MuTMS
    tenant/course/user/enrollment acceptance is blocked on authorized service
    credentials and target capabilities.
-5. Next: Phase 9 grades, followed by Phase 10 guardians/extensions and Phase 11
-   comprehensive integration and release verification.
+5. Phase 9: in progress; assessment score integrity checks are implemented.
+   Grade review, publication and Moodle grade reconciliation remain unfinished.
+   See [Phase 9 progress](../quality/phase9-progress.md). Phase 10 guardians and
+   extensions and Phase 11 comprehensive verification follow.
 
 ## Frontend follow-up
 

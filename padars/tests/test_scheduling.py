@@ -1133,6 +1133,21 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(calculated["percentage"], "68.00")
 		self.assertEqual(calculated["rounding_mode"], "Half Even")
 
+	def test_unchanged_today_assessment_submits_with_form_date_and_time_strings(self):
+		plan = self._assessment_plan(self.group, today(), examiner=self.instructor.name)
+		# The browser and native insert retain strings; DB snapshots return date/timedelta.
+		self.assertIsInstance(plan.schedule_date, str)
+		plan.submit()
+		self.assertEqual(plan.docstatus, 1)
+		stored = frappe.get_doc("Assessment Plan", plan.name)
+		changed = frappe.get_doc("Assessment Plan", plan.name)
+		changed.from_time = "14:00:00"
+		changed.to_time = "15:00:00"
+		from padars.scheduling import validate_assessment_plan
+		with patch.object(changed, "get_doc_before_save", return_value=stored):
+			with self.assertRaisesRegex(frappe.ValidationError, "cannot be rescheduled"):
+				validate_assessment_plan(changed)
+
 	def test_past_exam_plans_cannot_be_deleted_or_rescheduled(self):
 		past_date = add_days(today(), -1)
 		plan = self._assessment_plan(self.group, past_date, examiner=self.instructor.name)

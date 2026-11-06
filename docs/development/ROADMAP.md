@@ -96,3 +96,11 @@ roles. Existing Student Customer name/image projection is narrowly synchronized;
 unauthorized Customer retargeting is rejected. Focused regressions pass.
 Separate runtime deployment and role-login acceptance remain to be performed.
 Stage 1 checkout, database, workers and assets must remain untouched.
+
+Staging 2 installation now passes on its independent `stage2.kara.loc` site.
+Synthetic academic seeding, native private intake upload/download and role HTTP
+checks pass. User-profile landing pages are verified. The current-day assessment
+comparison defect was traced to SQL date/timedelta versus incoming strings;
+canonical date/time comparisons fix unchanged submissions without permitting
+real past rescheduling. All 24 focused product tests pass. Final deployment
+snapshot promotion and synthetic publication verification follow this commit.

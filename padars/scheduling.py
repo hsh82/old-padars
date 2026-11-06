@@ -122,6 +122,18 @@ def validate_course_schedule(doc, method=None):
 	validate_overlap_for(doc, "Assessment Plan", "examiner", doc.instructor)
 
 
+
+def _assessment_schedule_value(doc, field):
+	value = doc.get(field)
+	if value is None or value == "":
+		return None
+	if field == "schedule_date":
+		return getdate(value)
+	if field in {"from_time", "to_time"}:
+		return get_time(value)
+	return value
+
+
 def validate_assessment_plan(doc, method=None):
 	group = _get_group(doc.student_group)
 	_validate_group_fields(doc, group)
@@ -147,7 +159,8 @@ def validate_assessment_plan(doc, method=None):
 			frappe.db.sql("select name from `tabAssessment Plan` where name=%s for update", doc.name)
 			if frappe.db.sql("select name from `tabAssessment Result` where assessment_plan=%s and docstatus < 2 limit 1 for update", doc.name):
 				frappe.throw(_("Assessment criteria, maxima and grading scale cannot change after results exist."))
-	if old and any(old.get(field) != doc.get(field) for field in ASSESSMENT_PLAN_SCHEDULE_FIELDS):
+	if old and any(_assessment_schedule_value(old, field) != _assessment_schedule_value(doc, field)
+		for field in ASSESSMENT_PLAN_SCHEDULE_FIELDS):
 		has_results = frappe.db.exists(
 			"Assessment Result", {"assessment_plan": doc.name, "docstatus": ["!=", 2]}
 		)

@@ -55,3 +55,11 @@ Stage 1 checkout, database, workers and assets must remain untouched.
 Staging 2 preparation verification: all 23 focused scheduling/product tests pass
 on `padars-phase12-fresh.local`, including default-profile repeatability, safe
 role grants, manager permission boundaries and existing Customer projection.
+
+Staging 2 installation now passes on its independent `stage2.kara.loc` site.
+Synthetic academic seeding, native private intake upload/download and role HTTP
+checks pass. User-profile landing pages are verified. The current-day assessment
+comparison defect was traced to SQL date/timedelta versus incoming strings;
+canonical date/time comparisons fix unchanged submissions without permitting
+real past rescheduling. All 24 focused product tests pass. Final deployment
+snapshot promotion and synthetic publication verification follow this commit.

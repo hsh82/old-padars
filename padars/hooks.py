@@ -47,7 +47,7 @@ override_whitelisted_methods = {
 	"education.education.api.get_course_schedule_events": "padars.education_api.deny_unreviewed",
 	"education.education.api.get_assessment_students": "padars.education_api.deny_unreviewed",
 	"education.education.api.get_assessment_details": "padars.assessment.get_assessment_details",
-	"education.education.api.mark_assessment_result": "padars.education_api.deny_unreviewed",
+	"education.education.api.mark_assessment_result": "padars.assessment.mark_assessment_result",
 	"education.education.api.submit_assessment_results": "padars.education_api.deny_unreviewed",
 	"education.education.api.get_current_enrollment": "padars.education_api.deny_unreviewed",
 	"education.education.api.get_instructors": "padars.education_api.deny_unreviewed",

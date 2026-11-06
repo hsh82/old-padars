@@ -208,6 +208,41 @@ class TestScheduling(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
+	def test_assigned_teacher_can_create_and_update_only_scoped_draft_results(self):
+		from padars.assessment import mark_assessment_result
+		student_user = self._user("learner")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Learner",
+				"student_email_id": student_user, "user": student_user, "enabled": 1}).insert()
+		frappe.get_doc({"doctype": "Program Enrollment", "student": student.name,
+			"program": self.program.name, "academic_year": self.year.name,
+			"enrollment_date": "2020-01-01", "padars_school": self.school.name}).insert().submit()
+		self.group.append("students", {"student": student.name, "active": 1})
+		self.group.save()
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		plan.submit()
+		criterion = plan.assessment_criteria[0].assessment_criteria
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		outsider = self._user("outsider")
+		try:
+			frappe.set_user(teacher)
+			first = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 70}})
+			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
+			self.assertEqual(first["name"], second["name"])
+			self.assertEqual(second["total_score"], 80)
+			with self.assertRaises(frappe.ValidationError):
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: -1}})
+			frappe.set_user(outsider)
+			with self.assertRaises(frappe.PermissionError):
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
+			frappe.set_user("Administrator")
+			frappe.get_doc("Assessment Result", first["name"]).submit()
+			frappe.set_user(teacher)
+			with self.assertRaises((frappe.ValidationError, frappe.PermissionError)):
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_past_exam_plans_cannot_be_deleted_or_rescheduled(self):
 		past_date = add_days(today(), -1)
 		plan = self._assessment_plan(self.group, past_date, examiner=self.instructor.name)

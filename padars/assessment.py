@@ -18,6 +18,50 @@ def get_assessment_details(assessment_plan):
 	} for row in plan.assessment_criteria]
 
 
+@frappe.whitelist(methods=["POST"])
+def mark_assessment_result(assessment_plan, scores):
+	"""Create or update one permitted draft Education result for a plan."""
+	if isinstance(scores, str):
+		scores = frappe.parse_json(scores)
+	if not isinstance(scores, dict) or not isinstance(scores.get("assessment_details"), dict):
+		frappe.throw(_("Provide a student and scores for the assessment criteria."))
+	plan = frappe.get_doc("Assessment Plan", assessment_plan)
+	plan.check_permission("read")
+	if plan.docstatus != 1:
+		frappe.throw(_("The Assessment Plan must be submitted."))
+	student = scores.get("student")
+	if not student or not frappe.db.exists("Student Group Student", {
+		"parent": plan.student_group, "student": student, "active": 1,
+	}):
+		frappe.throw(_("The student must be an active member of this assessment group."), frappe.PermissionError)
+	# Serialize competing result creation for this plan, including requests for
+	# the same student from different sessions.
+	frappe.db.sql("select name from `tabAssessment Plan` where name=%s for update", plan.name)
+	existing = frappe.get_all("Assessment Result", filters={
+		"assessment_plan": plan.name, "student": student, "docstatus": ["!=", 2],
+	}, pluck="name")
+	if len(existing) > 1:
+		frappe.throw(_("Multiple assessment results exist; resolve the conflict before entering marks."))
+	if existing:
+		result = frappe.get_doc("Assessment Result", existing[0])
+		result.check_permission("write")
+		if result.docstatus != 0:
+			frappe.throw(_("Submitted assessment results require an authorized correction workflow."))
+	else:
+		result = frappe.new_doc("Assessment Result")
+		result.assessment_plan = plan.name
+		result.student = student
+		from padars.scheduling import validate_assessment_result_relationships
+		validate_assessment_result_relationships(result)
+		result.check_permission("create")
+	result.comment = scores.get("comment") or ""
+	result.set("details", [{"assessment_criteria": key, "score": value}
+		for key, value in scores["assessment_details"].items()])
+	result.save()
+	return {"name": result.name, "student": result.student, "total_score": result.total_score,
+		"grade": result.grade, "details": {row.assessment_criteria: row.grade for row in result.details}}
+
+
 def validate_result_scores(doc, method=None):
 	"""Use the plan's criteria and maxima as the sole basis for entered scores."""
 	if not doc.assessment_plan:

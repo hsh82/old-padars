@@ -90,6 +90,9 @@ when another local enrollment state still requires or reports access. This guard
 does not discover roles or enrollments assigned independently in Moodle; operators
 must reconcile those before withdrawal. Missing mappings and conflicting local
 states fail for operator review rather than creating records during removal.
+Before withdrawal Padars verifies the existing tenant against the configured
+Moodle service and compares the School, course and user mapping contexts with
+that tenant. Missing bindings, cloned sites and mismatched contexts fail closed.
 Keep Padars courses under the MuTMS tenant category. MuTMS tenant members can
 access standard non-tenant courses by default, so the Moodle operator must
 restrict those categories when that access is not intended.

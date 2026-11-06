@@ -82,6 +82,9 @@ blocker, not evidence that a live Moodle deployment works.
   enrollment rather than a specific role. Padars blocks withdrawal when another
   local role still needs or reports access, but cannot detect independent Moodle
   role assignments; operator reconciliation and live verification remain needed.
+- Withdrawal verifies the existing remote tenant and all three mapping contexts
+  before calling Moodle. A mismatched context is covered by the focused service
+  test; no remote unenrollment is sent in that case.
 
 - An authorized company operator must enable the Moodle REST service, create a
   restricted service user/token, configure target role IDs and the Frappe host

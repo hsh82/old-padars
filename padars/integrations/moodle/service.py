@@ -333,8 +333,15 @@ def process_remote_operation(operation, adapter):
 					frappe.throw(_("Cannot withdraw Moodle access without an active {0} mapping; operator reconciliation is required.").format(doctype))
 				mappings.append(frappe.get_doc("LMS Entity Mapping", mapping_name))
 			tenant_mapping, course_mapping, user_mapping = mappings
-			if course_mapping.remote_context != user_mapping.remote_context:
-				frappe.throw(_("Moodle user and course mappings have different tenant contexts."))
+			if not school.lms_provisioned or not school.lms_tenant_id:
+				frappe.throw(_("Cannot withdraw Moodle access without an existing tenant binding."))
+			# A provisioned tenant lookup fails closed if the tenant was removed or
+			# this site was cloned; it must never create a tenant during withdrawal.
+			tenant = adapter.ensure_tenant(school)
+			if (str(tenant["remote_id"]) != str(school.lms_tenant_id)
+				or str(tenant_mapping.remote_id) != str(school.lms_tenant_id)
+				or any(mapping.remote_context != tenant["remote_context"] for mapping in mappings)):
+				frappe.throw(_("Moodle tenant, user and course mappings do not match the verified tenant."))
 			course = {"remote_id": course_mapping.remote_id, "remote_context": course_mapping.remote_context, "remote_url": course_mapping.remote_url}
 			remote_user = {"remote_id": user_mapping.remote_id, "remote_context": user_mapping.remote_context}
 		else:

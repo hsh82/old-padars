@@ -309,6 +309,14 @@ class TestMoodleService(IntegrationTestCase):
 		with patch("frappe.get_all", return_value=[frappe._dict(desired_state="Enrolled", remote_state="Enrolled")]):
 			with self.assertRaises(frappe.ValidationError):
 				process_remote_operation(frappe.get_doc("LMS Sync Operation", operation_name), MockMoodleAdapter())
+		bad_tenant = MockMoodleAdapter().ensure_tenant(frappe.get_doc("School", self.school.name))
+		bad_tenant["remote_context"] = "another-tenant"
+		bad_adapter = MockMoodleAdapter()
+		with patch.object(bad_adapter, "ensure_tenant", return_value=bad_tenant), \
+			patch.object(bad_adapter, "sync_enrollment") as remote_sync:
+			with self.assertRaises(frappe.ValidationError):
+				process_remote_operation(frappe.get_doc("LMS Sync Operation", operation_name), bad_adapter)
+			remote_sync.assert_not_called()
 		adapter = MockMoodleAdapter()
 		with patch("frappe.enqueue"), patch.object(adapter, "ensure_user", side_effect=AssertionError("unexpected user provisioning")), \
 			patch.object(adapter, "create_course", side_effect=AssertionError("unexpected course provisioning")):

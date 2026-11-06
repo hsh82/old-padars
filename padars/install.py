@@ -30,6 +30,7 @@ def after_install():
 	ensure_academic_permissions()
 	ensure_phase5_action_permissions()
 	ensure_phase7_permissions()
+	ensure_assessment_tool_permissions()
 	ensure_registration_import_permissions()
 	validate_security_baseline()
 
@@ -125,6 +126,16 @@ def ensure_academic_permissions():
 	if not frappe.db.exists("Custom DocPerm", {"parent": "Student Log", "role": "Padars Sensitive Records", "permlevel": 0}):
 		add_permission("Student Log", "Padars Sensitive Records", 0, "read")
 	frappe.clear_cache(doctype="Student Log")
+
+
+def ensure_assessment_tool_permissions():
+	"""Give scoped grade-entry roles read access to the draft result tool."""
+	from frappe.permissions import add_permission
+	for role in ("Padars School Manager", "Padars Academic Staff", "Padars Teacher",
+		"Padars Grade Coordinator", "Padars Grade Entry Staff"):
+		if not frappe.db.exists("Custom DocPerm", {"parent": "Assessment Result Tool", "role": role, "permlevel": 0, "if_owner": 0}):
+			add_permission("Assessment Result Tool", role, 0, "read")
+	frappe.clear_cache(doctype="Assessment Result Tool")
 
 
 def ensure_phase5_action_permissions():

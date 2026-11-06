@@ -269,6 +269,10 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 		if ptype in {"read", "select", "create", "write"}:
 			return is_school_manager(get_primary_school(), user) or bool(_assignments(user, "can_manage_attendance"))
 		return False
+	if doc.doctype == "Assessment Result Tool":
+		if ptype in {"read", "select"}:
+			return is_school_manager(get_primary_school(), user) or bool(_assignments(user, "can_enter_marks"))
+		return False
 	if doc.doctype == "Assessment Result" and ptype in {"submit", "cancel", "amend"}:
 		return False  # Approval and correction are introduced with report-card workflows.
 	if doc.doctype == "LMS Entity Mapping":

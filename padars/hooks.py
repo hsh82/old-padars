@@ -45,7 +45,7 @@ override_whitelisted_methods = {
 	"education.education.api.get_guardian_students": "padars.education_api.deny_unreviewed",
 	"education.education.api.get_portal_context": "padars.education_api.get_portal_context",
 	"education.education.api.get_course_schedule_events": "padars.education_api.deny_unreviewed",
-	"education.education.api.get_assessment_students": "padars.education_api.deny_unreviewed",
+	"education.education.api.get_assessment_students": "padars.assessment.get_assessment_students",
 	"education.education.api.get_assessment_details": "padars.assessment.get_assessment_details",
 	"education.education.api.mark_assessment_result": "padars.assessment.mark_assessment_result",
 	"education.education.api.submit_assessment_results": "padars.education_api.deny_unreviewed",
@@ -102,6 +102,7 @@ after_migrate = [
 	"padars.install.ensure_stage1_roles", "padars.install.ensure_academic_permissions",
 	"padars.install.ensure_phase5_action_permissions", "padars.install.ensure_action_permissions",
 	"padars.install.ensure_phase7_permissions",
+	"padars.install.ensure_assessment_tool_permissions",
 	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
 ]
 

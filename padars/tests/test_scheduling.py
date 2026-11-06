@@ -226,6 +226,7 @@ class TestScheduling(IntegrationTestCase):
 		outsider = self._user("outsider")
 		try:
 			frappe.set_user(teacher)
+			self.assertTrue(frappe.has_permission("Assessment Result Tool", "read"))
 			first = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 70}})
 			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
 			self.assertEqual(first["name"], second["name"])
@@ -238,6 +239,7 @@ class TestScheduling(IntegrationTestCase):
 			with self.assertRaises(frappe.ValidationError):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: -1}})
 			frappe.set_user(outsider)
+			self.assertFalse(frappe.has_permission("Assessment Result Tool", "read"))
 			with self.assertRaises(frappe.PermissionError):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
 			with self.assertRaises(frappe.PermissionError):

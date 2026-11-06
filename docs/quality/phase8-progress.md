@@ -52,9 +52,16 @@ blocker, not evidence that a live Moodle deployment works.
   support enables automatic enrollment, a Student Group edit reconciles existing
   student states and queues withdrawal after commit. Changes to Program Enrollment
   now trigger reconciliation when a Program Enrollment is submitted or cancelled.
-  The focused mock test covers cancellation and subsequent submission. Changes to
-  Student or User eligibility alone do not yet trigger reconciliation; automatic
+  The focused mock test covers cancellation and subsequent submission. Student
+  enablement/User-link changes and linked User enablement/type changes also
+  reconcile active groups when automatic enrollment is enabled. The focused
+  Moodle service suite passed eight tests after those hooks were added. Automatic
   enrollment disabled and live unenrollment need further work.
+- Registration regression was attempted after the new hooks. The normal runner
+  stopped in ERPNext fixture preload because `All Item Groups` was missing before
+  registration tests ran. Light mode ignored the requested module filter and was
+  interrupted when it continued into other Padars modules; it is not counted as
+  a completed registration run.
 - Teacher assignment or removal on a mapped, enabled offering now queues the
   current teacher and withdraws former teacher states. A focused mock integration
   test processed both replacement operations and confirmed reuse of the course

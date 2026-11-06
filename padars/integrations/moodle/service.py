@@ -430,6 +430,26 @@ def sync_group_roster_after_update(doc, method=None):
 		frappe.flags.padars_lms_auto_sync = old_flag
 
 
+def sync_student_eligibility_change(doc, method=None):
+	old = doc.get_doc_before_save()
+	if not old or (old.enabled == doc.enabled and old.user == doc.user):
+		return []
+	return _sync_student_groups(doc.name)
+
+
+def sync_user_eligibility_change(doc, method=None):
+	old = doc.get_doc_before_save()
+	if not old or (old.enabled == doc.enabled and old.user_type == doc.user_type):
+		return []
+	students = frappe.get_all("Student", filters={"user": doc.name}, pluck="name")
+	return [_sync_student_groups(student) for student in students]
+
+
+def _sync_student_groups(student):
+	groups = frappe.get_all("Student Group Student", filters={"student": student, "active": 1}, pluck="parent")
+	return [sync_group_roster_after_update(frappe.get_doc("Student Group", group)) for group in set(groups)]
+
+
 def sync_program_enrollment_change(doc, method=None):
 	"""Reconcile affected offerings after an annual enrollment is submitted or cancelled."""
 	school = doc.get("padars_school")

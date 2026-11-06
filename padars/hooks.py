@@ -177,7 +177,11 @@ doc_events = {
 	"Data Import": {"validate": "padars.student_import.validate_import"},
 	"File": {"validate": "padars.file_security.validate_private_attachment"},
 	"DocShare": {"validate": "padars.file_security.validate_share"},
-	"Student": {"validate": "padars.education_hooks.validate_student_identity", "on_update": "padars.student_identity.attach_matching_user"},
+	"Student": {
+		"validate": "padars.education_hooks.validate_student_identity",
+		"on_update": ["padars.student_identity.attach_matching_user", "padars.integrations.moodle.service.sync_student_eligibility_change"],
+	},
+	"User": {"on_update": "padars.integrations.moodle.service.sync_user_eligibility_change"},
 	"Program Enrollment": {
 		"validate": "padars.education_hooks.validate_program_enrollment",
 		"on_submit": "padars.integrations.moodle.service.sync_program_enrollment_change",

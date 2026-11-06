@@ -315,6 +315,28 @@ class TestMoodleService(IntegrationTestCase):
 		state.reload()
 		self.assertEqual(state.desired_state, "Enrolled")
 		self.assertEqual(state.desired_revision, withdrawal_revision + 1)
+		student_doc = frappe.get_doc("Student", students[0])
+		with patch("frappe.enqueue"), patch("education.education.doctype.student.student.Student.on_update"):
+			student_doc.enabled = 0
+			student_doc.save()
+		state.reload()
+		self.assertEqual(state.desired_state, "Not Enrolled")
+		with patch("frappe.enqueue"), patch("education.education.doctype.student.student.Student.on_update"):
+			student_doc.enabled = 1
+			student_doc.save()
+		state.reload()
+		self.assertEqual(state.desired_state, "Enrolled")
+		user_doc = frappe.get_doc("User", student_user)
+		with patch("frappe.enqueue"):
+			user_doc.enabled = 0
+			user_doc.save(ignore_permissions=True)
+		state.reload()
+		self.assertEqual(state.desired_state, "Not Enrolled")
+		with patch("frappe.enqueue"):
+			user_doc.enabled = 1
+			user_doc.save(ignore_permissions=True)
+		state.reload()
+		self.assertEqual(state.desired_state, "Enrolled")
 		# Cancelling the Program Enrollment also removes eligibility without a group edit.
 		enrollment_name = frappe.db.get_value("Program Enrollment", {
 			"student": students[0], "program": self.program.name,

@@ -14,7 +14,7 @@ app_include_js = [
 app_include_css = "/assets/padars/css/padars.css"
 web_include_js = ["/assets/padars/js/first_login.js"]
 
-standard_portal_menu_items = [
+portal_menu_items = [
 	{"title": "My School", "route": "/school", "role": "Student"},
 	{"title": "Family School", "route": "/school", "role": "Padars Guardian"},
 	{"title": "Family Report Cards", "route": "/report-cards", "reference_doctype": "Report Card Publication", "role": "Padars Guardian"},
@@ -105,7 +105,7 @@ fixtures = [
 
 before_install = "padars.install.ensure_stage1_roles"
 after_install = "padars.install.after_install"
-after_sync = "padars.install.ensure_action_permissions"
+after_sync = "padars.install.after_sync"
 after_migrate = [
 	"padars.install.ensure_stage1_roles", "padars.install.ensure_academic_permissions",
 	"padars.install.ensure_phase5_action_permissions", "padars.install.ensure_action_permissions",
@@ -114,7 +114,7 @@ after_migrate = [
 	"padars.install.ensure_assessment_approval_permissions",
 	"padars.install.ensure_guardian_management_permissions",
 	"padars.install.ensure_academic_reference_permissions",
-	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
+	"padars.install.ensure_registration_import_permissions", "padars.install.sync_portal_navigation", "padars.install.validate_security_baseline",
 ]
 
 permission_query_conditions = {

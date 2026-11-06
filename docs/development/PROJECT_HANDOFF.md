@@ -83,7 +83,14 @@ not redo grade import, publication, guardian verification or academic portals.
 
 The evidence milestone is verified: eighteen focused scheduling/assessment
 tests, five daily-operation tests and the native form metadata harness pass.
-Next verify fresh installation from this development checkout. Native new-form mandatory
+Fresh installation on `padars-release-fresh.local` exposed and fixed action
+permission fixture ordering. Native forced app reinstallation recovered the
+partial install; repeated migration and all 26-DocType/fixture/index checks pass.
+This adds a second disposable installation-only environment; routine academic
+tests remain on `padars-phase12-fresh.local`. Student/Guardian navigation now
+uses the role-filtered portal hook and passes a focused native-sidebar test.
+Next: complete role experiences and independent release gates while awaiting
+the approved live Moodle/PlugNmeet target configuration. Native new-form mandatory
 checks now defer generated readonly values on new documents while server reqd
 stays enforced. Narrow native academic-reference permissions allow manager
 configuration without a broad Academics User or System Manager role. Continue

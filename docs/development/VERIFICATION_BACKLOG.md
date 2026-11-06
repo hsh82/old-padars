@@ -17,7 +17,7 @@ results. Latest portal/guardian/assessment/grade-import module: eighteen integra
 | Learning and PlugNmeet evidence | Learning and asynchronous evidence focused-tested; live meeting evidence pending | Actual session-specific data, policy evaluation, unavailable sources, deduplication and authorized override. |
 | Guardian/student isolation | Focused report-access checks passed | Verified native links, account creation, list/read denial, revocation and source changes tested; weekly timetable/attendance/withdrawal and course-link contract tests passed; learning views, browser flow and final endpoint audit remain. |
 | Full endpoint/report audit | Outstanding | Customer restrictions, Files/DocShares, reports, RPCs, User administration and privileged customization denial. |
-| Fresh current-build installation | Outstanding; wheel artifact gate passed | G9 on a disposable site; optional integrations disabled must not block basic setup. |
+| Fresh current-build installation | Schema/package gates passed; full acceptance outstanding | Disposable fresh bootstrap recovered after fixing fixture order; repeated migration and 26 DocType/fixture/index checks passed with LMS disabled. Clean first-attempt CI and isolated assets/browser acceptance remain. |
 | Recovery and deployment | Partial | Backup exists for Stage 1; restore has not been verified. Prove restore and document compatible code/schema/assets. |
 | Realistic school performance | Outstanding | Profile permission scopes, timetable, rosters, grade/report queries, queue backlog and bounded retries. |
 | Full Phase 11 suite | Not started | Current build passes product scenarios A–J and all agreed release criteria; record unperformed/blocked services accurately. |

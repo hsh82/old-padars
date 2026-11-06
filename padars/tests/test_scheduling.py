@@ -882,6 +882,23 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 
+	def test_student_and_guardian_navigation_keep_both_shared_routes(self):
+		from padars.install import sync_portal_navigation
+		from frappe.website.utils import get_portal_sidebar_items
+		learner, parent = self._user("nav-student"), self._user("nav-parent")
+		frappe.get_doc("User", learner).add_roles("Student")
+		frappe.get_doc("User", parent).add_roles("Padars Guardian")
+		sync_portal_navigation()
+		frappe.clear_cache()
+		for user in (learner, parent):
+			frappe.set_user(user)
+			frappe.cache.delete_key("portal_menu_items")
+			routes = [row["route"] for row in get_portal_sidebar_items() if row["route"] in {"/school", "/report-cards"}]
+			self.assertEqual(sorted(routes), ["/report-cards", "/school"])
+		frappe.set_user("Guest")
+		frappe.cache.delete_key("portal_menu_items")
+		self.assertFalse(any(row["route"] in {"/school", "/report-cards"} for row in get_portal_sidebar_items()))
+
 	def test_manager_can_configure_native_academic_references_without_system_roles(self):
 		manager = self._user("reference-manager")
 		frappe.get_doc("User", manager).add_roles("Padars School Manager")

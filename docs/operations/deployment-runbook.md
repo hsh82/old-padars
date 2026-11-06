@@ -59,3 +59,25 @@ python scripts/check_release_package.py /tmp/padars-current-wheel/padars-*.whl
 This builds an isolated distribution artifact; it does not install into Bench,
 change a site, build shared web assets or verify fresh-site installation.
 Promoting development code to `kara.loc` remains a separate staging action.
+
+## Installed-schema verification
+
+From Bench with supported Python and the intended app checkout on its import
+path, run the read-only gate:
+
+```bash
+python /path/to/padars/scripts/verify_installation.py --site <disposable-site> --fresh --expected-app-root /path/to/padars
+```
+
+`--fresh` requires only Frappe/ERPNext/Education/Padars, LMS disabled and no Student
+or LMS mapping records. Omit it for a nonempty development install. The script
+checks schemas, declared fixtures, navigation metadata, actual unique indexes and
+role setup. It does not verify assets, worker execution, external services or a
+browser journey. Native role-filtered portal hooks avoid standard-menu route
+collisions between Student and Guardian.
+
+Fresh app installation must load custom permission-type fixtures before applying
+fixture-dependent action grants; Padars handles this through after_sync. Do not
+use forced installation on an established school to mimic this disposable
+recovery procedure. Existing school uninstall/data-removal operations require a
+separate reviewed backup and preservation procedure; none were tested here.

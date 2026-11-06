@@ -38,3 +38,37 @@ harness: new forms pass, missing user inputs fail, and removing the fix reproduc
 the original failure. CI includes this check after Bench installation. This is
 not a DOM/browser test. Narrow academic-reference role access was also tested:
 manager configuration works while User/customization administration stays denied.
+
+## Fresh-site installation and recovery
+
+A new disposable `padars-release-fresh.local` was created using the standard
+Frappe installer API, with the development import override and only Frappe,
+ERPNext, Education and Padars. No existing site/database was recreated, no
+upstream code was modified, and no shared asset build/server restart occurred.
+Root/admin credentials were not printed, placed in command arguments or stored
+in the repository. The administrator password is generated for this disposable
+installation, not a reusable customer credential.
+
+The first bootstrap exposed `after_install → ensure_phase5_action_permissions`
+requiring Permission Type fixtures before Frappe loads them. Native install order
+is schema → after_install → fixtures → after_sync. Fixture-dependent action and
+approval setup now runs in after_sync. Because Frappe had already recorded Padars
+as installed, native `install-app padars --force` resumed that partial install;
+no rows were copied manually. A subsequent migration and installed-schema check
+passed. A clean first-attempt post-fix CI run remains an independent gate.
+
+`scripts/verify_installation.py` passed for 26 Padars DocTypes, all declared
+fixtures, native pages/workspace/print format, academic role permissions and
+actual single-column unique indexes. LMS is disabled, Student and mapping tables
+are empty, only the four required apps are installed, and the guardian role is
+portal-only. The wheel at code checkpoint `7f83062` also passed the package guard.
+These are schema/package gates, not a browser/asset/deployment acceptance claim.
+The shared Bench's version reporter follows its staging checkout; effective
+Python source was separately checked as the development worktree.
+
+Portal navigation also needed a native compatibility fix: standard menu sync
+keys items by route, overwriting Student/Guardian roles sharing `/school` or
+`/report-cards`. The supported role-filtered portal_menu_items hook now provides
+both routes to each intended role. Only known old Padars standard entries are
+removed; custom navigation is preserved. A focused native-sidebar test passed
+for Student and Guardian, with Guest denied those menu items.

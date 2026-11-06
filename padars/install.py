@@ -34,13 +34,20 @@ def ensure_stage1_roles():
 def after_install():
 	ensure_stage1_roles()
 	ensure_academic_permissions()
-	ensure_phase5_action_permissions()
 	ensure_phase7_permissions()
 	ensure_assessment_tool_permissions()
-	ensure_assessment_approval_permissions()
 	ensure_guardian_management_permissions()
 	ensure_academic_reference_permissions()
 	ensure_registration_import_permissions()
+	validate_security_baseline()
+
+
+def after_sync():
+	"""Frappe imports fixtures after after_install; action types must exist first."""
+	ensure_action_permissions()
+	ensure_phase5_action_permissions()
+	ensure_assessment_approval_permissions()
+	sync_portal_navigation()
 	validate_security_baseline()
 
 
@@ -263,3 +270,18 @@ def ensure_academic_reference_permissions():
 				for action in ("create", "write") + (("submit",) if doctype == "Grading Scale" else ()):
 					update_permission_property(doctype, role, 0, action, 1, validate=False)
 		frappe.clear_cache(doctype=doctype)
+
+
+def sync_portal_navigation():
+	"""Use role-filtered hook items; native standard-menu sync keys only by route."""
+	doc = frappe.get_doc("Portal Settings", "Portal Settings")
+	owned_titles = {"My School", "Family School", "Family Report Cards", "Report Cards"}
+	rows = doc.get("menu") or []
+	kept = [row for row in rows if not (row.title in owned_titles
+		and row.route in {"/school", "/report-cards"}
+		and row.role in {"Student", "Padars Guardian"}
+		and row.reference_doctype in {None, "", "Report Card Publication"})]
+	if len(kept) != len(rows):
+		doc.set("menu", kept)
+		doc.save(ignore_permissions=True)
+	frappe.cache.delete_key("portal_menu_items")

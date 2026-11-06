@@ -19,7 +19,8 @@ capability inventory is not a replacement domain list.
 
 - `staging-1`: `81792d9`, served by `kara.loc`, for Stage 1 manual feedback.
 - `codex/full-product`: ongoing work in the separate development worktree.
-- Development tests target `padars-phase12-fresh.local` only. Never promote
+- Routine development tests target `padars-phase12-fresh.local`; the fresh-install
+  gate additionally uses disposable `padars-release-fresh.local`. Never promote
   feature changes, schemas or assets into staging as an incidental test action.
 - Preserve the two user edits in the original checkout. Stage 1 findings feed
   the defect backlog; they do not cancel the full product scope.

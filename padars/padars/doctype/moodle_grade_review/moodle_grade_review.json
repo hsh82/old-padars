@@ -1,0 +1,143 @@
+{
+ "doctype": "DocType",
+ "name": "Moodle Grade Review",
+ "module": "Padars",
+ "engine": "InnoDB",
+ "autoname": "hash",
+ "field_order": [
+  "school",
+  "course_offering",
+  "source_snapshot",
+  "assessment_plan",
+  "student",
+  "assessment_result",
+  "reviewed_by",
+  "reviewed_at",
+  "review_reason",
+  "provenance",
+  "result_modified",
+  "import_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School"
+  },
+  {
+   "fieldname": "course_offering",
+   "fieldtype": "Link",
+   "label": "Course Offering",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering"
+  },
+  {
+   "fieldname": "source_snapshot",
+   "fieldtype": "Link",
+   "label": "Source Snapshot",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Moodle Grade Snapshot"
+  },
+  {
+   "fieldname": "assessment_plan",
+   "fieldtype": "Link",
+   "label": "Assessment Plan",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Assessment Plan"
+  },
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "label": "Student",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Student"
+  },
+  {
+   "fieldname": "assessment_result",
+   "fieldtype": "Link",
+   "label": "Assessment Result",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Assessment Result"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "User"
+  },
+  {
+   "fieldname": "reviewed_at",
+   "fieldtype": "Datetime",
+   "label": "Reviewed At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_reason",
+   "fieldtype": "Small Text",
+   "label": "Review Reason",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "provenance",
+   "fieldtype": "Code",
+   "label": "Provenance",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON"
+  },
+  {
+   "fieldname": "result_modified",
+   "fieldtype": "Datetime",
+   "label": "Result Modified",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "import_key",
+   "fieldtype": "Data",
+   "label": "Import Key",
+   "read_only": 1,
+   "reqd": 1,
+   "hidden": 1,
+   "unique": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ]
+}

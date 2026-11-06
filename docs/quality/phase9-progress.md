@@ -93,3 +93,12 @@ The focused Moodle contract module also passed 14 offline tests, including the
 new per-user grade-report payload and cross-category/user negatives. The
 framework's unit-only category excludes these plain unittest cases; the module
 was actually executed with `--test-category all`, not counted from an empty run.
+
+Explicit item-to-criterion mappings and audited draft imports are implemented.
+Managers submit/retire mappings; assigned grade staff review normalized marks
+with a required reason. Existing manual criteria/comments are preserved; missing
+criteria block import. New source ranges need reviewed replacement mappings.
+Approved marks require the existing controlled amendment action. Sixteen focused
+integration tests passed, including rollback, idempotency, range changes and a
+corrected mixed-source result. See [grade import](../architecture/moodle-grade-import.md).
+Live data, browser review, concurrency and full Phase 9 acceptance remain open.

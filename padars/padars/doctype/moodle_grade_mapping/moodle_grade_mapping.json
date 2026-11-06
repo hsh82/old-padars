@@ -1,0 +1,190 @@
+{
+ "doctype": "DocType",
+ "name": "Moodle Grade Mapping",
+ "module": "Padars",
+ "engine": "InnoDB",
+ "autoname": "hash",
+ "field_order": [
+  "school",
+  "course_offering",
+  "assessment_plan",
+  "assessment_criteria",
+  "source_snapshot",
+  "grade_item",
+  "item_title",
+  "remote_context",
+  "remote_course",
+  "source_minimum",
+  "source_maximum",
+  "target_maximum",
+  "decimal_places",
+  "rounding_mode",
+  "active_key",
+  "retirement_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School"
+  },
+  {
+   "fieldname": "course_offering",
+   "fieldtype": "Link",
+   "label": "Course Offering",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "School Course Offering"
+  },
+  {
+   "fieldname": "assessment_plan",
+   "fieldtype": "Link",
+   "label": "Assessment Plan",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "Assessment Plan"
+  },
+  {
+   "fieldname": "assessment_criteria",
+   "fieldtype": "Link",
+   "label": "Assessment Criteria",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "Assessment Criteria"
+  },
+  {
+   "fieldname": "source_snapshot",
+   "fieldtype": "Link",
+   "label": "Source Snapshot",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "Moodle Grade Snapshot"
+  },
+  {
+   "fieldname": "grade_item",
+   "fieldtype": "Int",
+   "label": "Grade Item",
+   "read_only": 0,
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_title",
+   "fieldtype": "Data",
+   "label": "Item Title",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_context",
+   "fieldtype": "Data",
+   "label": "Remote Context",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_course",
+   "fieldtype": "Data",
+   "label": "Remote Course",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_minimum",
+   "fieldtype": "Data",
+   "label": "Source Minimum",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_maximum",
+   "fieldtype": "Data",
+   "label": "Source Maximum",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_maximum",
+   "fieldtype": "Data",
+   "label": "Target Maximum",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "decimal_places",
+   "fieldtype": "Int",
+   "label": "Decimal Places",
+   "read_only": 0,
+   "reqd": 1,
+   "default": 2
+  },
+  {
+   "fieldname": "rounding_mode",
+   "fieldtype": "Select",
+   "label": "Rounding Mode",
+   "read_only": 0,
+   "reqd": 1,
+   "default": "Half Up",
+   "options": "Half Up\nHalf Even"
+  },
+  {
+   "fieldname": "active_key",
+   "fieldtype": "Data",
+   "label": "Active Key",
+   "read_only": 1,
+   "reqd": 1,
+   "hidden": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "retirement_reason",
+   "fieldtype": "Small Text",
+   "label": "Retirement Reason",
+   "read_only": 0,
+   "reqd": 0,
+   "allow_on_submit": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ],
+ "is_submittable": 1,
+ "track_changes": 1
+}

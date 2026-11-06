@@ -41,9 +41,13 @@ official attendance; fourteen focused tests pass. Course links require matched
 tenant mappings and observed enrollment, and use normal Moodle login.
 Moodle grade discovery now runs through the existing queue with immutable,
 scoped source snapshots and native review UI. Two focused database tests pass;
-fourteen offline API contract tests pass, including tenant/course/user verification. Next: explicit
-grade-item mappings, normalization and reviewed Education draft imports. Live
-Moodle, learning/session evidence and final release gates remain open.
+fourteen offline API contract tests pass, including tenant/course/user verification. Explicit manager-approved item mappings and audited Education draft imports
+are now connected. Sixteen focused scheduling/assessment integration tests pass,
+including mixed manual/Moodle marks, stale reviews, rollback, mapping retirement,
+changed ranges and manager-controlled result corrections. No live grade read or
+browser import is claimed. Next: learning-activity discovery/completion and
+session-specific attendance evidence; Phase 8 live acceptance still needs an
+authorized service/token/role configuration. Full Phase 9/10 and Phase 11 remain open.
 Education remains authoritative; do not introduce fixed national formulas.
 The remaining learning views and broader role portals, learning-activity and
 PlugNmeet evidence integration, and Phase 11 release gates remain unfinished.

@@ -104,6 +104,7 @@ def request_grade_discovery(course_offering):
 
 def capture_grades(operation, adapter):
 	"""Collect a bounded complete local roster before persisting any sources."""
+	frappe.db.sql("select name from `tabSchool Course Offering` where name=%s for update", operation.target_name)
 	offering = frappe.get_doc("School Course Offering", operation.target_name)
 	if offering.school != operation.school or offering.school != get_primary_school() or offering.status == "Archived":
 		frappe.throw(_("The grade operation's School or offering is no longer eligible."))

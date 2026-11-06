@@ -185,6 +185,7 @@ def validate_result_scores(doc, method=None):
 		score = float(row.score or 0)
 		if not math.isfinite(score) or score < 0 or score > maxima[criterion]:
 			frappe.throw(_("Scores must be between zero and the criterion maximum."))
+		row.score = score  # Education compares numeric values before ORM field coercion.
 	if seen != set(maxima):
 		frappe.throw(_("Enter a score for each Assessment Plan criterion."))
 	doc.maximum_score = sum(maxima.values())

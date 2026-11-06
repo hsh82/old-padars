@@ -1,5 +1,6 @@
 from calendar import day_name
 from datetime import timedelta
+from decimal import Decimal
 from unittest.mock import patch
 
 import frappe
@@ -605,6 +606,54 @@ class TestScheduling(IntegrationTestCase):
 		self.assertNotIn("useridnumber", snapshot.items)
 		self.assertEqual(process_sync_operation(first["operation"], adapter).state, "Succeeded")
 		self.assertEqual(adapter.read_grade_items.call_count, 1)
+		from padars.integrations.moodle.grade_import import preview_grade_import, apply_grade_import, search_plan_criteria
+		from padars.assessment import mark_assessment_result
+		frappe.set_user("Administrator")
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		written = frappe.get_doc({"doctype": "Assessment Criteria", "assessment_criteria": f"Written-{self.key}"}).insert()
+		plan.append("assessment_criteria", {"assessment_criteria": written.name, "maximum_score": 100})
+		plan.maximum_assessment_score = 200
+		plan.save()
+		plan.submit()
+		criterion = plan.assessment_criteria[0].assessment_criteria
+		frappe.set_user(manager)
+		mapping = frappe.get_doc({"doctype": "Moodle Grade Mapping", "school": self.school.name,
+			"course_offering": self.offering.name, "assessment_plan": plan.name,
+			"assessment_criteria": criterion, "source_snapshot": snapshot.name, "grade_item": 25,
+			"decimal_places": 2, "rounding_mode": "Half Even"}).insert()
+		mapping.submit()
+		self.assertEqual({row[0] for row in search_plan_criteria("Assessment Criteria", "", "name", 0, 20, {"assessment_plan": plan.name})}, {criterion, written.name})
+		self.assertEqual(mapping.source_maximum, "20")
+		self.assertEqual(mapping.target_maximum, "100.0")
+		missing_manual = preview_grade_import(snapshot.name, plan.name)
+		self.assertFalse(missing_manual["ready"])
+		self.assertNotIn(written.name, missing_manual["scores"])
+		mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 0, written.name: 70}, "comment": "Keep this teacher comment"})
+		preview = preview_grade_import(snapshot.name, plan.name)
+		self.assertTrue(preview["ready"])
+		self.assertEqual(preview["scores"][criterion], "80.00")
+		self.assertEqual(Decimal(preview["scores"][written.name]), Decimal(70))
+		with self.assertRaises(frappe.TimestampMismatchError):
+			apply_grade_import(snapshot.name, plan.name, "stale-review", "Accepted after review")
+		with patch("padars.integrations.moodle.grade_import.MoodleGradeReview.insert", side_effect=frappe.ValidationError("Controlled audit failure")):
+			with self.assertRaises(frappe.ValidationError):
+				apply_grade_import(snapshot.name, plan.name, preview["digest"], "Accepted after review")
+		self.assertEqual(frappe.db.get_value("Assessment Result", preview["result"], "total_score"), 70)
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		frappe.set_user(teacher)
+		accepted = apply_grade_import(snapshot.name, plan.name, preview["digest"], "Reviewed numeric Moodle quiz")
+		self.assertTrue(apply_grade_import(snapshot.name, plan.name, preview["digest"], "Retry")["already_applied"])
+		result_doc = frappe.get_doc("Assessment Result", accepted["result"])
+		self.assertEqual(result_doc.docstatus, 0)
+		self.assertEqual(result_doc.total_score, 150)
+		self.assertEqual(result_doc.comment, "Keep this teacher comment")
+		with self.assertRaises(frappe.PermissionError):
+			frappe.get_doc("Moodle Grade Review", accepted["review"]).save(ignore_permissions=True)
+		frappe.set_user(manager)
+		result_doc.reload()
+		result_doc.submit()
+		self.assertFalse(preview_grade_import(snapshot.name, plan.name)["ready"])
+		self.assertEqual(frappe.db.count("Moodle Grade Review", {"source_snapshot": snapshot.name}), 1)
 		with self.assertRaises(frappe.PermissionError):
 			snapshot.save(ignore_permissions=True)
 		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
@@ -613,16 +662,50 @@ class TestScheduling(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			request_grade_discovery(self.offering.name)
 		frappe.set_user(learner)
+		with self.assertRaises(frappe.PermissionError):
+			preview_grade_import(snapshot.name, plan.name)
 		self.assertFalse(frappe.has_permission("Moodle Grade Snapshot", "read", snapshot))
 		with self.assertRaises(frappe.PermissionError):
 			list_grade_snapshots(self.offering.name)
 		frappe.set_user(manager)
 		with patch("frappe.enqueue"):
+			changed_source = request_grade_discovery(self.offering.name)
+		adapter.read_grade_items.return_value[0]["grademax"] = 40
+		self.assertEqual(process_sync_operation(changed_source["operation"], adapter).state, "Succeeded")
+		latest_snapshot = list_grade_snapshots(self.offering.name)[0].name
+		changed_preview = preview_grade_import(latest_snapshot, plan.name)
+		self.assertFalse(changed_preview["ready"])
+		self.assertTrue(any("range changed" in issue for issue in changed_preview["issues"]))
+		with self.assertRaises(frappe.ValidationError):
+			apply_grade_import(latest_snapshot, plan.name, changed_preview["digest"], "Attempt overwrite")
+		with self.assertRaises(frappe.ValidationError):
+			mapping.cancel()
+		mapping.reload()
+		mapping.retirement_reason = "Moodle numeric range changed"
+		mapping.save()
+		mapping.cancel()
+		self.assertIsNone(frappe.db.get_value("Moodle Grade Mapping", mapping.name, "active_key"))
+		replacement_mapping = frappe.get_doc({"doctype": "Moodle Grade Mapping", "school": self.school.name,
+			"course_offering": self.offering.name, "assessment_plan": plan.name,
+			"assessment_criteria": criterion, "source_snapshot": latest_snapshot, "grade_item": 25,
+			"decimal_places": 2, "rounding_mode": "Half Even"}).insert()
+		replacement_mapping.submit()
+		from padars.assessment import correct_assessment_result
+		result_doc.reload()
+		correct_assessment_result(result_doc.name, str(result_doc.modified), "School accepted a reviewed Moodle correction")
+		replacement_preview = preview_grade_import(latest_snapshot, plan.name)
+		self.assertTrue(replacement_preview["ready"])
+		self.assertEqual(replacement_preview["scores"][criterion], "40.00")
+		replacement = apply_grade_import(latest_snapshot, plan.name, replacement_preview["digest"], "Reviewed changed range and replacement draft")
+		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
+		self.assertEqual(frappe.db.get_value("Assessment Result", result_doc.name, "docstatus"), 2)
+		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "docstatus"), 0)
+		with patch("frappe.enqueue"):
 			second = request_grade_discovery(self.offering.name)
 		adapter.read_grade_items.side_effect = RuntimeError("Controlled remote outage")
 		self.assertEqual(process_sync_operation(second["operation"], adapter).state, "Failed")
-		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 1)
-		self.assertEqual(frappe.db.count("Assessment Result", {"student": student.name}), 0)
+		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
+		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 
 	def test_moodle_grade_item_flags_do_not_convert_missing_to_zero(self):
 		from padars.integrations.moodle.grades import clean_items

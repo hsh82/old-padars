@@ -2,7 +2,7 @@
 
 This tracks unclosed gates. Earlier focused passes are evidence for the covered
 rules, not whole-product acceptance. See phase quality reports for commands and
-results. Latest portal/guardian/assessment module: fourteen integration tests passed on the disposable development site.
+results. Latest portal/guardian/assessment/grade-import module: sixteen integration tests passed on the disposable development site.
 
 | Gate | Status | Required next evidence |
 | --- | --- | --- |
@@ -28,4 +28,4 @@ No usage-limited, externally blocked or unperformed gate may be marked passed.
 Moodle grade-source discovery: two focused database tests pass. Contract tests
 exercise the installed report shape and cross-tenant/category/user rejection.
 Mock calls do not verify actual service capabilities or live grade delivery.
-Next implementation gate: mapping and reviewed normalization into Education.
+Approved mappings, explicit normalization and reviewed Education draft imports now pass focused checks. Live service/browser/concurrency gates remain open.

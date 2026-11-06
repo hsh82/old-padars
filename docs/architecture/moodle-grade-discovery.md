@@ -34,9 +34,9 @@ keys make retries safe. No snapshot is created on a failed remote fetch.
 Managers and assigned teaching/grade staff can inspect source snapshots through
 permission-aware lists and the native form's grade table. Students, guardians,
 unassigned staff, public Files and DocShares cannot obtain them. Published
-reports remain a separate immutable workflow. Mapping, normalization, explicit
-import review and Education result creation are the next unfinished work;
-source discovery alone is not grade reconciliation or official approval.
+reports remain a separate immutable workflow. Mapping, normalization and explicit draft import are now connected through
+[reviewed grade import](moodle-grade-import.md). Discovery alone never approves
+an official result.
 
 Two focused database tests cover after-commit enqueue, request deduplication,
 retry idempotency, scoped reads, immutable sources, remote failure, metadata

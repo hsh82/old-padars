@@ -14,3 +14,8 @@
 | Assessment calculation configuration | Padars School Assessment Scheme | Approved versions select Education plan criteria, explicit weights/scales and rounding; source marks remain in Education |
 | Report-card publication and version history | Padars Report Card Publication | Immutable reviewed snapshots derived from approved Education results, retaining provenance and correction history |
 
+
+Moodle Grade Snapshot retains minimized instructional evidence. Moodle Grade
+Mapping owns explicit approved normalization configuration; Moodle Grade Review
+retains immutable import decisions. Education results remain draft until native
+manager approval. See [grade import](moodle-grade-import.md).

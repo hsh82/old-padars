@@ -34,7 +34,7 @@ capability inventory is not a replacement domain list.
 | 6 | Development handoff complete | Native scheduling with Padars relationship and history safeguards. |
 | 7 | Development handoff complete | Manual attendance/leave/care implemented; online evidence remains. |
 | 8 | Implementation partial at product level; live gate blocked | Adapter and roster lifecycle exist; live service acceptance remains outstanding. |
-| 9 | In progress | Draft entry, approval, schemes, corrections and immutable publication exist; Moodle grade-source discovery exists; reviewed grade import and final acceptance remain. |
+| 9 | In progress | Draft entry, approval, schemes, corrections and immutable publication exist; Moodle grade discovery, approved mappings and reviewed draft imports exist; live/browser/concurrency acceptance remains. |
 | 10 | In progress | Verified family report access and weekly timetable/course/attendance views exist; learning and full role experiences remain. |
 | 11 | Unfinished | Comprehensive installation, integration, security and release gates remain. |
 
@@ -66,7 +66,7 @@ G6 has coverage-checked immutable publication, successor versions, student and v
 delivery and generated PDF. Twelve focused tests pass; browser/concurrency and
 release acceptance remain open. Controlled Education mark corrections now have
 focused implementation, including atomic rollback and protected audit metadata.
-Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Durable Moodle grade discovery is connected; next: explicit mappings, normalization and reviewed draft imports, then learning/session evidence. Development
+Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Moodle discovery, mapping and reviewed draft import are connected; sixteen focused integration tests pass. Next: learning-activity discovery/completion and session-specific evidence. Development
 changes are not promoted to staging.
 
 ## Work discipline and handoff

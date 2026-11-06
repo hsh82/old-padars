@@ -237,7 +237,10 @@ class TestScheduling(IntegrationTestCase):
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
 			frappe.set_user(manager)
-			self.assertEqual(preview_approved_results(student.name, self.program.name, self.year.name)["results"], [])
+			preview = preview_approved_results(student.name, self.program.name, self.year.name)
+			self.assertEqual(preview["results"], [])
+			self.assertEqual(preview["draft_count"], 1)
+			self.assertIn(self.course.name, preview["courses_without_approved_results"])
 			frappe.set_user(teacher)
 			duplicate = frappe.copy_doc(frappe.get_doc("Assessment Result", first["name"]))
 			with self.assertRaises(frappe.ValidationError):
@@ -275,6 +278,8 @@ class TestScheduling(IntegrationTestCase):
 			preview = preview_approved_results(student.name, self.program.name, self.year.name)
 			self.assertEqual([row["result"] for row in preview["results"]], [first["name"]])
 			self.assertEqual(preview["results"][0]["total_score"], 80)
+			self.assertEqual(preview["draft_count"], 0)
+			self.assertNotIn(self.course.name, preview["courses_without_approved_results"])
 			self.assertNotIn("comment", preview["results"][0])
 			frappe.set_user(teacher)
 			with self.assertRaises(frappe.PermissionError):

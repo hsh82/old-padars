@@ -26,7 +26,10 @@ The bulk submission endpoint remains closed.
 A manager-only preview API reads submitted Education results for a verified
 school/program/year enrollment, optionally constrained to an Academic Term.
 The Student form provides a manager action to select those filters and review
-the returned results. It omits teacher comments and does not calculate or publish a report card.
+the returned results, draft count, and offered courses without an approved result
+in the selected period. These are review indicators, not a completeness rule:
+offerings have no term field and historical group membership is included. The
+preview omits teacher comments and does not calculate or publish a report card.
 Result approval also requires the related Assessment Plan to be submitted.
 
 The focused `padars.tests.test_scheduling` integration module passed nine tests

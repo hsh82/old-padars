@@ -44,6 +44,12 @@ function reviewApprovedResults(frm) {
 			const dialog = new frappe.ui.Dialog({title: __("Approved Results"), fields: [{fieldname: "results", fieldtype: "HTML"}]});
 			const container = $(dialog.fields_dict.results.wrapper).empty();
 			const rows = response.message?.results || [];
+			const drafts = response.message?.draft_count || 0;
+			const missing = response.message?.courses_without_approved_results || [];
+			if (drafts) container.append($("<p>").text(__("Draft results awaiting approval: {0}", [drafts])));
+			if (missing.length) {
+				container.append($("<p>").text(__("Offered courses without approved results in this selection: {0}", [missing.join(", ")])));
+			}
 			if (!rows.length) {
 				container.append($("<p>").text(__("No approved results found for this selection.")));
 			} else {

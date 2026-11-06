@@ -26,6 +26,8 @@ def preview_approved_results(student, program, academic_year, academic_term=None
 		"padars_school": school, "docstatus": 1}
 	if academic_term:
 		filters["academic_term"] = academic_term
+	draft_filters = {**filters, "docstatus": 0}
+	draft_count = len(_get_all_permitted_names("Assessment Result", draft_filters))
 	rows = []
 	start = 0
 	while True:
@@ -43,8 +45,28 @@ def preview_approved_results(student, program, academic_year, academic_term=None
 		if len(batch) < 200:
 			break
 		start += len(batch)
+	groups = frappe.get_all("Student Group Student", filters={
+		"student": student, "parenttype": "Student Group", "parentfield": "students",
+	}, pluck="parent")
+	offering_names = _get_all_permitted_names("School Course Offering", {
+		"school": school, "program": program, "academic_year": academic_year,
+		"student_group": ["in", groups],
+	}) if groups else []
+	offering_courses = {frappe.db.get_value("School Course Offering", name, "course") for name in offering_names}
+	result_courses = {row["course"] for row in rows}
 	return {"school": school, "student": student, "program": program,
-		"academic_year": academic_year, "academic_term": academic_term, "results": rows}
+		"academic_year": academic_year, "academic_term": academic_term, "results": rows,
+		"draft_count": draft_count, "courses_without_approved_results": sorted(offering_courses - result_courses)}
+
+
+def _get_all_permitted_names(doctype, filters):
+	names = []
+	while True:
+		batch = frappe.get_list(doctype, filters=filters, pluck="name", order_by="name asc",
+			start=len(names), page_length=200)
+		names.extend(batch)
+		if len(batch) < 200:
+			return names
 
 
 @frappe.whitelist()

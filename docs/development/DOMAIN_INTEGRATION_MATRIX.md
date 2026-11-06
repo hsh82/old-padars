@@ -24,3 +24,7 @@ record identifiers, API/event contracts, synchronization direction and conflict
 policy, screens, roles, recovery, acceptance scenarios and verification evidence.
 The cross-system target chain and release scenarios are in the product request;
 no mock or local source inspection establishes a live integration result.
+
+Staging 2 access: installable native Role Profile presets now connect company,
+manager, teacher, staff, student and guardian access to existing scoped roles.
+Profile assignment does not replace Academic Assignments or verified guardianship.

@@ -105,3 +105,20 @@ teaching/link tests passed. Stable-identity rename/merge safeguards are now impl
 through Frappe's rename service. Next continue independent release checks and
 role workflows while the approved live target/configuration question is pending.
 Do not claim all phases or live Moodle/PlugNmeet acceptance complete.
+
+## Staging 2 priority (2026-11-06)
+
+User requested a separate working Staging 2 before further feature work. Twelve
+native Role Profile presets now install repeatably without changing customized
+profiles. Customer presets exclude System Manager and Academics User; only the
+company administrator preset includes infrastructure privileges. Fixed-role
+services preserve native multi-profile semantics and reject escalated profiles.
+Managers receive native enrollment/assessment-plan submission without broad
+roles. Existing Student Customer name/image projection is narrowly synchronized;
+unauthorized Customer retargeting is rejected. Focused regressions pass.
+Separate runtime deployment and role-login acceptance remain to be performed.
+Stage 1 checkout, database, workers and assets must remain untouched.
+
+Staging 2 preparation verification: all 23 focused scheduling/product tests pass
+on `padars-phase12-fresh.local`, including default-profile repeatability, safe
+role grants, manager permission boundaries and existing Customer projection.

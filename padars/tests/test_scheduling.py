@@ -882,6 +882,78 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 
+	def test_default_role_profiles_are_repeatable_and_customer_profiles_are_scoped(self):
+		from padars.role_profiles import DEFAULT_ROLE_PROFILES, ensure_default_role_profiles
+		from padars.navigation import get_user_home_page
+		ensure_default_role_profiles()
+		ensure_default_role_profiles()
+		for name, expected in DEFAULT_ROLE_PROFILES.items():
+			profile = frappe.get_doc("Role Profile", name)
+			self.assertEqual({row.role for row in profile.roles}, set(expected))
+			if name != "Padars Company Administrator":
+				self.assertNotIn("System Manager", expected)
+				self.assertNotIn("Academics User", expected)
+		manager = self._user("profile-default-manager")
+		account = frappe.get_doc("User", manager)
+		account.append("role_profiles", {"role_profile": "Padars School Manager"})
+		account.save()
+		self.assertEqual({row.role for row in account.roles}, {"Padars School Manager"})
+		frappe.set_user(manager)
+		self.assertEqual(get_user_home_page(manager), "app/padars")
+		self.assertTrue(frappe.has_permission("Program Enrollment", "submit"))
+		self.assertTrue(frappe.has_permission("Assessment Plan", "submit"))
+		self.assertFalse(frappe.has_permission("Role Profile", "write"))
+		self.assertFalse(frappe.has_permission("Custom Field", "create"))
+		frappe.set_user("Administrator")
+		from padars.role_profiles import grant_fixed_role
+		profile_user = self._user("profile-fixed-role")
+		account = frappe.get_doc("User", profile_user)
+		account.append("role_profiles", {"role_profile": "Padars Read Only"})
+		account.save()
+		grant_fixed_role(account, "Padars Teacher")
+		grant_fixed_role(account, "Padars Guardian")
+		self.assertEqual({row.role for row in account.roles}, {"Padars Read Only", "Padars Teacher", "Padars Guardian"})
+		self.assertEqual(get_user_home_page(profile_user), "teacher")
+		unsafe = frappe.get_doc("Role Profile", "Padars Teacher")
+		unsafe.append("roles", {"role": "System Manager"})
+		unsafe.save()
+		unprivileged = self._user("profile-unsafe-denied")
+		account = frappe.get_doc("User", unprivileged)
+		account.append("role_profiles", {"role_profile": "Padars Read Only"})
+		account.save()
+		with self.assertRaises(frappe.PermissionError):
+			grant_fixed_role(account, "Padars Teacher")
+		self.assertNotIn("System Manager", frappe.get_roles(unprivileged))
+
+	def test_manager_name_edit_updates_only_the_existing_customer_projection(self):
+		user = self._user("profile-student")
+		student = frappe.get_doc({"doctype": "Student", "first_name": "Original profile", "enabled": 1,
+			"user": user, "student_email_id": user}).insert()
+		student.reload()
+		customer_name = student.customer
+		self.assertTrue(customer_name)
+		customer_group = frappe.db.get_value("Customer", customer_name, "customer_group")
+		other_customer = frappe.get_doc({"doctype": "Customer", "customer_name": f"Unrelated customer-{self.key}",
+			"customer_group": customer_group, "customer_type": "Individual"}).insert()
+		manager = self._user("profile-manager")
+		frappe.get_doc("User", manager).add_roles("Padars School Manager")
+		frappe.set_user(manager)
+		self.assertFalse(frappe.has_permission("Customer", "write", frappe.get_doc("Customer", customer_name)))
+		student.first_name = "Corrected profile"
+		student.save()
+		self.assertEqual(frappe.db.get_value("Customer", customer_name, "customer_name"), "Corrected profile")
+		self.assertEqual(frappe.db.get_value("Customer", customer_name, "customer_group"), customer_group)
+		self.assertEqual(student.customer, customer_name)
+		student.customer = other_customer.name
+		with self.assertRaisesRegex(frappe.PermissionError, "Customer bindings"):
+			student.save()
+		self.assertEqual(frappe.db.get_value("Student", student.name, "customer"), customer_name)
+		self.assertEqual(frappe.db.get_value("Customer", other_customer.name, "customer_name"), other_customer.customer_name)
+		student.reload()
+		student.customer = None
+		with self.assertRaises(frappe.PermissionError):
+			student.save()
+
 	def test_bound_identity_keys_cannot_rename_or_merge(self):
 		from frappe.client import rename_doc
 		from padars.integrations.moodle.service import request_course_offering_sync, request_user_sync

@@ -13,6 +13,7 @@ app_include_js = [
 ]
 app_include_css = "/assets/padars/css/padars.css"
 web_include_js = ["/assets/padars/js/first_login.js"]
+get_website_user_home_page = "padars.navigation.get_user_home_page"
 
 portal_menu_items = [
 	{"title": "My Teaching", "route": "/teacher", "role": "Padars Teacher"},
@@ -115,6 +116,8 @@ after_migrate = [
 	"padars.install.ensure_assessment_approval_permissions",
 	"padars.install.ensure_guardian_management_permissions",
 	"padars.install.ensure_academic_reference_permissions",
+	"padars.install.ensure_manager_submission_permissions",
+	"padars.role_profiles.ensure_default_role_profiles",
 	"padars.install.ensure_registration_import_permissions", "padars.install.sync_portal_navigation", "padars.install.validate_security_baseline",
 ]
 
@@ -211,6 +214,7 @@ doc_events = {
 	"File": {"validate": "padars.file_security.validate_private_attachment"},
 	"DocShare": {"validate": "padars.file_security.validate_share"},
 	"Student": {
+		"before_validate": "padars.student_extension.validate_customer_projection_binding",
 		"before_rename": "padars.identity_lifecycle.protect_bound_identity",
 		"validate": "padars.education_hooks.validate_student_identity",
 		"on_update": ["padars.student_identity.attach_matching_user", "padars.integrations.moodle.service.sync_student_eligibility_change", "padars.guardian_access.revoke_changed_relationships"],

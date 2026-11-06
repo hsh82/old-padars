@@ -28,10 +28,9 @@ def _grant_scoped_role(user, role):
 	user_doc = frappe.get_doc("User", user)
 	if not user_doc.enabled or user_doc.user_type != "System User":
 		frappe.throw(_("Staff assignments require an enabled System User."))
-	if role not in {row.role for row in user_doc.roles}:
-		user_doc.append("roles", {"role": role})
-		user_doc.save(ignore_permissions=True)
-		frappe.clear_cache(user=user)
+	from padars.role_profiles import grant_fixed_role
+	grant_fixed_role(user_doc, role)
+	frappe.clear_cache(user=user)
 
 
 def validate_instructor_mapping(doc, method=None):

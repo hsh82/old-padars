@@ -105,9 +105,8 @@ def verify_guardian_access(student, guardian, user=None, reason=None):
 		guardian_doc.user = account.name
 		guardian_doc.save()
 	# This service grants only the fixed portal-only guardian role after manager verification.
-	if "Padars Guardian" not in {row.role for row in account.roles}:
-		account.append("roles", {"role": "Padars Guardian"})
-		account.save(ignore_permissions=True)
+	from padars.role_profiles import grant_fixed_role
+	grant_fixed_role(account, "Padars Guardian")
 	key = _key(student, guardian, user, rows[0])
 	existing = frappe.db.get_value("Verified Guardian Access", {"active_key": key}, "name")
 	if existing:

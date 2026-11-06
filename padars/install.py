@@ -38,6 +38,9 @@ def after_install():
 	ensure_assessment_tool_permissions()
 	ensure_guardian_management_permissions()
 	ensure_academic_reference_permissions()
+	ensure_manager_submission_permissions()
+	from padars.role_profiles import ensure_default_role_profiles
+	ensure_default_role_profiles()
 	ensure_registration_import_permissions()
 	validate_security_baseline()
 
@@ -285,3 +288,22 @@ def sync_portal_navigation():
 		doc.set("menu", kept)
 		doc.save(ignore_permissions=True)
 	frappe.cache.delete_key("portal_menu_items")
+
+
+def ensure_manager_submission_permissions():
+	"""Complete manager enrollment/exam approval without granting academic admin roles."""
+	from frappe import defaults
+	from frappe.permissions import add_permission, update_permission_property
+
+	marker = "padars_manager_academic_submit_v1"
+	if defaults.get_global_default(marker):
+		return
+	for doctype in ("Program Enrollment", "Course Enrollment", "Assessment Plan"):
+		if not frappe.get_meta(doctype).is_submittable:
+			continue
+		role = "Padars School Manager"
+		if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0, "if_owner": 0}):
+			add_permission(doctype, role, 0, "read")
+		update_permission_property(doctype, role, 0, "submit", 1, validate=False)
+		frappe.clear_cache(doctype=doctype)
+	defaults.set_global_default(marker, "1")

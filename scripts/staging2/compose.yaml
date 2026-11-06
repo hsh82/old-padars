@@ -1,0 +1,73 @@
+x-runtime: &runtime
+  image: ghcr.io/rtcamp/frappe-manager-frappe:v0.19.0
+  user: "1000:1000"
+  entrypoint: []
+  working_dir: /workspace/frappe-bench
+  environment:
+    PATH: /workspace/frappe-bench/env/bin:/workspace/frappe-bench/.fnm/aliases/default/bin:/usr/local/bin:/usr/bin:/bin
+  volumes: &mounts
+    - ${STAGING_ROOT}/workspace:/workspace
+    - ${SOURCE_BENCH}/apps/frappe:/workspace/frappe-bench/apps/frappe:ro
+    - ${SOURCE_BENCH}/apps/erpnext:/workspace/frappe-bench/apps/erpnext:ro
+    - ${SOURCE_BENCH}/apps/education:/workspace/frappe-bench/apps/education:ro
+    - ${SOURCE_BENCH}/env:/workspace/frappe-bench/env:ro
+    - ${SOURCE_BENCH}/.uv:/workspace/frappe-bench/.uv:ro
+    - ${SOURCE_BENCH}/.fnm:/workspace/frappe-bench/.fnm:ro
+  networks: [private, database]
+  restart: unless-stopped
+services:
+  web:
+    <<: *runtime
+    command: ["/workspace/frappe-bench/env/bin/gunicorn", "--chdir", "/workspace/frappe-bench/sites", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "2", "--timeout", "120", "frappe.app:application"]
+    depends_on: [redis-cache, redis-queue]
+  worker:
+    <<: *runtime
+    command: ["bench", "worker", "--queue", "short,default,long"]
+    depends_on: [redis-queue]
+  scheduler:
+    <<: *runtime
+    command: ["bench", "schedule"]
+    depends_on: [redis-queue]
+  socketio:
+    <<: *runtime
+    command: ["/workspace/frappe-bench/.fnm/aliases/default/bin/node", "/workspace/frappe-bench/apps/frappe/socketio.js"]
+    depends_on: [redis-queue]
+  redis-cache:
+    image: redis:8-alpine
+    networks: [private]
+    restart: unless-stopped
+  redis-queue:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [queue:/data]
+    networks: [private]
+    restart: unless-stopped
+  nginx:
+    image: ghcr.io/rtcamp/frappe-manager-nginx:v0.19.0
+    entrypoint: ["nginx"]
+    command: ["-c", "/etc/nginx/staging.conf", "-g", "daemon off;"]
+    volumes:
+      - ${STAGING_ROOT}/nginx.conf:/etc/nginx/staging.conf:ro
+      - ${STAGING_ROOT}/workspace:/workspace:ro
+      - ${SOURCE_BENCH}/apps/frappe:/workspace/frappe-bench/apps/frappe:ro
+      - ${SOURCE_BENCH}/apps/erpnext:/workspace/frappe-bench/apps/erpnext:ro
+      - ${SOURCE_BENCH}/apps/education:/workspace/frappe-bench/apps/education:ro
+    expose: [80]
+    environment:
+      VIRTUAL_HOST: stage2.kara.loc
+      VIRTUAL_PORT: "80"
+      HTTPS_METHOD: noredirect
+      HSTS: "off"
+    networks: [private, frontend]
+    depends_on: [web, socketio]
+    restart: unless-stopped
+networks:
+  private: {}
+  database:
+    external: true
+    name: fm-global-backend-network
+  frontend:
+    external: true
+    name: fm-global-frontend-network
+volumes:
+  queue: {}

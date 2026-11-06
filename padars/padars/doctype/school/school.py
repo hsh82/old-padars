@@ -66,7 +66,8 @@ class School(Document):
 
 	def on_update(self):
 		if self.primary_school_manager and (self.is_new() or self.has_value_changed("primary_school_manager")):
-			frappe.get_doc("User", self.primary_school_manager).add_roles("Padars School Manager", "Academics User")
+			from padars.role_profiles import grant_fixed_role
+			grant_fixed_role(frappe.get_doc("User", self.primary_school_manager), "Padars School Manager")
 		if self.has_value_changed("lms_enabled") and self.lms_enabled:
 			from padars.integrations.moodle.service import request_school_tenant_sync
 

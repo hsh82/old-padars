@@ -83,3 +83,16 @@ Update [PROJECT_HANDOFF](PROJECT_HANDOFF.md),
 [VERIFICATION_BACKLOG](VERIFICATION_BACKLOG.md) and the domain matrix at each
 milestone. Preserve the full objective across usage interruptions; automatic
 resumption requires an available session and allowance.
+
+## Staging 2 priority (2026-11-06)
+
+User requested a separate working Staging 2 before further feature work. Twelve
+native Role Profile presets now install repeatably without changing customized
+profiles. Customer presets exclude System Manager and Academics User; only the
+company administrator preset includes infrastructure privileges. Fixed-role
+services preserve native multi-profile semantics and reject escalated profiles.
+Managers receive native enrollment/assessment-plan submission without broad
+roles. Existing Student Customer name/image projection is narrowly synchronized;
+unauthorized Customer retargeting is rejected. Focused regressions pass.
+Separate runtime deployment and role-login acceptance remain to be performed.
+Stage 1 checkout, database, workers and assets must remain untouched.

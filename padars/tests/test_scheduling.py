@@ -236,6 +236,15 @@ class TestScheduling(IntegrationTestCase):
 			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
+			from padars.scheduling import validate_assessment_plan
+			frappe.set_user("Administrator")
+			original_plan = frappe.get_doc("Assessment Plan", plan.name)
+			changed_plan = frappe.get_doc("Assessment Plan", plan.name)
+			changed_plan.assessment_criteria[0].maximum_score = 90
+			changed_plan.maximum_assessment_score = 90
+			with patch.object(changed_plan, "get_doc_before_save", return_value=original_plan):
+				with self.assertRaises(frappe.ValidationError):
+					validate_assessment_plan(changed_plan)
 			frappe.set_user(manager)
 			preview = preview_approved_results(student.name, self.program.name, self.year.name)
 			self.assertEqual(preview["results"], [])

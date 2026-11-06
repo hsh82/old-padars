@@ -136,6 +136,17 @@ def validate_assessment_plan(doc, method=None):
 	if not doc.schedule_date or not doc.from_time or not doc.to_time:
 		frappe.throw(_("Assessment Plan requires a date, start time, and end time."))
 	old = doc.get_doc_before_save()
+	if old:
+		old_criteria = [(row.assessment_criteria, row.maximum_score) for row in old.assessment_criteria]
+		new_criteria = [(row.assessment_criteria, row.maximum_score) for row in doc.assessment_criteria]
+		marks_changed = (old_criteria != new_criteria or any(old.get(field) != doc.get(field)
+			for field in ("assessment_group", "grading_scale", "maximum_assessment_score")))
+		if marks_changed:
+			# Result creation takes the same plan lock; the locking read sees
+			# results committed while this transaction was waiting.
+			frappe.db.sql("select name from `tabAssessment Plan` where name=%s for update", doc.name)
+			if frappe.db.sql("select name from `tabAssessment Result` where assessment_plan=%s and docstatus < 2 limit 1 for update", doc.name):
+				frappe.throw(_("Assessment criteria, maxima and grading scale cannot change after results exist."))
 	if old and any(old.get(field) != doc.get(field) for field in ASSESSMENT_PLAN_SCHEDULE_FIELDS):
 		has_results = frappe.db.exists(
 			"Assessment Result", {"assessment_plan": doc.name, "docstatus": ["!=", 2]}

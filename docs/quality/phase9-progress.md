@@ -14,6 +14,9 @@ draft through Education's document lifecycle, with a plan lock to serialize
 concurrent creation. Direct Assessment Result document writes take the same
 plan lock and check for another active student/plan result. A focused test
 rejects a duplicate direct insert; concurrent requests have not been stress-tested.
+Assessment Plan criteria, maxima, assessment group and grading scale cannot be
+changed after a non-cancelled result exists; the validation uses the same plan
+lock as result creation. This does not replace immutable report-card snapshots.
 The entry service rejects inactive group members, invalid scores and
 submitted results. A scoped roster API is connected to the native bulk tool.
 Padars replaces the upstream HTML template renderer with DOM text and attribute

@@ -441,6 +441,10 @@ class TestScheduling(IntegrationTestCase):
 
 	def test_guardian_verification_creates_only_scoped_website_account(self):
 		from padars.guardian_access import verify_guardian_access, linked_students
+		from padars.install import ensure_stage1_roles
+		frappe.db.set_value("Role", "Padars Guardian", "desk_access", 1)
+		ensure_stage1_roles()
+		self.assertEqual(frappe.db.get_value("Role", "Padars Guardian", "desk_access"), 0)
 		child_user = self._user("guardian-child")
 		with patch("education.education.doctype.student.student.Student.on_update"):
 			student = frappe.get_doc({"doctype": "Student", "first_name": "Child", "enabled": 1, "student_email_id": child_user, "user": child_user}).insert()

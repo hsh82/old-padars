@@ -20,6 +20,10 @@ STAGE1_ROLES = (
 def ensure_stage1_roles():
 	if not frappe.db.exists("Role", "Padars Guardian"):
 		frappe.get_doc({"doctype": "Role", "role_name": "Padars Guardian", "desk_access": 0}).insert(ignore_permissions=True)
+	elif frappe.db.get_value("Role", "Padars Guardian", "desk_access"):
+		role = frappe.get_doc("Role", "Padars Guardian")
+		role.desk_access = 0
+		role.save(ignore_permissions=True)
 	for role_name in STAGE1_ROLES:
 		if not frappe.db.exists("Role", role_name):
 			frappe.get_doc({"doctype": "Role", "role_name": role_name, "desk_access": 1}).insert(

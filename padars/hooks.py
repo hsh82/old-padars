@@ -103,6 +103,7 @@ fixtures = [
 	{"dt": "Permission Type", "prefix": "03_padars", "filters": [["name", "in", ["assessment_result_enter_grade", "assessment_result_approve_grade", "student_attendance_manage_attendance", "student_log_view_sensitive_student_data", "student_log_manage_student_care", "lms_sync_operation_manage_moodle"]]]},
 ]
 
+before_install = "padars.install.ensure_stage1_roles"
 after_install = "padars.install.after_install"
 after_sync = "padars.install.ensure_action_permissions"
 after_migrate = [

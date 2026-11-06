@@ -57,3 +57,12 @@ records that gap and must not be relabelled as a recovered twelve-domain list.
 The objective remains completion of the approved product roadmap. An execution
 or usage interruption must leave this checkpoint current. Automatic resumption
 depends on an available session; do not promise an external usage reset.
+
+## Packaging checkpoint
+
+The wheel build and packaged-artifact guard pass; CI includes the guard.
+A damaged-wheel negative check passed. A focused guardian-role installation
+test passed after enforcing the portal-only app role in installation/migration
+helpers. This is not fresh-site or Phase 11 acceptance. Next feature work is
+Moodle activity discovery/completion and session-specific evidence; retain the
+existing grade/publication and family-portal implementations.

@@ -48,6 +48,11 @@ jobs:
         with:
           python-version: '3.14.2'
 
+      - name: Verify distribution package
+        run: |
+          python -m pip wheel --no-deps --wheel-dir /tmp/padars-current-wheel .
+          python scripts/check_release_package.py /tmp/padars-current-wheel/padars-*.whl
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:

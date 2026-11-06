@@ -58,3 +58,5 @@ The manager actions are server-authorized; form buttons are only a user
 interface convenience.
 
 Manual Student Group membership accepts enabled students registered on the site without requiring a submitted Program Enrollment. Native Education optional batch/course validation settings still apply. Program Enrollment remains a separate academic record used by bulk roster addition, portals and report cards.
+
+Program Enrollment selects enabled site students without requiring an existing enrollment. Submitting the native Education enrollment creates its required-course records; adding enrolled students to a class and the student portal use the submitted enrollment. Duplicate enrollment validation remains native.

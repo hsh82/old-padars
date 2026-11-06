@@ -170,6 +170,40 @@ class TestCurriculum(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			group.save()
 
+	def test_manager_creates_first_enrollment_for_site_student(self):
+		manager = frappe.get_doc({"doctype": "User", "email": f"enrollment-manager-{self.key}@example.invalid",
+			"first_name": "Enrollment Manager", "enabled": 1, "user_type": "System User",
+			"send_welcome_email": 0, "roles": [{"role": "Padars School Manager"}]}).insert(ignore_permissions=True)
+		user = frappe.get_doc({"doctype": "User", "email": f"enrollment-student-{self.key}@example.invalid",
+			"first_name": "Enrollment Student", "enabled": 1, "send_welcome_email": 0}).insert(ignore_permissions=True)
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Enrollment Student",
+				"student_email_id": user.name, "user": user.name, "enabled": 1}).insert()
+		self.assertFalse(frappe.db.exists("Program Enrollment", {"student": student.name}))
+		user.add_roles("Student")
+		group = self._section(self._adoption())
+		generate_course_offerings(group.name)
+		try:
+			frappe.set_user(manager.name)
+			enrollment = frappe.get_doc({"doctype": "Program Enrollment", "student": student.name,
+				"program": self.program.name, "academic_year": self.year.name,
+				"enrollment_date": "2099-01-01", "padars_school": self.school.name}).insert()
+			enrollment.submit()
+			self.assertEqual(enrollment.docstatus, 1)
+			self.assertTrue(frappe.db.exists("Course Enrollment", {"student": student.name,
+				"course": self.course.name, "program_enrollment": enrollment.name}))
+			self.assertEqual(add_enrolled_students_to_section(group.name)["added"], 1)
+			frappe.set_user(user.name)
+			from padars.portal import get_academic_overview
+			self.assertEqual(get_academic_overview(week="2099-01-05")["courses"][0].course, self.course.name)
+			frappe.set_user(manager.name)
+			with self.assertRaises(frappe.ValidationError):
+				frappe.get_doc({"doctype": "Program Enrollment", "student": student.name,
+					"program": self.program.name, "academic_year": self.year.name,
+					"enrollment_date": "2099-01-01", "padars_school": self.school.name}).insert()
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_non_manager_cannot_create_school_adoption(self):
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.PermissionError):

@@ -6,6 +6,18 @@ import frappe
 from frappe import _
 
 
+@frappe.whitelist()
+def get_assessment_details(assessment_plan):
+	"""Expose plan criteria to the native form only within the caller's scope."""
+	plan = frappe.get_doc("Assessment Plan", assessment_plan)
+	plan.check_permission("read")
+	return [{
+		"assessment_criteria": row.assessment_criteria,
+		"maximum_score": row.maximum_score,
+		"docstatus": row.docstatus,
+	} for row in plan.assessment_criteria]
+
+
 def validate_result_scores(doc, method=None):
 	"""Use the plan's criteria and maxima as the sole basis for entered scores."""
 	if not doc.assessment_plan:

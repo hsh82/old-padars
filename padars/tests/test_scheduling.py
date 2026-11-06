@@ -192,6 +192,22 @@ class TestScheduling(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			result.run_method("before_validate")
 
+	def test_assessment_form_criteria_are_limited_to_readable_plans(self):
+		from padars.assessment import get_assessment_details
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		outsider = self._user("outside")
+		try:
+			frappe.set_user(teacher)
+			criteria = get_assessment_details(plan.name)
+			self.assertEqual(criteria[0]["assessment_criteria"], plan.assessment_criteria[0].assessment_criteria)
+			self.assertEqual(criteria[0]["maximum_score"], 100)
+			frappe.set_user(outsider)
+			with self.assertRaises(frappe.PermissionError):
+				get_assessment_details(plan.name)
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_past_exam_plans_cannot_be_deleted_or_rescheduled(self):
 		past_date = add_days(today(), -1)
 		plan = self._assessment_plan(self.group, past_date, examiner=self.instructor.name)

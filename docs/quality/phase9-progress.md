@@ -8,9 +8,14 @@ within each criterion's range. The result maximum is derived from the plan.
 The native grading scale remains responsible for grades; no school formula is
 introduced.
 
-The focused `padars.tests.test_scheduling` integration module passed seven tests
+The native Assessment Result form can load criteria for an Assessment Plan the
+caller can read. The scoped RPC rejects plans outside the caller's assignments;
+the bulk result tool's other endpoints remain closed pending review.
+
+The focused `padars.tests.test_scheduling` integration module passed eight tests
 on `padars-phase12-fresh.local`, including the Frappe validation hook for score
-bounds, duplicate/missing criteria and client-supplied maximum. This is not a
+bounds, duplicate/missing criteria, client-supplied maximum, and plan criteria
+access for an assigned teacher versus an unrelated user. This is not a
 complete grade-entry or publication acceptance test.
 
 Moodle grade mapping and import, review, approval, report-card calculation,

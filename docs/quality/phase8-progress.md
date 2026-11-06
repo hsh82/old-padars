@@ -52,7 +52,12 @@ blocker, not evidence that a live Moodle deployment works.
   support enables automatic enrollment, a Student Group edit reconciles existing
   student states and queues withdrawal after commit. Changes to Program Enrollment
   or user eligibility alone do not yet trigger reconciliation; automatic enrollment
-  disabled, teacher replacement, and live unenrollment need further work.
+  disabled and live unenrollment need further work.
+- Teacher assignment or removal on a mapped, enabled offering now queues the
+  current teacher and withdraws former teacher states. A focused mock integration
+  test processed both replacement operations and confirmed reuse of the course
+  mapping; eight Moodle service and five staff tests passed on the disposable
+  site. Live replacement remains unverified and conflicting roles require review.
 - The installed Moodle 5.2 manual unenrollment API removes the manual course
   enrollment rather than a specific role. Padars blocks withdrawal when another
   local role still needs or reports access, but cannot detect independent Moodle

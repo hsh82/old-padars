@@ -158,6 +158,7 @@ def assign_teacher_to_offering(offering, instructor=None, can_enter_marks=1, can
 			assignment.status = "Inactive"
 			assignment.save()
 	if not user:
+		_queue_teacher_lms_change(offering_doc, old_instructor)
 		return {"offering": offering_doc.name, "instructor": None, "user": None}
 	values = {
 		"user": user, "scope_type": "School Course Offering", "scope_name": offering_doc.name,
@@ -170,8 +171,21 @@ def assign_teacher_to_offering(offering, instructor=None, can_enter_marks=1, can
 		active_assignment.save()
 	else:
 		frappe.get_doc({"doctype": "Academic Assignment", **values}).insert()
+	_queue_teacher_lms_change(offering_doc, old_instructor)
 	return {"offering": offering_doc.name, "instructor": instructor, "user": user,
 		"previous_instructor": old_instructor}
+
+
+def _queue_teacher_lms_change(offering, old_instructor):
+	if old_instructor == offering.instructor or not frappe.db.get_value("School", offering.school, "lms_enabled"):
+		return
+	if not frappe.db.exists("LMS Entity Mapping", {
+		"school": offering.school, "local_doctype": "School Course Offering",
+		"local_name": offering.name, "status": "Active",
+	}):
+		return
+	from padars.integrations.moodle.service import queue_offering_staff_enrollments
+	queue_offering_staff_enrollments(offering.name)
 
 
 def get_teacher_workload_data(filters):

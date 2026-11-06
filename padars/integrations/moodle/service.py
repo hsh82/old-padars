@@ -351,6 +351,7 @@ def process_remote_operation(operation, adapter):
 
 def queue_offering_staff_enrollments(course_offering):
 	offering = frappe.get_doc("School Course Offering", course_offering)
+	teacher_user = None
 	if offering.instructor:
 		if not frappe.get_meta("Instructor").has_field("padars_user"):
 			frappe.throw(_("Add a Moodle User mapping to the assigned Instructor before syncing this course."))
@@ -359,6 +360,19 @@ def queue_offering_staff_enrollments(course_offering):
 			frappe.throw(_("The assigned Instructor must map to an enabled Frappe System User."))
 		state = ensure_enrollment_state(offering, teacher_user, "Teacher")
 		request_enrollment_sync(state)
+
+	for row in frappe.get_all("LMS Enrollment State", filters={
+		"school": offering.school, "course_offering": offering.name,
+		"role": "Teacher", "desired_state": "Enrolled",
+	}, fields=["name", "user"]):
+		if row.user == teacher_user:
+			continue
+		frappe.db.sql("select name from `tabLMS Enrollment State` where name=%s for update", row.name)
+		state = frappe.get_doc("LMS Enrollment State", row.name)
+		if state.desired_state == "Enrolled":
+			state.desired_state = "Not Enrolled"
+			state.save(ignore_permissions=True)
+			request_enrollment_sync(state)
 
 	manager = frappe.db.get_value("School", offering.school, "primary_school_manager")
 	if manager and frappe.db.exists("User", {"name": manager, "enabled": 1, "user_type": "System User"}):

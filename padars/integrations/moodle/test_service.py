@@ -316,6 +316,44 @@ class TestMoodleService(IntegrationTestCase):
 		self.assertEqual(state.desired_state, "Enrolled")
 		self.assertEqual(state.desired_revision, withdrawal_revision + 1)
 
+		# Replacing the instructor queues the new teacher and withdraws the old one.
+		from padars.staff import assign_teacher_to_offering
+		new_user = frappe.get_doc({
+			"doctype": "User", "email": f"replacement-{self.key.lower()}@example.test",
+			"first_name": "Replacement", "send_welcome_email": 0,
+			"enabled": 1, "user_type": "System User",
+			"roles": [{"role": "Padars Read Only"}, {"role": "Padars Teacher"}],
+		}).insert(ignore_permissions=True)
+		new_instructor = frappe.get_doc({"doctype": "Instructor", "instructor_name": f"Replacement {self.key}"}).insert()
+		original_user = frappe.session.user
+		try:
+			frappe.set_user(manager.name)
+			link_instructor_to_user(new_instructor.name, new_user.name)
+			with patch("frappe.enqueue"):
+				assign_teacher_to_offering(self.offering.name, new_instructor.name)
+		finally:
+			frappe.set_user(original_user)
+		old_state = frappe.get_doc("LMS Enrollment State", teacher_states[0].name)
+		self.assertEqual(old_state.desired_state, "Not Enrolled")
+		new_state_name = frappe.db.get_value("LMS Enrollment State", {
+			"course_offering": self.offering.name, "user": new_user.name,
+			"role": "Teacher", "desired_state": "Enrolled",
+		}, "name")
+		self.assertTrue(new_state_name)
+		for target in (old_state.name, new_state_name):
+			operation_name = frappe.db.get_value("LMS Sync Operation", {
+				"target_doctype": "LMS Enrollment State", "target_name": target, "state": "Queued",
+			}, "name")
+			self.assertTrue(operation_name)
+			with patch("frappe.enqueue"):
+				result = process_sync_operation(operation_name, adapter=MockMoodleAdapter())
+			self.assertEqual(result.state, "Succeeded")
+		self.assertEqual(frappe.db.get_value("LMS Enrollment State", old_state.name, "remote_state"), "Not Enrolled")
+		self.assertEqual(frappe.db.get_value("LMS Enrollment State", new_state_name, "remote_state"), "Enrolled")
+		self.assertEqual(frappe.db.count("LMS Entity Mapping", {
+			"school": self.school.name, "local_doctype": "School Course Offering", "local_name": self.offering.name,
+		}), 1)
+
 	def test_failure_is_recorded_and_retry_can_succeed(self):
 		with patch("frappe.enqueue"):
 			operation = request_course_offering_sync(self.offering)

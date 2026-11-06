@@ -23,11 +23,16 @@ individual Education Assessment Result for approval from its native form; the
 draft table links to existing or newly saved results for that review.
 The bulk submission endpoint remains closed.
 
+A manager-only preview API reads submitted Education results for a verified
+school/program/year enrollment, optionally constrained to an Academic Term.
+It omits teacher comments and does not calculate or publish a report card.
+Result approval also requires the related Assessment Plan to be submitted.
+
 The focused `padars.tests.test_scheduling` integration module passed nine tests
 on `padars-phase12-fresh.local`, including the Frappe validation hook for score
 bounds, duplicate/missing criteria, client-supplied maximum, and plan criteria
 access and draft entry for an assigned teacher versus an unrelated user, and
-rejection of updates to submitted results, tool access, roster scope, denial
+rejection of updates to submitted results, preview exclusion of drafts, tool access, roster scope, denial
 of teacher submission, and manager submission with and without approval rights.
 JavaScript syntax was checked; browser interaction and hostile-text rendering
 have not been browser-tested. This is not a

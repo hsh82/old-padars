@@ -7,6 +7,47 @@ from frappe import _
 
 
 @frappe.whitelist()
+def preview_approved_results(student, program, academic_year, academic_term=None):
+	"""Preview submitted Education results for a student's school enrollment."""
+	from padars.permissions import is_school_manager
+	from padars.school_context import get_primary_school
+
+	school = get_primary_school()
+	if not school or not is_school_manager(school):
+		frappe.throw(_("Only a School Manager can review results for publication."), frappe.PermissionError)
+	if academic_term and frappe.db.get_value("Academic Term", academic_term, "academic_year") != academic_year:
+		frappe.throw(_("The Academic Term must belong to the selected Academic Year."))
+	if not frappe.db.exists("Program Enrollment", {
+		"student": student, "program": program, "academic_year": academic_year,
+		"padars_school": school, "docstatus": 1,
+	}):
+		frappe.throw(_("The student needs a submitted Program Enrollment for this school, program and year."))
+	filters = {"student": student, "program": program, "academic_year": academic_year,
+		"padars_school": school, "docstatus": 1}
+	if academic_term:
+		filters["academic_term"] = academic_term
+	rows = []
+	start = 0
+	while True:
+		batch = frappe.get_list("Assessment Result", filters=filters, pluck="name",
+			order_by="name asc", start=start, page_length=200)
+		for name in batch:
+			result = frappe.get_doc("Assessment Result", name)
+			result.check_permission("read")
+			rows.append({"result": result.name, "assessment_plan": result.assessment_plan,
+				"course": result.course, "academic_term": result.academic_term,
+				"grading_scale": result.grading_scale, "maximum_score": result.maximum_score,
+				"total_score": result.total_score, "grade": result.grade,
+				"criteria": [{"name": row.assessment_criteria, "score": row.score,
+					"maximum_score": row.maximum_score, "grade": row.grade} for row in result.details]})
+		if len(batch) < 200:
+			break
+		start += len(batch)
+	return {"school": school, "student": student, "program": program,
+		"academic_year": academic_year, "academic_term": academic_term, "results": rows}
+
+
+@frappe.whitelist()
 def get_assessment_details(assessment_plan):
 	"""Expose plan criteria to the native form only within the caller's scope."""
 	plan = frappe.get_doc("Assessment Plan", assessment_plan)
@@ -136,3 +177,8 @@ def validate_result_uniqueness(doc, method=None):
 	""", (doc.assessment_plan, doc.student, doc.name or ""))
 	if duplicates:
 		frappe.throw(_("An active Assessment Result already exists for this student and plan."))
+
+
+def validate_result_ready_for_approval(doc, method=None):
+	if frappe.db.get_value("Assessment Plan", doc.assessment_plan, "docstatus") != 1:
+		frappe.throw(_("An Assessment Result can be approved only for a submitted Assessment Plan."))

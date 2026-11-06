@@ -172,10 +172,13 @@ class TestScheduling(IntegrationTestCase):
 			validate_assessment_result_relationships(result)
 
 	def test_assessment_scores_use_complete_plan_criteria_and_server_maxima(self):
+		from padars.assessment import validate_result_ready_for_approval
 		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
 		criterion = plan.assessment_criteria[0].assessment_criteria
 		result = frappe.new_doc("Assessment Result")
 		result.assessment_plan = plan.name
+		with self.assertRaises(frappe.ValidationError):
+			validate_result_ready_for_approval(result)
 		result.maximum_score = 999
 		result.append("details", {"assessment_criteria": criterion, "score": 60})
 		result.run_method("before_validate")
@@ -209,7 +212,7 @@ class TestScheduling(IntegrationTestCase):
 			frappe.set_user("Administrator")
 
 	def test_assigned_teacher_can_create_and_update_only_scoped_draft_results(self):
-		from padars.assessment import get_assessment_students, mark_assessment_result
+		from padars.assessment import get_assessment_students, mark_assessment_result, preview_approved_results
 		student_user = self._user("learner")
 		with patch("education.education.doctype.student.student.Student.on_update"):
 			student = frappe.get_doc({"doctype": "Student", "first_name": "Learner",
@@ -233,6 +236,9 @@ class TestScheduling(IntegrationTestCase):
 			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
+			frappe.set_user(manager)
+			self.assertEqual(preview_approved_results(student.name, self.program.name, self.year.name)["results"], [])
+			frappe.set_user(teacher)
 			duplicate = frappe.copy_doc(frappe.get_doc("Assessment Result", first["name"]))
 			with self.assertRaises(frappe.ValidationError):
 				duplicate.insert(ignore_permissions=True)
@@ -266,7 +272,13 @@ class TestScheduling(IntegrationTestCase):
 			frappe.clear_cache(doctype="Assessment Result")
 			frappe.set_user(manager)
 			frappe.get_doc("Assessment Result", first["name"]).submit()
+			preview = preview_approved_results(student.name, self.program.name, self.year.name)
+			self.assertEqual([row["result"] for row in preview["results"]], [first["name"]])
+			self.assertEqual(preview["results"][0]["total_score"], 80)
+			self.assertNotIn("comment", preview["results"][0])
 			frappe.set_user(teacher)
+			with self.assertRaises(frappe.PermissionError):
+				preview_approved_results(student.name, self.program.name, self.year.name)
 			with self.assertRaises((frappe.ValidationError, frappe.PermissionError)):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
 		finally:

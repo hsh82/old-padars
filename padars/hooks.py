@@ -216,6 +216,7 @@ doc_events = {
 	},
 	"Assessment Result": {
 		"before_validate": ["padars.assessment.validate_result_uniqueness", "padars.assessment.validate_result_scores"],
+		"before_submit": "padars.assessment.validate_result_ready_for_approval",
 		"validate": [
 			"padars.education_hooks.validate_linked_education_context",
 			"padars.scheduling.validate_assessment_result_relationships",

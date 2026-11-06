@@ -158,3 +158,29 @@ performance/concurrency and final Phase 11 release acceptance. LMS/SMS remain
 disabled; mocked or absent services are not reported as live. Follow the user’s
 staging-test priority; collect feedback before another staging promotion. Keep
 Stage 1's original branch/worktree, including new user edits, untouched.
+
+## kara.loc promoted to Staging 2 at user request (2026-11-06)
+
+Explicitly requested by the user after the independent Stage 2 acceptance.
+Runtime Padars snapshot: `a0aa6e1`, cloned on `staging-2` in
+`workspace/padars-staging2`. The original IDE checkout remains on `staging-1`
+with all three uncommitted user files preserved. It is no longer the runtime
+Padars source. The independent `stage2.kara.loc` deployment is unchanged.
+
+Database/config/public/private files backed up before migration:
+`workspace/frappe-bench/sites/kara.loc/private/backups/20261106_180209-kara_loc-*`.
+Native `bench --site kara.loc migrate` passed with the new snapshot. Site-level
+developer mode is 0. All twelve default Role Profiles are installed; existing
+school records/users and integration configuration were not replaced by demo data.
+
+Runtime overlay: `docker-compose.staging2.yml` mounts the pinned source read-only
+at the normal app path in web, socketio, scheduler, workers and nginx. `.env`
+sets COMPOSE_FILE to base + workers + staging2 overlay. For future restarts use
+`docker compose -p karaloc up -d` from this directory. Tools explicitly supplying
+only the base compose file omit this overlay and must be adjusted accordingly.
+
+Verified: installed schema/fixtures/indexes (26 DocTypes), required profiles,
+login HTTP 200, served Padars JS hash matches the pinned source, all Kara services
+running. No synthetic seeding, authentication experiment or write test was run
+against existing Kara school data. Existing credentials remain unchanged.
+Use http://kara.loc/login and hard-refresh after the upgrade.

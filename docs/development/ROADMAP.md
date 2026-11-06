@@ -17,7 +17,8 @@ capability inventory is not a replacement domain list.
 
 ## Protected staging baseline
 
-- `staging-1`: `81792d9`, served by `kara.loc`, for Stage 1 manual feedback.
+- `staging-1`: `81792d9`, preserved IDE checkout/baseline with user changes.
+- `kara.loc`: now serves the pinned Staging 2 `a0aa6e1` snapshot at the user’s explicit request; existing data/credentials retained.
 - `staging-2`: independent `http://stage2.kara.loc` runtime, scoped default profiles and synthetic test school.
 - `codex/full-product`: ongoing work in the separate development worktree.
 - Routine development tests target `padars-phase12-fresh.local`; the fresh-install

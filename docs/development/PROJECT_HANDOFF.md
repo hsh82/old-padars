@@ -184,3 +184,13 @@ login HTTP 200, served Padars JS hash matches the pinned source, all Kara servic
 running. No synthetic seeding, authentication experiment or write test was run
 against existing Kara school data. Existing credentials remain unchanged.
 Use http://kara.loc/login and hard-refresh after the upgrade.
+
+## kara.loc staging asset hotfix
+
+The automatic Frappe Manager asset watcher rebuilt shared hashed CSS while the
+running web server served previous manifest paths. Login CSS returned 404 after
+a migration. The local staging compose overlay now mounts a Supervisor config
+with watcher autostart disabled; web was recreated after the build and actual
+login CSS and Desk CSS/JS return 200. Explicit future builds require a web
+restart after completion. Details: kara.loc/STAGING_2_DEPLOYMENT.md. The user’s
+uncommitted grade field changes were preserved; no migration was run.

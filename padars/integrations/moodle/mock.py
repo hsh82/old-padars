@@ -55,3 +55,9 @@ class MockMoodleAdapter:
 	def read_grade_items(self, school, course_mapping, user_mapping):
 		# No synthetic grades are invented for school records.
 		return []
+
+	def read_course_activities(self, school, course_mapping):
+		return []
+
+	def read_activity_completions(self, school, course_mapping, user_mapping):
+		return []

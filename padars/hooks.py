@@ -117,6 +117,8 @@ after_migrate = [
 ]
 
 permission_query_conditions = {
+	"Moodle Learning Snapshot": "padars.integrations.moodle.learning.snapshot_query_conditions",
+	"Course Activity Selection": "padars.integrations.moodle.learning.selection_query_conditions",
 	"Moodle Grade Mapping": "padars.integrations.moodle.grade_import.mapping_query_conditions",
 	"Moodle Grade Review": "padars.integrations.moodle.grade_import.review_query_conditions",
 	"Moodle Grade Snapshot": "padars.integrations.moodle.grades.query_conditions",
@@ -148,6 +150,8 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	"Moodle Learning Snapshot": "padars.integrations.moodle.learning.has_permission",
+	"Course Activity Selection": "padars.integrations.moodle.learning.has_permission",
 	"Moodle Grade Mapping": "padars.integrations.moodle.grade_import.mapping_permission",
 	"Moodle Grade Review": "padars.integrations.moodle.grade_import.review_permission",
 	"Moodle Grade Snapshot": "padars.integrations.moodle.grades.has_permission",

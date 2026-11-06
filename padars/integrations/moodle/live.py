@@ -306,28 +306,45 @@ class LiveMoodleAdapter:
 			"remote_state": enrollment_state.desired_state,
 		}
 
-	def read_grade_items(self, school, course_mapping, user_mapping):
+	def _verified_read_scope(self, school, course_mapping, user_mapping=None):
 		if school.lms_origin_site != frappe.local.site:
 			frappe.throw(_("This cloned site's Moodle binding requires operator review."))
 		tenant = self._local_tenant(school)
 		self._validate_tenant_binding(school, tenant, school.lms_tenant_idnumber,
 			_site_fingerprint(school, _installation_identity(school)))
 		context = self._tenant_context(tenant["id"])
-		if course_mapping.remote_context != context or user_mapping.remote_context != context:
+		if course_mapping.remote_context != context or (user_mapping and user_mapping.remote_context != context):
 			frappe.throw(_("Grade mappings do not match the verified Moodle tenant."))
-		course_id, user_id = int(course_mapping.remote_id), int(user_mapping.remote_id)
+		course_id, user_id = int(course_mapping.remote_id), int(user_mapping.remote_id) if user_mapping else None
 		response = self.client.call("core_course_get_courses_by_field", {"field": "id", "value": str(course_id)}) or {}
 		courses = response.get("courses", [])
 		if len(courses) != 1 or int(courses[0]["id"]) != course_id or int(courses[0]["categoryid"]) != int(tenant["categoryid"]):
 			frappe.throw(_("The grade course is not in this School's tenant category."))
-		user = self._get_user(str(user_id), field="id")
-		if not user or int(user.get("tenantid") or 0) != int(tenant["id"]):
-			frappe.throw(_("The grade user is not a verified tenant member."))
+		if user_id is not None:
+			user = self._get_user(str(user_id), field="id")
+			if not user or int(user.get("tenantid") or 0) != int(tenant["id"]):
+				frappe.throw(_("The Moodle user is not a verified tenant member."))
+		return course_id, user_id
+
+	def read_grade_items(self, school, course_mapping, user_mapping):
+		course_id, user_id = self._verified_read_scope(school, course_mapping, user_mapping)
 		response = self.client.call("gradereport_user_get_grade_items", {"courseid": course_id, "userid": user_id}) or {}
 		rows = response.get("usergrades", [])
 		if response.get("warnings") or len(rows) != 1 or int(rows[0].get("courseid") or 0) != course_id or int(rows[0].get("userid") or 0) != user_id:
 			frappe.throw(_("Moodle did not return an unambiguous grade report for the mapped user and course."))
 		return rows[0].get("gradeitems", [])
+
+	def read_course_activities(self, school, course_mapping):
+		course_id, _ = self._verified_read_scope(school, course_mapping)
+		return self.client.call("core_course_get_contents", {"courseid": course_id,
+			"options": [{"name": "excludecontents", "value": "1"}]}) or []
+
+	def read_activity_completions(self, school, course_mapping, user_mapping):
+		course_id, user_id = self._verified_read_scope(school, course_mapping, user_mapping)
+		response = self.client.call("core_completion_get_activities_completion_status", {"courseid": course_id, "userid": user_id}) or {}
+		if response.get("warnings"):
+			frappe.throw(_("Moodle activity completion returned warnings; the source is unavailable."))
+		return response.get("statuses", [])
 
 
 def _installation_identity(school):

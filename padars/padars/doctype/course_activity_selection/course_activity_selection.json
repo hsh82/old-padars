@@ -1,0 +1,119 @@
+{
+ "doctype": "DocType",
+ "name": "Course Activity Selection",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_offering",
+  "source_snapshot",
+  "version",
+  "selected_modules",
+  "published_by",
+  "published_at",
+  "publication_reason",
+  "selection_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "label": "School",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "label": "Course Offering",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_snapshot",
+   "label": "Source Snapshot",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Moodle Learning Snapshot"
+  },
+  {
+   "fieldname": "version",
+   "label": "Version",
+   "fieldtype": "Int",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "selected_modules",
+   "label": "Selected Modules",
+   "fieldtype": "Code",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON"
+  },
+  {
+   "fieldname": "published_by",
+   "label": "Published By",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "User"
+  },
+  {
+   "fieldname": "published_at",
+   "label": "Published At",
+   "fieldtype": "Datetime",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "publication_reason",
+   "label": "Publication Reason",
+   "fieldtype": "Small Text",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "selection_key",
+   "label": "Selection Key",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ]
+}

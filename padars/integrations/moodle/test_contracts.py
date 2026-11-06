@@ -200,6 +200,22 @@ class TestLiveMoodleContracts(TestCase):
 			with self.assertRaises(frappe.ValidationError):
 				self.adapter.read_grade_items(self.school, course, user)
 
+	def test_learning_calls_exclude_content_and_target_the_requested_user(self):
+		from unittest.mock import Mock
+		course = SimpleNamespace(remote_id="14")
+		user = SimpleNamespace(remote_id="9")
+		with patch.object(self.adapter, "_verified_read_scope", return_value=(14, 9)) as verify:
+			self.client.call = Mock(return_value=[])
+			self.assertEqual(self.adapter.read_course_activities(self.school, course), [])
+			self.client.call.assert_called_with("core_course_get_contents", {"courseid": 14, "options": [{"name": "excludecontents", "value": "1"}]})
+			self.client.call = Mock(return_value={"statuses": [{"cmid": 101, "state": 2}], "warnings": []})
+			self.assertEqual(self.adapter.read_activity_completions(self.school, course, user), [{"cmid": 101, "state": 2}])
+			verify.assert_called_with(self.school, course, user)
+			self.client.call.assert_called_with("core_completion_get_activities_completion_status", {"courseid": 14, "userid": 9})
+			self.client.call = Mock(return_value={"statuses": [], "warnings": [{"warningcode": "denied"}]})
+			with self.assertRaises(frappe.ValidationError):
+				self.adapter.read_activity_completions(self.school, course, user)
+
 	def test_tenant_create_and_resource_verification_contract(self):
 		result = self.adapter.ensure_tenant(self.school)
 		create = next(params for function, params in self.client.calls if function == "tool_mutenancy_create_tenant")

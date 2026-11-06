@@ -185,6 +185,9 @@ def ensure_enrollment_state(offering, user, role):
 
 def request_sync_operation(school, operation_type, target_doctype, target_name, idempotency_key):
 	"""Persist one idempotent integration request and enqueue it after commit."""
+	from padars.integrations.moodle.grades import _can_read_offering
+	learning_read = bool(operation_type == "Read Learning" and target_doctype == "School Course Offering"
+		and frappe.db.get_value("School Course Offering", target_name, "school") == school and _can_read_offering(target_name))
 	auto_sync = bool(
 		frappe.flags.get("padars_lms_auto_sync")
 		and frappe.db.get_value("School", school, "lms_auto_enrollment")
@@ -199,7 +202,7 @@ def request_sync_operation(school, operation_type, target_doctype, target_name, 
 	if operation_type == "Provision Tenant":
 		if not is_lms_operator():
 			frappe.throw(_("Only company Moodle operators can provision tenants."), frappe.PermissionError)
-	elif not auto_sync and not withdrawal and not can_manage_moodle(school):
+	elif not learning_read and not auto_sync and not withdrawal and not can_manage_moodle(school):
 		frappe.throw(_("You are not authorized to request this Moodle operation."), frappe.PermissionError)
 	if not frappe.db.get_value("School", school, "lms_enabled"):
 		frappe.throw(_("Moodle is disabled for this School."))
@@ -226,7 +229,7 @@ def request_sync_operation(school, operation_type, target_doctype, target_name, 
 	frappe.enqueue(
 		"padars.integrations.moodle.service.process_sync_operation",
 		operation=operation.name,
-		queue="short",
+		queue="long" if operation_type in {"Read Grades", "Read Learning"} else "short",
 			job_id=idempotency_key,
 		enqueue_after_commit=True,
 	)
@@ -282,6 +285,10 @@ def process_sync_operation(operation, adapter=None):
 
 
 def process_remote_operation(operation, adapter):
+	if operation.operation_type == "Read Learning":
+		from padars.integrations.moodle.learning import capture_learning
+		return capture_learning(operation, adapter), []
+
 	if operation.operation_type == "Read Grades":
 		from padars.integrations.moodle.grades import capture_grades
 		return capture_grades(operation, adapter), []
@@ -657,7 +664,7 @@ def retry_sync_operation(operation):
 	frappe.enqueue(
 		"padars.integrations.moodle.service.process_sync_operation",
 		operation=operation.name,
-		queue="short",
+		queue="long" if operation.operation_type in {"Read Grades", "Read Learning"} else "short",
 		job_name=f"retry:{operation.name}:{operation.attempt_count or 0}",
 		enqueue_after_commit=True,
 	)

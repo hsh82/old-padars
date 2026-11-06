@@ -37,6 +37,12 @@ requires course grade-report access, including other-user grade visibility for
 the company service account. Never grant those service capabilities to students
 or browser code. The endpoint is read-only; Padars does not update Moodle grades.
 
+For learning discovery add `core_course_get_contents` and
+`core_completion_get_activities_completion_status`. Review their exact
+capabilities in the installed API Documentation. Padars fetches per-user
+completion and excludes content files. The service's visibility flags are not
+forwarded as proof of student access; teachers explicitly publish metadata.
+
 4. Assign the service user only the capabilities shown by the target Moodle's
    API Documentation for those functions. MuTMS tenant lookup requires
    `tool/mutenancy:view`; tenant creation requires the system-context

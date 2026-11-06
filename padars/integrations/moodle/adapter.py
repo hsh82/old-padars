@@ -19,3 +19,9 @@ class MoodleAdapter(Protocol):
 
 	def read_grade_items(self, school, course_mapping, user_mapping):
 		"""Read one mapped user's grade items after verifying tenant context."""
+
+	def read_course_activities(self, school, course_mapping):
+		"""Read the actual mapped course catalogue, without content files."""
+
+	def read_activity_completions(self, school, course_mapping, user_mapping):
+		"""Read one mapped user's completion statuses."""

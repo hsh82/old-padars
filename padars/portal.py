@@ -99,9 +99,11 @@ def get_academic_overview(student=None, week=None):
 		row.teacher_name = teacher_names.get(row.instructor, "")
 	for row in courses:
 		row.moodle_url = links.get(row.name)
+	from padars.integrations.moodle.learning import _learning_for_student
+	learning = _learning_for_student(student, [row.name for row in courses[:100]])
 	return {"student": student, "student_name": frappe.db.get_value("Student", student, "student_name"),
 		"week_start": str(start), "week_end": str(end),
 		"previous_week": str(start - timedelta(days=7)), "next_week": str(start + timedelta(days=7)),
 		"sessions": sessions[:200], "courses": courses[:100], "attendance": attendance[:200],
 		"truncated": len(sessions) > 200 or len(courses) > 100 or len(attendance) > 200,
-		"learning_status": "Unavailable", "sso_verified": False}
+		"learning": learning, "learning_status": "Published selections" if learning else "Unavailable", "sso_verified": False}

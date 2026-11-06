@@ -45,8 +45,10 @@ fourteen offline API contract tests pass, including tenant/course/user verificat
 are now connected. Sixteen focused scheduling/assessment integration tests pass,
 including mixed manual/Moodle marks, stale reviews, rollback, mapping retirement,
 changed ranges and manager-controlled result corrections. No live grade read or
-browser import is claimed. Next: learning-activity discovery/completion and
-session-specific attendance evidence; Phase 8 live acceptance still needs an
+browser import is claimed. Teacher-published learning activities and per-child completion are now connected
+through the durable queue and family portal. Seventeen focused tests and fifteen
+offline adapter contracts pass; changed metadata is held for review. Next:
+session-specific attendance policies, evidence review and native attendance confirmation; Phase 8 live acceptance still needs an
 authorized service/token/role configuration. Full Phase 9/10 and Phase 11 remain open.
 Education remains authoritative; do not introduce fixed national formulas.
 The remaining learning views and broader role portals, learning-activity and
@@ -66,3 +68,12 @@ test passed after enforcing the portal-only app role in installation/migration
 helpers. This is not fresh-site or Phase 11 acceptance. Next feature work is
 Moodle activity discovery/completion and session-specific evidence; retain the
 existing grade/publication and family-portal implementations.
+
+## Latest feature checkpoint
+
+Learning discovery and teacher checkbox publication are implemented; raw source
+visibility is never equated with student access. Current family selections and
+per-child statuses are scoped; API failures become unavailable and empty
+publication removes activities. Live Moodle/PlugNmeet configuration remains an
+external acceptance gate. Continue with session-specific evidence policies; do
+not redo grade import, publication, guardian verification or academic portals.

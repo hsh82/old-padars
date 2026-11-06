@@ -1,0 +1,1 @@
+from padars.integrations.moodle.learning import MoodleLearningSnapshot

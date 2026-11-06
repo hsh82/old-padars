@@ -11,6 +11,7 @@ SUPPORTED_OPERATIONS = {
 	"Provision User": "User",
 	"Provision Course": "School Course Offering",
 	"Read Grades": "School Course Offering",
+	"Read Learning": "School Course Offering",
 	"Sync Enrollment": "LMS Enrollment State",
 }
 

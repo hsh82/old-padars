@@ -102,7 +102,7 @@ def request_grade_discovery(course_offering):
 	return {"operation": operation.name}
 
 
-def capture_grades(operation, adapter):
+def resolve_course_roster(operation):
 	"""Collect a bounded complete local roster before persisting any sources."""
 	frappe.db.sql("select name from `tabSchool Course Offering` where name=%s for update", operation.target_name)
 	offering = frappe.get_doc("School Course Offering", operation.target_name)
@@ -122,7 +122,7 @@ def capture_grades(operation, adapter):
 		"parenttype": "Student Group", "active": 1}, pluck="student")
 	if not students or len(students) > 200:
 		frappe.throw(_("Grade discovery requires between one and 200 active students per offering."))
-	observed, captured = now_datetime(), []
+	roster = []
 	for student in sorted(set(students)):
 		user = frappe.db.get_value("Student", {"name": student, "enabled": 1}, "user")
 		if not user or not frappe.db.exists("User", {"name": user, "enabled": 1}) or not frappe.db.exists("Program Enrollment", {
@@ -135,8 +135,14 @@ def capture_grades(operation, adapter):
 		remote_user = mapping("User", user)
 		if remote_user.remote_context != tenant.remote_context:
 			frappe.throw(_("A grade user mapping differs from the School tenant."))
-		items = clean_items(adapter.read_grade_items(school, course, remote_user))
-		captured.append((student, remote_user, items))
+		roster.append((student, remote_user))
+	return offering, school, tenant, course, roster
+
+
+def capture_grades(operation, adapter):
+	offering, school, tenant, course, roster = resolve_course_roster(operation)
+	captured = [(student, user, clean_items(adapter.read_grade_items(school, course, user))) for student, user in roster]
+	observed = now_datetime()
 	frappe.db.savepoint("padars_grade_sources")
 	old_flag = frappe.flags.get("padars_grade_capture")
 	frappe.flags.padars_grade_capture = True

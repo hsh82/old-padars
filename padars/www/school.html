@@ -24,7 +24,14 @@
 <ul>{% for course in overview.courses %}<li>{{ course.course_name | e }} · {{ course.teacher_name | e }}
 {% if course.moodle_url %} · <a href="{{ course.moodle_url | e }}" rel="noopener noreferrer">{{ _('Open Moodle course') }}</a>{% endif %}
 </li>{% else %}<li>{{ _('No active course offerings.') }}</li>{% endfor %}</ul>
-<p>{{ _('Moodle links use normal Moodle login. Single sign-on has not been verified. Activity deadlines, completion and live-class evidence are not available here yet.') }}</p>
+<p>{{ _('Moodle links use normal Moodle login. Single sign-on has not been verified. Activity titles and dates below are explicitly shared by the school. Check Moodle for access conditions, submissions and authoritative deadlines. Live-class evidence is not available here yet.') }}</p>
+<h3>{{ _('Published learning activities') }}</h3>
+<ul>{% for activity in overview.learning %}<li>{{ activity.name | e }} · {{ activity.module | e }} ·
+{% if activity.state is none %}{{ _('Completion unavailable') }}{% elif activity.state == 0 %}{{ _('Incomplete') }}{% elif activity.state == 3 %}{{ _('Complete; did not pass') }}{% elif activity.state == 2 %}{{ _('Complete; passed') }}{% else %}{{ _('Complete') }}{% endif %}
+{% if activity.metadata_changed %}<div>{{ _('Activity details changed. Check Moodle; the school must review the new title and dates.') }}</div>{% endif %}
+{% for date in activity.dates %}<div>{{ date.label | e }} {{ date.date | e }}</div>{% endfor %}
+<div>{{ _('Engagement only; this does not confirm class attendance.') }} {{ _('Observed') }} {{ activity.observed_at | e }}</div>
+</li>{% else %}<li>{{ _('No learning activities have been shared here yet.') }}</li>{% endfor %}</ul>
 <h3>{{ _('Official attendance this week') }}</h3>
 <ul>{% for record in overview.attendance %}<li>{{ record.date | e }} · {{ record.status | e }}</li>
 {% else %}<li>{{ _('No confirmed attendance records this week. Missing records do not mean absence.') }}</li>{% endfor %}</ul>

@@ -1,0 +1,126 @@
+{
+ "doctype": "DocType",
+ "name": "Moodle Learning Snapshot",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_offering",
+  "source_operation",
+  "observed_at",
+  "remote_context",
+  "remote_course",
+  "payload_digest",
+  "activities",
+  "completions",
+  "activity_preview"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "label": "School",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "label": "Course Offering",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_operation",
+   "label": "Source Operation",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "LMS Sync Operation",
+   "unique": 1
+  },
+  {
+   "fieldname": "observed_at",
+   "label": "Observed At",
+   "fieldtype": "Datetime",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remote_context",
+   "label": "Remote Context",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_course",
+   "label": "Remote Course",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "payload_digest",
+   "label": "Payload Digest",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "activities",
+   "label": "Activities",
+   "fieldtype": "Code",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON",
+   "hidden": 1
+  },
+  {
+   "fieldname": "completions",
+   "label": "Completions",
+   "fieldtype": "Code",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON",
+   "hidden": 1
+  },
+  {
+   "fieldname": "activity_preview",
+   "fieldtype": "HTML",
+   "label": "Activities"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ]
+}

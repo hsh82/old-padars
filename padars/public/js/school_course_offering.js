@@ -54,6 +54,10 @@ frappe.ui.form.on("School Course Offering", {
       }), __("Assessments"));
     }
     if (["Padars School Manager", "Padars Platform Administrator", "System Manager", "Padars Teacher", "Padars Academic Staff", "Padars Grade Entry Staff"].some((role) => frappe.user.has_role(role))) {
+      frm.add_custom_button(__("Fetch Learning Activities"), () => frappe.call({
+        method: "padars.integrations.moodle.learning.request_learning_discovery", args: {course_offering: frm.doc.name}, freeze: true,
+      }).then(() => frappe.msgprint(__("Learning discovery queued. Open Learning Sources after synchronization finishes."))), __("Learning"));
+      frm.add_custom_button(__("Learning Sources"), () => frappe.set_route("List", "Moodle Learning Snapshot", {course_offering: frm.doc.name}), __("Learning"));
       frm.add_custom_button(__("Moodle Grade Sources"), () => frappe.set_route("List", "Moodle Grade Snapshot", {course_offering: frm.doc.name}), __("Assessments"));
     }
     if (["Padars School Manager", "Padars Platform Administrator", "System Manager"].some((role) => frappe.user.has_role(role))) {

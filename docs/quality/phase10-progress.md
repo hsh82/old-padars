@@ -32,3 +32,13 @@ user/course and observed-enrollment checks. SSO and learning deadlines remain
 explicitly unavailable. Fourteen focused tests passed, including projection
 scope, withdrawal, escaped HTML and course-link contracts. Browser and live
 service acceptance remain open.
+
+Learning sources now run through the same durable queue. Teachers select actual
+Moodle activities and explicitly publish engagement metadata; the family portal
+shows only selected titles/dates and the authorized child's completion. Service
+account completion is ignored, unknown/changed module identifiers are rejected,
+and stale/failed completion is unavailable. Changed titles/dates require renewed
+publication. Empty selection withdraws sharing. Seventeen focused integration
+tests and fifteen offline contracts passed; the extended metadata-review journey
+also passed. Session attendance evidence remains unfinished and live services,
+workers and browsers are not claimed verified.

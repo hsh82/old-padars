@@ -704,12 +704,109 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 		self.assertEqual(frappe.db.get_value("Assessment Result", result_doc.name, "docstatus"), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "docstatus"), 0)
+		# Learning publication shares only the selected titles and each child's own status.
+		from padars.integrations.moodle.learning import request_learning_discovery, publish_activity_selection, get_activity_publication_context
+		from padars.portal import get_academic_overview
+		frappe.set_user("Administrator")
+		other_user = self._user("other-learning-student")
+		frappe.get_doc("User", other_user).add_roles("Student")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			other_student = frappe.get_doc({"doctype": "Student", "first_name": "Other learner",
+				"student_email_id": other_user, "user": other_user, "enabled": 1}).insert()
+		frappe.get_doc({"doctype": "Program Enrollment", "student": other_student.name,
+			"program": self.program.name, "academic_year": self.year.name,
+			"padars_school": self.school.name, "enrollment_date": "2020-01-01"}).insert().submit()
+		self.group.reload()
+		self.group.append("students", {"student": other_student.name, "active": 1})
+		self.group.save()
+		upsert_entity_mapping("User", other_user, self.school.name, {"remote_type": "Moodle User", "remote_id": "10", "remote_context": context})
+		frappe.get_doc({"doctype": "LMS Enrollment State", "school": self.school.name,
+			"course_offering": self.offering.name, "user": other_user, "role": "Student",
+			"desired_state": "Enrolled", "remote_state": "Enrolled"}).insert()
+		frappe.set_user(teacher)
+		with patch("frappe.enqueue") as enqueue:
+			learning_op = request_learning_discovery(self.offering.name)
+			self.assertEqual(enqueue.call_args.kwargs["queue"], "long")
+			self.assertEqual(learning_op, request_learning_discovery(self.offering.name))
+			self.assertTrue(enqueue.call_args.kwargs["enqueue_after_commit"])
+		adapter.read_course_activities.return_value = [{"id": 1, "visible": 1, "modules": [
+			{"id": 101, "name": "<b>Published lesson</b>", "modname": "lesson", "instance": 13,
+				"completion": 2, "visible": 1, "dates": [{"label": "Due", "timestamp": 1893456000}],
+				"description": "Private course content", "completiondata": {"state": 3}},
+			{"id": 102, "name": "Hidden quiz", "modname": "quiz", "instance": 14, "completion": 2, "visible": 0}]}]
+		adapter.read_activity_completions.side_effect = lambda school, course, user: [{"cmid": 101,
+			"state": 2 if user.remote_id == "9" else 0, "tracking": 2, "modname": "lesson", "instance": 13, "timecompleted": 1893456000}]
+		self.assertEqual(process_sync_operation(learning_op["operation"], adapter).state, "Succeeded")
+		learning_snapshot = frappe.db.get_value("Moodle Learning Snapshot", {"source_operation": learning_op["operation"]}, "name")
+		with self.assertRaises(frappe.ValidationError):
+			publish_activity_selection(learning_snapshot, [9999], "Invalid course activity")
+		selection = publish_activity_selection(learning_snapshot, [101], "School shares this lesson title and date")
+		self.assertEqual(get_activity_publication_context(learning_snapshot), {"can_publish": True, "selected": [101]})
+		self.assertEqual(selection, publish_activity_selection(learning_snapshot, [101], "Repeated publication"))
+		frappe.set_user(learner)
+		own_learning = get_academic_overview()["learning"]
+		self.assertEqual(len(own_learning), 1)
+		self.assertEqual(own_learning[0]["state"], 2)
+		self.assertEqual(own_learning[0]["name"], "Published lesson")
+		self.assertNotIn("Hidden quiz", str(own_learning))
+		self.assertNotIn(other_student.name, str(own_learning))
+		self.assertNotIn("Private course content", str(own_learning))
+		self.assertFalse(frappe.has_permission("Moodle Learning Snapshot", "read", frappe.get_doc("Moodle Learning Snapshot", learning_snapshot)))
+		with self.assertRaises(frappe.PermissionError):
+			request_learning_discovery(self.offering.name)
+		frappe.set_user(other_user)
+		self.assertEqual(get_academic_overview()["learning"][0]["state"], 0)
+		frappe.set_user(teacher)
+		with patch("frappe.enqueue"):
+			changed_learning = request_learning_discovery(self.offering.name)
+		adapter.read_course_activities.return_value[0]["modules"][0]["dates"][0]["timestamp"] += 86400
+		self.assertEqual(process_sync_operation(changed_learning["operation"], adapter).state, "Succeeded")
+		new_learning_snapshot = frappe.db.get_value("Moodle Learning Snapshot", {"source_operation": changed_learning["operation"]}, "name")
+		frappe.set_user(learner)
+		changed_details = get_academic_overview()["learning"][0]
+		self.assertTrue(changed_details["metadata_changed"])
+		self.assertEqual(changed_details["dates"], [])
+		frappe.set_user(teacher)
+		self.assertEqual(publish_activity_selection(new_learning_snapshot, [101], "Reviewed changed activity deadline")["version"], 2)
+		frappe.set_user(learner)
+		self.assertFalse(get_academic_overview()["learning"][0]["metadata_changed"])
+		frappe.set_user(teacher)
+		with patch("frappe.enqueue"):
+			unavailable = request_learning_discovery(self.offering.name)
+		adapter.read_course_activities.side_effect = RuntimeError("Controlled learning outage")
+		self.assertEqual(process_sync_operation(unavailable["operation"], adapter).state, "Failed")
+		frappe.set_user(learner)
+		self.assertIsNone(get_academic_overview()["learning"][0]["state"])
+		frappe.set_user(teacher)
+		removed = publish_activity_selection(learning_snapshot, [], "Withdraw school publication")
+		self.assertEqual(removed["version"], 3)
+		frappe.set_user(learner)
+		self.assertEqual(get_academic_overview()["learning"], [])
+		frappe.set_user(manager)
 		with patch("frappe.enqueue"):
 			second = request_grade_discovery(self.offering.name)
 		adapter.read_grade_items.side_effect = RuntimeError("Controlled remote outage")
 		self.assertEqual(process_sync_operation(second["operation"], adapter).state, "Failed")
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
+
+	def test_activity_catalog_and_completion_keep_source_identity(self):
+		from padars.integrations.moodle.learning import clean_catalog, clean_completions
+		catalog = clean_catalog([{"id": 1, "visible": 1, "modules": [{"id": 101, "modname": "quiz", "instance": 4,
+			"name": "<script>unsafe</script>Quiz", "completion": 2, "visible": 1, "completiondata": {"state": 2}}]}])
+		self.assertNotIn("completiondata", catalog[0])
+		self.assertFalse(catalog[0]["attendance_eligible"])
+		self.assertNotIn("<script>", catalog[0]["name"])
+		completed_fail = clean_completions([{"cmid": 101, "modname": "quiz", "instance": 4,
+			"state": 3, "tracking": 2, "timecompleted": 100, "overrideby": 23}], catalog)
+		self.assertEqual(completed_fail[0]["state"], 3)
+		self.assertTrue(completed_fail[0]["overridden"])
+		with self.assertRaises(frappe.ValidationError):
+			clean_completions([{"cmid": 999, "state": 1, "tracking": 2}], catalog)
+		with self.assertRaises(frappe.ValidationError):
+			clean_completions([{"cmid": 101, "modname": "quiz", "instance": 5, "state": 1, "tracking": 2}], catalog)
+		with self.assertRaises(frappe.ValidationError):
+			clean_completions([{"cmid": 101, "modname": "quiz", "instance": 4, "state": 8, "tracking": 2}], catalog)
 
 	def test_moodle_grade_item_flags_do_not_convert_missing_to_zero(self):
 		from padars.integrations.moodle.grades import clean_items

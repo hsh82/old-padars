@@ -23,6 +23,7 @@ CRITICAL_DOCTYPES = (
 	"school", "school_course_offering", "lms_sync_operation", "student_identity",
 	"school_assessment_scheme", "report_card_publication", "verified_guardian_access",
 	"moodle_grade_snapshot", "moodle_grade_mapping", "moodle_grade_review",
+	"moodle_learning_snapshot", "course_activity_selection",
 )
 
 

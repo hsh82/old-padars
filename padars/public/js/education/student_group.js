@@ -2,17 +2,8 @@ frappe.ui.form.on("Student Group", {
   onload(frm) {
     padars.school_context.loadAuthorizedSchools(frm, "padars_school", "academic_year");
     padars.school_context.setAcademicTermQuery(frm, "academic_year", "academic_term");
-    padars.school_context.setSchoolGridStudentQuery(
-      frm,
-      "students",
-      "student",
-      "padars_school",
-      () => ({
-        academic_year: frm.doc.academic_year || "",
-        program: frm.doc.program || "",
-        course: frm.doc.course || "",
-      }),
-    );
+    // Students belong to this site; native Link permissions still apply.
+    frm.set_query("student", "students", () => ({ filters: { enabled: 1 } }));
     padars.school_context.setSchoolGridInstructorQuery(frm, "instructors", "instructor", "padars_school");
     padars.school_context.setProgramCourseQuery(frm, "course", "program");
     frm.set_query("padars_curriculum_adoption", () => ({

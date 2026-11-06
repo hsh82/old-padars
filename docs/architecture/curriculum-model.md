@@ -56,3 +56,5 @@ Teacher authorization and workload, schedule conflict detection, examinations,
 Moodle synchronization, and grading are implemented in later roadmap phases.
 The manager actions are server-authorized; form buttons are only a user
 interface convenience.
+
+Manual Student Group membership accepts enabled students registered on the site without requiring a submitted Program Enrollment. Native Education optional batch/course validation settings still apply. Program Enrollment remains a separate academic record used by bulk roster addition, portals and report cards.

@@ -155,6 +155,21 @@ class TestCurriculum(FrappeTestCase):
 		adoption.save()
 		self.assertEqual(generate_course_offerings(group.name)["reused"], 1)
 
+	def test_manual_group_accepts_site_student_without_program_enrollment(self):
+		group = self._section(self._adoption())
+		user = frappe.get_doc({"doctype": "User", "email": f"manual-{self.key}@example.invalid",
+			"first_name": "Manual Student", "enabled": 1, "send_welcome_email": 0}).insert(ignore_permissions=True)
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Manual Student",
+				"student_email_id": user.name, "user": user.name, "enabled": 1}).insert()
+		self.assertFalse(frappe.db.exists("Program Enrollment", {"student": student.name}))
+		group.append("students", {"student": student.name, "active": 1})
+		group.save()
+		self.assertEqual(group.reload().students[0].student, student.name)
+		frappe.db.set_value("Student", student.name, "enabled", 0)
+		with self.assertRaises(frappe.ValidationError):
+			group.save()
+
 	def test_non_manager_cannot_create_school_adoption(self):
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.PermissionError):

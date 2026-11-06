@@ -31,7 +31,7 @@ def validate_program_enrollment(doc, method=None):
 		doc.padars_school = get_primary_school(required=True)
 
 	_validate_school_context(doc.padars_school)
-	_validate_student(doc.student, doc.padars_school)
+	_validate_student(doc.student)
 
 
 def validate_student_group(doc, method=None):
@@ -42,13 +42,7 @@ def validate_student_group(doc, method=None):
 
 	_validate_school_context(doc.padars_school)
 	for row in doc.students:
-		_validate_student(
-			row.student,
-			doc.padars_school,
-			academic_year=doc.academic_year,
-			program=doc.program,
-			academic_term=doc.academic_term,
-		)
+		_validate_student(row.student)
 	for row in doc.instructors:
 		if row.instructor and not frappe.db.exists("Instructor", row.instructor):
 			frappe.throw(_("Instructor {0} does not exist.").format(row.instructor))
@@ -63,30 +57,10 @@ def _validate_school_context(school):
 		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
 
 
-def _validate_student(student, school, academic_year=None, program=None, academic_term=None):
+def _validate_student(student):
 	student_data = frappe.db.get_value("Student", student, ["enabled"], as_dict=True)
 	if not student_data or not student_data.enabled:
-		frappe.throw(
-			_("Student {0} must exist and be enabled.").format(student)
-		)
-
-	if academic_year and frappe.get_meta("Program Enrollment").has_field("padars_school"):
-		filters = {
-			"student": student,
-			"padars_school": school,
-			"academic_year": academic_year,
-			"docstatus": 1,
-		}
-		if program:
-			filters["program"] = program
-		if academic_term and frappe.get_meta("Program Enrollment").has_field("academic_term"):
-			filters["academic_term"] = academic_term
-		if not frappe.db.exists("Program Enrollment", filters):
-			frappe.throw(
-				_("Student {0} must have a submitted enrollment for School {1} and Academic Year {2}.").format(
-					student, school, academic_year
-				)
-			)
+		frappe.throw(_("Student {0} must exist and be enabled.").format(student))
 
 
 def validate_linked_education_context(doc, method=None):

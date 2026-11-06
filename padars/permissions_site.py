@@ -273,8 +273,12 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 		if ptype in {"read", "select"}:
 			return is_school_manager(get_primary_school(), user) or bool(_assignments(user, "can_enter_marks"))
 		return False
-	if doc.doctype == "Assessment Result" and ptype in {"submit", "cancel", "amend"}:
-		return False  # Approval and correction are introduced with report-card workflows.
+	if doc.doctype == "Assessment Result" and ptype == "submit":
+		return is_school_manager(get_primary_school(), user) and frappe.has_permission(
+			"Assessment Result", "approve_grade", doc=doc, user=user, ignore_share_permissions=True
+		)
+	if doc.doctype == "Assessment Result" and ptype in {"cancel", "amend"}:
+		return False  # Published-result correction is a separate workflow.
 	if doc.doctype == "LMS Entity Mapping":
 		return can_manage_moodle(get_primary_school(), user) and ptype in {"read", "print", "select"}
 	if doc.doctype in {"LMS Enrollment State", "LMS Sync Operation"}:

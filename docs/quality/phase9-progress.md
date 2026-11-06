@@ -14,20 +14,22 @@ draft through Education's document lifecycle, with a plan lock to serialize
 concurrent creation. It rejects inactive group members, invalid scores and
 submitted results. A scoped roster API is connected to the native bulk tool.
 Padars replaces the upstream HTML template renderer with DOM text and attribute
-setters for names, criteria and comments, and the tool saves draft marks. The
-submission endpoint remains closed pending an approval workflow.
+setters for names, criteria and comments, and the tool saves draft marks. A
+School Manager with the explicit `approve_grade` permission can submit an
+individual Education Assessment Result for approval from its native form.
+The bulk submission endpoint remains closed.
 
 The focused `padars.tests.test_scheduling` integration module passed nine tests
 on `padars-phase12-fresh.local`, including the Frappe validation hook for score
 bounds, duplicate/missing criteria, client-supplied maximum, and plan criteria
 access and draft entry for an assigned teacher versus an unrelated user, and
-rejection of updates to submitted results, tool access and roster scope.
+rejection of updates to submitted results, tool access, roster scope, denial
+of teacher submission, and manager submission with and without approval rights.
 JavaScript syntax was checked; browser interaction and hostile-text rendering
 have not been browser-tested. This is not a
 complete grade-entry or publication acceptance test.
 
-Moodle grade mapping and import, review, approval, report-card calculation,
+Moodle grade mapping and import, broader review, report-card approval and calculation,
 versioned publication, correction and student access remain unimplemented.
-Non-platform Assessment Result submission remains closed until its approval
-workflow and permissions are implemented. The school's grading rules still
-require explicit configuration and approval.
+Report-card publication and correction remain closed. The school's grading
+rules still require explicit configuration and approval.

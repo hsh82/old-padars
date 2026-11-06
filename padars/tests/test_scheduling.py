@@ -224,6 +224,8 @@ class TestScheduling(IntegrationTestCase):
 		criterion = plan.assessment_criteria[0].assessment_criteria
 		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
 		outsider = self._user("outsider")
+		manager = self._user("approver")
+		frappe.get_doc("User", manager).add_roles("Padars School Manager")
 		try:
 			frappe.set_user(teacher)
 			self.assertTrue(frappe.has_permission("Assessment Result Tool", "read"))
@@ -244,7 +246,22 @@ class TestScheduling(IntegrationTestCase):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
 			with self.assertRaises(frappe.PermissionError):
 				get_assessment_students(plan.name, self.group.name)
+			frappe.set_user(teacher)
+			with self.assertRaises(frappe.PermissionError):
+				frappe.get_doc("Assessment Result", first["name"]).submit()
 			frappe.set_user("Administrator")
+			permission = frappe.db.get_value("Custom DocPerm", {
+				"parent": "Assessment Result", "role": "Padars School Manager", "permlevel": 0,
+			}, "name")
+			frappe.db.set_value("Custom DocPerm", permission, "approve_grade", 0)
+			frappe.clear_cache(doctype="Assessment Result")
+			frappe.set_user(manager)
+			with self.assertRaises(frappe.PermissionError):
+				frappe.get_doc("Assessment Result", first["name"]).submit()
+			frappe.set_user("Administrator")
+			frappe.db.set_value("Custom DocPerm", permission, "approve_grade", 1)
+			frappe.clear_cache(doctype="Assessment Result")
+			frappe.set_user(manager)
 			frappe.get_doc("Assessment Result", first["name"]).submit()
 			frappe.set_user(teacher)
 			with self.assertRaises((frappe.ValidationError, frappe.PermissionError)):

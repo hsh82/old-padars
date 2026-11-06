@@ -50,7 +50,8 @@ permission-checked individual schedule records within their assignments.
 
 Frappe custom permission types control `enter_grade`, `manage_attendance`,
 `view_sensitive_student_data`, `manage_student_care`, and `manage_moodle`;
-`approve_grade` is reserved for a future approval workflow. Student Log access
+`approve_grade` permits School Managers to submit individual Assessment Results;
+teachers cannot submit and cancellation/correction remains closed. Student Log access
 requires the `Padars Sensitive Records` role and an active scoped assignment;
 creating or editing a note also requires `can_manage_student_care`. Student
 care is not automatically granted to School Managers.
@@ -74,7 +75,7 @@ attendance records and restores the prior status of any reused Absent record.
 The Padars Daily Attendance Register is the only reviewed report available to
 scoped academic roles. It uses permission-aware Student Attendance reads for
 both report execution and export. Other unreviewed reports remain blocked.
-Submission and cancellation of Assessment Results by non-platform users remain
+Bulk submission and cancellation of Assessment Results by non-platform users remain
 disabled. A Moodle manager is separate from a school manager; credentials
 remain server-side. Tenant provisioning is platform-only.
 

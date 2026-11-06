@@ -103,6 +103,7 @@ after_migrate = [
 	"padars.install.ensure_phase5_action_permissions", "padars.install.ensure_action_permissions",
 	"padars.install.ensure_phase7_permissions",
 	"padars.install.ensure_assessment_tool_permissions",
+	"padars.install.ensure_assessment_approval_permissions",
 	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
 ]
 

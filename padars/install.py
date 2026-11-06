@@ -31,6 +31,7 @@ def after_install():
 	ensure_phase5_action_permissions()
 	ensure_phase7_permissions()
 	ensure_assessment_tool_permissions()
+	ensure_assessment_approval_permissions()
 	ensure_registration_import_permissions()
 	validate_security_baseline()
 
@@ -136,6 +137,25 @@ def ensure_assessment_tool_permissions():
 		if not frappe.db.exists("Custom DocPerm", {"parent": "Assessment Result Tool", "role": role, "permlevel": 0, "if_owner": 0}):
 			add_permission("Assessment Result Tool", role, 0, "read")
 	frappe.clear_cache(doctype="Assessment Result Tool")
+
+
+def ensure_assessment_approval_permissions():
+	"""Grant school managers result approval once, preserving later changes."""
+	from frappe import defaults
+	from frappe.permissions import add_permission, update_permission_property
+
+	marker = "padars_assessment_approval_v1"
+	if defaults.get_global_default(marker):
+		return
+	if not frappe.db.exists("Permission Type", {"doc_type": "Assessment Result", "perm_type": "approve_grade"}):
+		frappe.throw("Missing Padars Assessment Result approve_grade permission type")
+	role = "Padars School Manager"
+	if not frappe.db.exists("Custom DocPerm", {"parent": "Assessment Result", "role": role, "permlevel": 0, "if_owner": 0}):
+		add_permission("Assessment Result", role, 0, "read")
+	for ptype in ("submit", "approve_grade"):
+		update_permission_property("Assessment Result", role, 0, ptype, 1, validate=False)
+	frappe.clear_cache(doctype="Assessment Result")
+	defaults.set_global_default(marker, "1")
 
 
 def ensure_phase5_action_permissions():

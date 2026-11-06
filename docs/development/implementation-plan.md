@@ -1,5 +1,10 @@
 # Implementation plan
 
+Current milestone goals, dependency order and acceptance gates are maintained in
+[ROADMAP.md](ROADMAP.md). See [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) for the
+isolated development/staging setup and [VERIFICATION_BACKLOG.md](VERIFICATION_BACKLOG.md)
+for unclosed verification. The sections below retain the earlier implementation history.
+
 ## Completed in this slice
 
 - Repository and installed-source audit.

@@ -20,6 +20,9 @@ or restart staging services. Staging promotion is a separate action.
 
 ## Actual roadmap checkpoint
 
+The canonical delivery goals and acceptance gates are in [ROADMAP.md](ROADMAP.md).
+Unclosed checks are in [VERIFICATION_BACKLOG.md](VERIFICATION_BACKLOG.md).
+
 Phases 4–7 have development handoffs and remain implemented. Phase 8 has a live
 adapter, durable queue and roster lifecycle work, with live acceptance blocked
 on authorized Moodle service configuration. Phase 9 includes scoped draft

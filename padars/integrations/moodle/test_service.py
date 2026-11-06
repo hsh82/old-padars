@@ -282,7 +282,7 @@ class TestMoodleService(IntegrationTestCase):
 			"course_offering": self.offering.name, "user": student_user, "role": "Student",
 		}, "name")
 		self.group.reload()
-		self.school.db_set("lms_auto_enrollment", 1, update_modified=False)
+		self.school.db_set("lms_auto_enrollment", 0, update_modified=False)
 		for row in self.group.students:
 			if row.student == students[0]:
 				row.active = 0
@@ -290,6 +290,16 @@ class TestMoodleService(IntegrationTestCase):
 			self.group.save()
 		state = frappe.get_doc("LMS Enrollment State", state_name)
 		self.assertEqual(state.desired_state, "Not Enrolled")
+		original_user = frappe.session.user
+		old_flag = frappe.flags.get("padars_lms_roster_withdrawal")
+		try:
+			frappe.set_user(student_user)
+			frappe.flags.padars_lms_roster_withdrawal = True
+			with self.assertRaises(frappe.PermissionError):
+				request_course_offering_sync(self.offering)
+		finally:
+			frappe.flags.padars_lms_roster_withdrawal = old_flag
+			frappe.set_user(original_user)
 		self.assertTrue(any(call.kwargs.get("enqueue_after_commit") for call in enqueue.call_args_list))
 		operation_name = frappe.db.get_value("LMS Sync Operation", {
 			"target_name": state.name, "target_doctype": "LMS Enrollment State", "state": "Queued",
@@ -310,6 +320,11 @@ class TestMoodleService(IntegrationTestCase):
 		for row in self.group.students:
 			if row.student == students[0]:
 				row.active = 1
+		with patch("frappe.enqueue"):
+			self.group.save()
+		state.reload()
+		self.assertEqual(state.desired_state, "Not Enrolled")
+		self.school.db_set("lms_auto_enrollment", 1, update_modified=False)
 		with patch("frappe.enqueue"):
 			self.group.save()
 		state.reload()

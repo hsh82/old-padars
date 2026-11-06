@@ -189,10 +189,17 @@ def request_sync_operation(school, operation_type, target_doctype, target_name, 
 		frappe.flags.get("padars_lms_auto_sync")
 		and frappe.db.get_value("School", school, "lms_auto_enrollment")
 	)
+	withdrawal = bool(
+		frappe.flags.get("padars_lms_roster_withdrawal")
+		and operation_type == "Sync Enrollment" and target_doctype == "LMS Enrollment State"
+		and frappe.db.exists("LMS Enrollment State", {
+			"name": target_name, "school": school, "role": "Student", "desired_state": "Not Enrolled",
+		})
+	)
 	if operation_type == "Provision Tenant":
 		if not is_lms_operator():
 			frappe.throw(_("Only company Moodle operators can provision tenants."), frappe.PermissionError)
-	elif not auto_sync and not can_manage_moodle(school):
+	elif not auto_sync and not withdrawal and not can_manage_moodle(school):
 		frappe.throw(_("You are not authorized to request this Moodle operation."), frappe.PermissionError)
 	if not frappe.db.get_value("School", school, "lms_enabled"):
 		frappe.throw(_("Moodle is disabled for this School."))
@@ -380,7 +387,7 @@ def queue_offering_staff_enrollments(course_offering):
 		request_enrollment_sync(state)
 
 
-def queue_offering_student_enrollments(course_offering, students=None, reconcile=False):
+def queue_offering_student_enrollments(course_offering, students=None, reconcile=False, withdraw_only=False):
 	offering = frappe.get_doc("School Course Offering", course_offering) if isinstance(course_offering, str) else course_offering
 	if reconcile and students is not None:
 		frappe.throw(_("Roster reconciliation requires the complete group, not a selected subset."))
@@ -390,8 +397,9 @@ def queue_offering_student_enrollments(course_offering, students=None, reconcile
 	for student in students:
 		user = frappe.db.get_value("Student", student, "user")
 		eligible_users.add(user)
-		state = ensure_enrollment_state(offering, user, "Student")
-		operations.append(request_enrollment_sync(state))
+		if not withdraw_only:
+			state = ensure_enrollment_state(offering, user, "Student")
+			operations.append(request_enrollment_sync(state))
 	if reconcile:
 		states = frappe.get_all("LMS Enrollment State", filters={
 			"school": offering.school, "course_offering": offering.name,
@@ -414,8 +422,7 @@ def sync_group_roster_after_update(doc, method=None):
 	school = doc.get("padars_school")
 	if not school or not frappe.db.get_value("School", school, "lms_enabled"):
 		return []
-	if not frappe.db.get_value("School", school, "lms_auto_enrollment"):
-		return []
+	auto_enrollment = bool(frappe.db.get_value("School", school, "lms_auto_enrollment"))
 	offerings = frappe.get_all(
 		"School Course Offering",
 		filters={"school": school, "student_group": doc.name, "status": ["!=", "Archived"]},
@@ -423,11 +430,14 @@ def sync_group_roster_after_update(doc, method=None):
 		ignore_permissions=True,
 	)
 	old_flag = frappe.flags.get("padars_lms_auto_sync")
+	old_withdrawal_flag = frappe.flags.get("padars_lms_roster_withdrawal")
 	frappe.flags.padars_lms_auto_sync = True
+	frappe.flags.padars_lms_roster_withdrawal = True
 	try:
-		return [queue_offering_student_enrollments(name, reconcile=True) for name in offerings]
+		return [queue_offering_student_enrollments(name, reconcile=True, withdraw_only=not auto_enrollment) for name in offerings]
 	finally:
 		frappe.flags.padars_lms_auto_sync = old_flag
+		frappe.flags.padars_lms_roster_withdrawal = old_withdrawal_flag
 
 
 def sync_student_eligibility_change(doc, method=None):
@@ -455,8 +465,7 @@ def sync_program_enrollment_change(doc, method=None):
 	school = doc.get("padars_school")
 	if not school or not frappe.db.get_value("School", school, "lms_enabled"):
 		return []
-	if not frappe.db.get_value("School", school, "lms_auto_enrollment"):
-		return []
+	auto_enrollment = bool(frappe.db.get_value("School", school, "lms_auto_enrollment"))
 	groups = frappe.get_all("Student Group Student", filters={"student": doc.student, "active": 1}, pluck="parent")
 	if not groups:
 		return []
@@ -465,11 +474,14 @@ def sync_program_enrollment_change(doc, method=None):
 		"student_group": ["in", groups], "status": ["!=", "Archived"],
 	}, pluck="name")
 	old_flag = frappe.flags.get("padars_lms_auto_sync")
+	old_withdrawal_flag = frappe.flags.get("padars_lms_roster_withdrawal")
 	frappe.flags.padars_lms_auto_sync = True
+	frappe.flags.padars_lms_roster_withdrawal = True
 	try:
-		return [queue_offering_student_enrollments(name, reconcile=True) for name in offerings]
+		return [queue_offering_student_enrollments(name, reconcile=True, withdraw_only=not auto_enrollment) for name in offerings]
 	finally:
 		frappe.flags.padars_lms_auto_sync = old_flag
+		frappe.flags.padars_lms_roster_withdrawal = old_withdrawal_flag
 
 
 def queue_school_auto_enrollment(school_name):

@@ -55,8 +55,12 @@ blocker, not evidence that a live Moodle deployment works.
   The focused mock test covers cancellation and subsequent submission. Student
   enablement/User-link changes and linked User enablement/type changes also
   reconcile active groups when automatic enrollment is enabled. The focused
-  Moodle service suite passed eight tests after those hooks were added. Automatic
-  enrollment disabled and live unenrollment need further work.
+  Moodle service suite passed eight tests after those hooks were added. When
+  automatic enrollment is disabled, these events queue withdrawal of ineligible
+  existing students but do not enroll newly eligible students. The focused mock
+  test covers removal, rejoin with auto enrollment disabled, and denial of course
+  provisioning through the internal withdrawal path. Live unenrollment remains
+  unverified.
 - Registration regression was attempted after the new hooks. The normal runner
   stopped in ERPNext fixture preload because `All Item Groups` was missing before
   registration tests ran. Light mode ignored the requested module filter and was

@@ -52,7 +52,21 @@ JavaScript syntax was checked; browser interaction and hostile-text rendering
 have not been browser-tested. This is not a
 complete grade-entry or publication acceptance test.
 
-Moodle grade mapping and import, broader review, report-card approval and calculation,
-versioned publication, correction and student access remain unimplemented.
-Report-card publication and correction remain closed. The school's grading
-rules still require explicit configuration and approval.
+School Assessment Scheme now provides versioned, manager-approved criteria,
+weights, output scale and rounding over Education records. Report Card
+Publication checks full enrolled-course coverage and preview freshness, retains
+immutable snapshots, and requires a reason for successor versions. Manager
+Student-form actions, a student-only published-report page and self-contained
+PDF download are connected. Eleven focused scheduling/assessment tests passed
+on the disposable site, including weighted calculations, missing sources,
+publication idempotency, correction versions, student isolation and PDF output.
+
+The native print path initially failed on the disposable hostname's asset
+resolution. The self-contained PDF path uses the same escaped print format and
+passed. Schema migration and print-format loading were performed only on
+`padars-phase12-fresh.local`. No Stage 1 build or migration was performed.
+
+Moodle grade mapping/import, controlled correction of underlying Education
+marks, guardian delivery, browser acceptance and concurrency stress tests remain
+unfinished. Schools must explicitly configure and approve their calculation
+schemes; no national grading formula has been introduced.

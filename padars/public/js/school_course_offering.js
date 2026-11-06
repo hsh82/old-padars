@@ -48,6 +48,11 @@ frappe.ui.form.on("School Course Offering", {
 
   refresh(frm) {
     if (frm.is_new()) return;
+    if (["Padars School Manager", "Padars Platform Administrator", "System Manager"].some((role) => frappe.user.has_role(role))) {
+      frm.add_custom_button(__("Assessment Scheme"), () => frappe.new_doc("School Assessment Scheme", {
+        course_offering: frm.doc.name,
+      }), __("Assessments"));
+    }
     refreshSyncState(frm);
     const mappingRequestId = (frm.__padars_mapping_request_id || 0) + 1;
     frm.__padars_mapping_request_id = mappingRequestId;

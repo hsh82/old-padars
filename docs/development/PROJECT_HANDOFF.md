@@ -29,10 +29,12 @@ on authorized Moodle service configuration. Phase 9 includes scoped draft
 entry, individual manager approval, safe draft-table rendering and manager
 preview of approved Education results. See the phase reports for exact evidence.
 
-The next unfinished product workflow is configurable assessment/report-card
-calculation and immutable publication/correction, together with Moodle grade
-mapping and reconciliation. Education remains authoritative; do not introduce
-fixed national formulas. Student/guardian portals, learning-activity and
+Assessment schemes and immutable publication now have focused implementation:
+eleven tests cover weights, approval, previews, publication versions, student
+isolation and generated PDF. The next task is controlled correction of underlying
+approved Education marks, followed by Moodle grade mapping/reconciliation.
+Education remains authoritative; do not introduce fixed national formulas.
+The full student/guardian portals, learning-activity and
 PlugNmeet evidence integration, and Phase 11 release gates remain unfinished.
 The approved twelve-domain list has not yet been supplied; the existing matrix
 records that gap and must not be relabelled as a recovered twelve-domain list.

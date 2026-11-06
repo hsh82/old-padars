@@ -1,0 +1,11 @@
+{
+ "doctype": "Print Format",
+ "name": "Padars Report Card",
+ "doc_type": "Report Card Publication",
+ "module": "Padars",
+ "standard": "Yes",
+ "custom_format": 1,
+ "print_format_type": "Jinja",
+ "html": "{% set card = json.loads(doc.snapshot) %}<main dir=\"auto\"><h1>{{ card.school_name | e }}</h1><h2>{{ _(\"Report Card\") }}</h2><p>{{ card.student_name | e }} \u00b7 {{ card.program | e }} \u00b7 {{ card.academic_year | e }} \u00b7 {{ card.academic_term | e }}</p><p>{{ _(\"Version\") }} {{ doc.version }} \u00b7 {{ doc.published_at | e }}</p><table class=\"table table-bordered\"><thead><tr><th>{{ _(\"Course\") }}</th><th>{{ _(\"Score\") }}</th><th>{{ _(\"Maximum\") }}</th><th>{{ _(\"Grade\") }}</th></tr></thead><tbody>{% for course in card.courses %}<tr><td>{{ course.course_name | e }}</td><td>{{ course.score | e }}</td><td>{{ course.maximum | e }}</td><td>{{ course.grade | e }}</td></tr>{% endfor %}</tbody></table><p>{{ _(\"Published by\") }} {{ doc.published_by | e }}</p></main>",
+ "disabled": 0
+}

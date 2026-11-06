@@ -1,0 +1,37 @@
+{
+ "doctype": "DocType",
+ "name": "School Assessment Component",
+ "module": "Padars",
+ "engine": "InnoDB",
+ "field_order": [
+  "assessment_plan",
+  "assessment_criteria",
+  "weight"
+ ],
+ "fields": [
+  {
+   "fieldname": "assessment_plan",
+   "fieldtype": "Link",
+   "label": "Assessment Plan",
+   "options": "Assessment Plan",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "assessment_criteria",
+   "fieldtype": "Link",
+   "label": "Assessment Criteria",
+   "options": "Assessment Criteria",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Percent",
+   "label": "Weight (%)",
+   "reqd": 1,
+   "in_list_view": 1
+  }
+ ],
+ "istable": 1
+}

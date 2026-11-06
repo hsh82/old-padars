@@ -1,0 +1,185 @@
+{
+ "doctype": "DocType",
+ "name": "Report Card Publication",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "student",
+  "program",
+  "academic_year",
+  "academic_term",
+  "enrollment",
+  "supersedes",
+  "published_by",
+  "version",
+  "scope_key",
+  "version_key",
+  "snapshot_digest",
+  "snapshot",
+  "correction_reason",
+  "published_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "label": "School",
+   "fieldtype": "Link",
+   "options": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "student",
+   "label": "Student",
+   "fieldtype": "Link",
+   "options": "Student",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "program",
+   "label": "Program",
+   "fieldtype": "Link",
+   "options": "Program",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "academic_year",
+   "label": "Academic Year",
+   "fieldtype": "Link",
+   "options": "Academic Year",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "academic_term",
+   "label": "Academic Term",
+   "fieldtype": "Link",
+   "options": "Academic Term",
+   "read_only": 1,
+   "reqd": 0,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "enrollment",
+   "label": "Enrollment",
+   "fieldtype": "Link",
+   "options": "Program Enrollment",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "supersedes",
+   "label": "Supersedes",
+   "fieldtype": "Link",
+   "options": "Report Card Publication",
+   "read_only": 1,
+   "reqd": 0,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "published_by",
+   "label": "Published By",
+   "fieldtype": "Link",
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scope_key",
+   "fieldtype": "Data",
+   "label": "Scope Key",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "version_key",
+   "fieldtype": "Data",
+   "label": "Version Key",
+   "read_only": 1,
+   "hidden": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "snapshot_digest",
+   "fieldtype": "Data",
+   "label": "Snapshot Digest",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "snapshot",
+   "fieldtype": "Code",
+   "label": "Published Snapshot",
+   "read_only": 1,
+   "options": "JSON"
+  },
+  {
+   "fieldname": "correction_reason",
+   "fieldtype": "Small Text",
+   "label": "Correction Reason",
+   "read_only": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "published_at",
+   "fieldtype": "Datetime",
+   "label": "Published At",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "print": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1,
+   "print": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1,
+   "print": 1
+  },
+  {
+   "role": "Student",
+   "read": 1,
+   "print": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "permlevel": 1,
+   "read": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC"
+}

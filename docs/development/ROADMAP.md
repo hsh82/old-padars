@@ -61,10 +61,12 @@ learning/evidence work G3 as its actual API contracts become available, then
 finish G5–G9 in dependency order and run G10. Phases 5–7 remain preserved; add
 only missing product connections. Do not restart Phase 8 from scratch.
 
-The immediate implementation task is G4: inspect Education assessment/grading
-models and implement a versioned school scheme with explicit criteria/weights,
-coverage and approval. Then connect it to G6 publication. Existing stale-edit
-protection is committed at `87ad263`; it is not promoted to staging.
+G4 now has a focused implementation of versioned manager-approved schemes.
+G6 has coverage-checked immutable publication, successor versions, student-only
+delivery and generated PDF. Eleven focused tests pass; browser/concurrency and
+release acceptance remain open. The immediate task is controlled correction of
+approved Education marks, then Moodle grade mapping/reconciliation. Development
+changes are not promoted to staging.
 
 ## Work discipline and handoff
 

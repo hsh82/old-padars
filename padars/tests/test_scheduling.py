@@ -214,6 +214,7 @@ class TestScheduling(IntegrationTestCase):
 	def test_assigned_teacher_can_create_and_update_only_scoped_draft_results(self):
 		from padars.assessment import get_assessment_students, mark_assessment_result, preview_approved_results
 		student_user = self._user("learner")
+		frappe.get_doc("User", student_user).add_roles("Student")
 		with patch("education.education.doctype.student.student.Student.on_update"):
 			student = frappe.get_doc({"doctype": "Student", "first_name": "Learner",
 				"student_email_id": student_user, "user": student_user, "enabled": 1}).insert()
@@ -292,13 +293,132 @@ class TestScheduling(IntegrationTestCase):
 			self.assertEqual(preview["draft_count"], 0)
 			self.assertNotIn(self.course.name, preview["courses_without_approved_results"])
 			self.assertNotIn("comment", preview["results"][0])
+			from padars.grading import calculate_scheme
+			scheme = frappe.get_doc({"doctype": "School Assessment Scheme", "scheme_title": "Test scheme",
+				"course_offering": self.offering.name, "grading_scale": plan.grading_scale,
+				"output_maximum": 20, "decimal_places": 2,
+				"components": [{"assessment_plan": plan.name, "assessment_criteria": criterion, "weight": 100}]}).insert()
+			scheme.submit()
+			calculated = calculate_scheme(scheme.name, student.name)
+			self.assertEqual(calculated["score"], "16.00")
+			self.assertEqual(calculated["grade"], "P")
+			self.assertEqual(calculated["sources"][0]["result"], first["name"])
+			self.assertEqual(scheme.approved_by, manager)
+			from padars.publication import preview_report_card, publish_report_card, read_report_card, list_report_cards
+			enrollment = frappe.db.get_value("Program Enrollment", {"student": student.name, "docstatus": 1}, "name")
+			card = preview_report_card(enrollment, [scheme.name])
+			with self.assertRaises(frappe.TimestampMismatchError):
+				publish_report_card(enrollment, [scheme.name], "stale-digest")
+			publication = publish_report_card(enrollment, [scheme.name], card["digest"])
+			self.assertEqual(publication, publish_report_card(enrollment, [scheme.name], card["digest"]))
+			self.assertEqual(read_report_card(publication["name"])["snapshot"]["courses"][0]["score"], "16.00")
+			printed = frappe.get_print("Report Card Publication", publication["name"], print_format="Padars Report Card")
+			self.assertIn("16.00", printed)
+			import json
+			probe = frappe._dict(frappe.get_doc("Report Card Publication", publication["name"]).as_dict())
+			probe_snapshot = json.loads(probe.snapshot)
+			probe_snapshot["student_name"] = "<script>alert(1)</script>"
+			probe.snapshot = json.dumps(probe_snapshot)
+			escaped = frappe.render_template(frappe.get_doc("Print Format", "Padars Report Card").html, {"doc": probe})
+			self.assertNotIn("<script>alert(1)</script>", escaped)
+			self.assertIn("&lt;script&gt;", escaped)
+			from padars.publication import report_card_pdf
+			pdf = report_card_pdf(publication["name"])
+			self.assertTrue(pdf.startswith(b"%PDF"))
+			published = frappe.get_doc("Report Card Publication", publication["name"])
+			published.snapshot = "{}"
+			with self.assertRaises(frappe.PermissionError):
+				published.save(ignore_permissions=True)
+			with self.assertRaises(frappe.PermissionError):
+				frappe.delete_doc("Report Card Publication", publication["name"], ignore_permissions=True)
+			scheme.output_maximum = 100
+			with self.assertRaises(frappe.ValidationError):
+				scheme.save()
+			revised = frappe.copy_doc(scheme)
+			revised.docstatus = 0
+			revised.insert()
+			revised.submit()
+			correction = preview_report_card(enrollment, [revised.name])
+			with self.assertRaises(frappe.ValidationError):
+				publish_report_card(enrollment, [revised.name], correction["digest"])
+			updated = publish_report_card(enrollment, [revised.name], correction["digest"], "School approved revised scale")
+			self.assertEqual(updated["version"], 2)
+			self.assertEqual(read_report_card(publication["name"])["snapshot"]["courses"][0]["score"], "16.00")
+			self.assertEqual(read_report_card(updated["name"])["snapshot"]["courses"][0]["score"], "80.00")
+			frappe.set_user(student_user)
+			from frappe.model import get_permitted_fields
+			self.assertNotIn("correction_reason", get_permitted_fields("Report Card Publication"))
+			self.assertEqual(len(list_report_cards()), 2)
+			self.assertEqual(read_report_card(publication["name"])["snapshot"]["student"], student.name)
+			with self.assertRaises(frappe.PermissionError):
+				publish_report_card(enrollment, [scheme.name], card["digest"])
+			frappe.set_user(outsider)
+			with self.assertRaises(frappe.PermissionError):
+				read_report_card(publication["name"])
+			with self.assertRaises(frappe.PermissionError):
+				report_card_pdf(publication["name"])
 			frappe.set_user(teacher)
+			with self.assertRaises(frappe.PermissionError):
+				calculate_scheme(scheme.name, student.name)
 			with self.assertRaises(frappe.PermissionError):
 				preview_approved_results(student.name, self.program.name, self.year.name)
 			with self.assertRaises((frappe.ValidationError, frappe.PermissionError)):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
 		finally:
 			frappe.set_user("Administrator")
+
+	def test_scheme_rejects_invalid_weights_and_allocates_versions(self):
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		plan.submit()
+		def make(weight):
+			return frappe.get_doc({"doctype": "School Assessment Scheme", "scheme_title": "Versioned test",
+				"course_offering": self.offering.name, "grading_scale": plan.grading_scale,
+				"output_maximum": 100, "decimal_places": 2,
+				"components": [{"assessment_plan": plan.name, "assessment_criteria": plan.assessment_criteria[0].assessment_criteria, "weight": weight}]})
+		with self.assertRaises(frappe.ValidationError):
+			make(50).insert()
+		first = make(100).insert()
+		first.submit()
+		second = make(100).insert()
+		self.assertEqual(second.version, first.version + 1)
+		self.assertNotEqual(second.version_key, first.version_key)
+		with self.assertRaises(frappe.ValidationError):
+			first.cancel()
+
+	def test_weighted_scheme_uses_normalized_approved_scores_and_requires_all_sources(self):
+		from padars.assessment import mark_assessment_result
+		from padars.grading import calculate_scheme
+		user = self._user("weighted-student")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Weighted",
+				"student_email_id": user, "user": user, "enabled": 1}).insert()
+		frappe.get_doc({"doctype": "Program Enrollment", "student": student.name, "program": self.program.name,
+			"academic_year": self.year.name, "enrollment_date": "2020-01-01", "padars_school": self.school.name}).insert().submit()
+		self.group.append("students", {"student": student.name, "active": 1})
+		self.group.save()
+		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
+		criterion = plan.assessment_criteria[0].assessment_criteria
+		second = frappe.get_doc({"doctype": "Assessment Criteria", "assessment_criteria": f"Second-{self.key}"}).insert()
+		plan.append("assessment_criteria", {"assessment_criteria": second.name, "maximum_score": 50})
+		plan.maximum_assessment_score = 150
+		plan.save()
+		plan.submit()
+		scheme = frappe.get_doc({"doctype": "School Assessment Scheme", "scheme_title": "Weighted scheme",
+			"course_offering": self.offering.name, "grading_scale": plan.grading_scale,
+			"output_maximum": 20, "decimal_places": 2, "rounding_mode": "Half Even",
+			"components": [{"assessment_plan": plan.name, "assessment_criteria": criterion, "weight": 60},
+				{"assessment_plan": plan.name, "assessment_criteria": second.name, "weight": 40}]}).insert()
+		scheme.submit()
+		with self.assertRaises(frappe.ValidationError):
+			calculate_scheme(scheme.name, student.name)
+		result = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80, second.name: 25}})
+		with self.assertRaises(frappe.ValidationError):
+			calculate_scheme(scheme.name, student.name)
+		frappe.get_doc("Assessment Result", result["name"]).submit()
+		calculated = calculate_scheme(scheme.name, student.name)
+		self.assertEqual(calculated["score"], "13.60")
+		self.assertEqual(calculated["percentage"], "68.00")
+		self.assertEqual(calculated["rounding_mode"], "Half Even")
 
 	def test_past_exam_plans_cannot_be_deleted_or_rescheduled(self):
 		past_date = add_days(today(), -1)

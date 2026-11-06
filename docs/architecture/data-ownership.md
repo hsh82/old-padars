@@ -11,5 +11,6 @@
 | Annual teaching instance | Padars `School Course Offering` | Owns school/year/course/group boundary, offering identifier, optional term, and the curriculum version used to create it |
 | LMS connection and external state | Padars | Owns settings, tenant/user/course/enrollment mappings, desired/observed enrollment, and sync operations; live remote truth is not available locally |
 | Grades and assessment results | Education | Reuse; add offering/period extension only when requirements are confirmed |
-| Report-card publication and version history | Not implemented | Requires an approved publication contract; no second grade authority is introduced |
+| Assessment calculation configuration | Padars School Assessment Scheme | Approved versions select Education plan criteria, explicit weights/scales and rounding; source marks remain in Education |
+| Report-card publication and version history | Padars Report Card Publication | Immutable reviewed snapshots derived from approved Education results, retaining provenance and correction history |
 

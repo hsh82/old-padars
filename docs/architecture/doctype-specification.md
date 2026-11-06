@@ -90,5 +90,14 @@ Persistent job intent with target Dynamic Link, operation type, school, unique i
 
 ## Not implemented
 
-Report Card Publication, School Enrollment, durable bulk import result storage, and portal/SSO session records are not present. The existing Education records remain authoritative until those contracts are approved.
+School Enrollment, durable bulk import result storage, and portal/SSO session
+records are not present. Education remains authoritative for academic records.
+
+## Assessment schemes and report publication
+
+School Assessment Scheme and its School Assessment Component rows configure
+approved, immutable calculation versions over Education plans/criteria/results.
+Report Card Publication stores reviewed derived outcomes and provenance as
+immutable versioned snapshots. See [assessment schemes](assessment-schemes.md)
+and [publication](report-publication.md) for validation, ownership and permissions.
 

@@ -102,6 +102,11 @@ The sections below record earlier work and do not supersede that evidence.
 
 ## Next milestone
 
+On the isolated development branch, assessment schemes and immutable publication
+are implemented with eleven focused tests, including student access and PDF.
+See [Phase 9](../quality/phase9-progress.md). Stage 1 remains pinned separately.
+The next task is controlled Education mark corrections and Moodle grade import.
+
 Phase 9 grade entry and report-card workflows are next. Phase 8 remains
 implemented and is not to be rebuilt when the original roadmap reaches it;
 live Moodle/MuTMS acceptance still needs authorized service configuration.

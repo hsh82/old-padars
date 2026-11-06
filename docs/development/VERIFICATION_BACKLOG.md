@@ -13,7 +13,7 @@ results. No new test run was performed for this roadmap update.
 | Independent Moodle role assignments | Unresolved | Explicit reconciliation policy and live tests for manual unenrollment removing whole enrollment. |
 | Assessment UI | Outstanding | Final renderer behavior, hostile text, stale edits, loading/error/retry states and manager review in a browser. |
 | Assessment concurrency | Outstanding | Competing draft creates/updates and identity claims; verify locking and stale revision rejection across connections. |
-| Grading scheme and publication | Implementation pending | G4/G6 calculations against approved examples; permission tests; immutable snapshots/corrections and print reproduction. |
+| Grading scheme and publication | Focused implementation; release checks outstanding | Eleven focused tests now cover schemes, coverage, publication versions, own-student access and PDF. Browser journeys, concurrent publication, real approved school schemes and underlying-mark corrections remain. |
 | Learning and PlugNmeet evidence | Implementation/live contracts pending | Actual session-specific data, policy evaluation, unavailable sources, deduplication and authorized override. |
 | Guardian/student isolation | Implementation pending | Linked-student access plus direct endpoint negatives for unrelated users and unpublished records. |
 | Full endpoint/report audit | Outstanding | Customer restrictions, Files/DocShares, reports, RPCs, User administration and privileged customization denial. |

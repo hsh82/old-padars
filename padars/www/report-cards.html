@@ -1,0 +1,20 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<main dir="auto">
+  <h1>{{ _("Report Cards") }}</h1>
+  {% if report is defined %}
+  <h2>{{ report.snapshot.student_name | e }}</h2>
+  <p>{{ report.snapshot.school_name | e }} · {{ report.snapshot.program | e }} · {{ report.snapshot.academic_year | e }} · {{ report.snapshot.academic_term | e }}</p>
+  <p>{{ _("Version") }} {{ report.version }} · {{ report.published_at | e }}</p>
+  <p><a href="/api/method/padars.publication.download_report_card?publication={{ report.name | urlencode }}">{{ _("Download PDF") }}</a></p>
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>{{ _("Course") }}</th><th>{{ _("Score") }}</th><th>{{ _("Maximum") }}</th><th>{{ _("Grade") }}</th></tr></thead>
+    <tbody>{% for course in report.snapshot.courses %}<tr><td>{{ course.course_name | e }}</td><td>{{ course.score | e }}</td><td>{{ course.maximum | e }}</td><td>{{ course.grade | e }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}
+  {% if not reports %}<p>{{ _("No report cards have been published yet.") }}</p>{% endif %}
+  <ul>{% for card in reports %}<li><a href="/report-cards?publication={{ card.name | urlencode }}">{{ card.program | e }} · {{ card.academic_year | e }} · {{ card.academic_term | e }} · {{ _("Version") }} {{ card.version }}</a></li>{% endfor %}</ul>
+  {% if next_start %}<a href="/report-cards?start={{ next_start }}{% if frappe.form_dict.get('student') %}&amp;student={{ frappe.form_dict.student | urlencode }}{% endif %}">{{ _("Next") }}</a>{% endif %}
+  {% endif %}
+</main>
+{% endblock %}

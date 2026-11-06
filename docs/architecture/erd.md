@@ -31,7 +31,10 @@ Education Student Group (extended with padars_school)
 Education Course Schedule / Assessment Plan / Assessment Result
   (optionally extended with padars_course_offering; school visibility is derived from the offering)
 
-Report Card Publication and School Enrollment are not implemented DocTypes. Education Program Enrollment remains the annual enrollment authority.
+School Assessment Scheme -> School Course Offering / Assessment Plan / Assessment Criteria
+Report Card Publication -> Student / Program Enrollment / prior publication
+  (immutable derived snapshot of approved scheme results and source provenance)
+Education Program Enrollment remains the annual enrollment authority.
 ```
 
 Compound business keys are validated server-side because the MVP needs portable Frappe behavior across installed database engines. Single-field identities use Frappe `unique` fields where appropriate.

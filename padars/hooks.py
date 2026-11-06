@@ -14,11 +14,15 @@ app_include_js = [
 app_include_css = "/assets/padars/css/padars.css"
 web_include_js = ["/assets/padars/js/first_login.js"]
 
+standard_portal_menu_items = [
+	{"title": "Report Cards", "route": "/report-cards", "reference_doctype": "Report Card Publication", "role": "Student"},
+]
+
 doctype_js = {
 	"School": "public/js/school.js",
 	"Program": "public/js/education/program_curriculum.js",
 	"Instructor": "public/js/education/instructor.js",
-	"Student": "public/js/education/student.js",
+	"Student": ["public/js/education/student.js", "public/js/education/report_publication.js"],
 	"Program Enrollment": "public/js/education/program_enrollment.js",
 	"Student Group": "public/js/education/student_group.js",
 	"Course Schedule": "public/js/education/course_schedule.js",
@@ -108,6 +112,7 @@ after_migrate = [
 ]
 
 permission_query_conditions = {
+	"Report Card Publication": "padars.publication.query_conditions",
 	"Data Import": "padars.import_permissions.query_conditions",
 	"File": "padars.file_security.permission_query_conditions",
 	"User": "padars.user_permissions.query_conditions",
@@ -135,6 +140,7 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	"Report Card Publication": "padars.publication.has_permission",
 	"Data Import": "padars.import_permissions.has_permission",
 	"File": "padars.file_security.has_permission",
 	"User": "padars.user_permissions.has_permission",

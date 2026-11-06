@@ -27,6 +27,11 @@ def is_platform_admin(user=None):
 	return user == "Administrator" or bool(PLATFORM_ROLES.intersection(frappe.get_roles(user)))
 
 
+def is_lms_operator(user=None):
+	user = user or frappe.session.user
+	return is_platform_admin(user) or "Padars Moodle Manager" in frappe.get_roles(user)
+
+
 def is_school_manager(school=None, user=None):
 	user = user or frappe.session.user
 	if is_platform_admin(user):
@@ -40,9 +45,7 @@ def can_manage_school(school, user=None):
 
 def can_manage_moodle(school, user=None):
 	user = user or frappe.session.user
-	return is_platform_admin(user) or bool(school and school == get_primary_school()
-		and "Padars Moodle Manager" in frappe.get_roles(user)
-		and frappe.has_permission("LMS Sync Operation", "manage_moodle", user=user, ignore_share_permissions=True))
+	return is_lms_operator(user) or is_school_manager(school, user)
 
 
 def get_user_schools(user=None):
@@ -211,8 +214,12 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 		return False
 	if doc.doctype == "Assessment Result" and ptype in {"submit", "cancel", "amend"}:
 		return False  # Approval and correction are introduced with report-card workflows.
-	if doc.doctype in {"LMS Entity Mapping", "LMS Enrollment State", "LMS Sync Operation"}:
-		return can_manage_moodle(get_primary_school(), user) and ptype in {"read", "print", "select", "manage_moodle"}
+	if doc.doctype == "LMS Entity Mapping":
+		return can_manage_moodle(get_primary_school(), user) and ptype in {"read", "print", "select"}
+	if doc.doctype in {"LMS Enrollment State", "LMS Sync Operation"}:
+		if ptype in {"read", "print", "select"}:
+			return can_manage_moodle(get_primary_school(), user)
+		return is_lms_operator(user) and ptype in {"write", "create", "manage_moodle"}
 	if doc.doctype != "Student Log" and is_school_manager(get_primary_school(), user):
 		if ptype in {"write", "create"} and doc.doctype in {"Assessment Result", "Student Attendance"}:
 			custom = "enter_grade" if doc.doctype == "Assessment Result" else "manage_attendance"

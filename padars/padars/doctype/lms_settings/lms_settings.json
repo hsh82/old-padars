@@ -3,19 +3,24 @@
  "creation": "2026-11-04 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["enabled", "adapter", "base_url", "api_token", "tenant_strategy"],
+ "field_order": ["enabled", "adapter", "base_url", "api_token", "connection_timeout", "default_member_limit", "teacher_role_id", "student_role_id", "school_manager_role_id"],
  "fields": [
-  {"default": "1", "fieldname": "enabled", "fieldtype": "Check", "label": "Enabled"},
-  {"default": "Mock", "fieldname": "adapter", "fieldtype": "Select", "label": "Adapter", "options": "Mock\nMoodle", "reqd": 1},
+  {"default": "0", "fieldname": "enabled", "fieldtype": "Check", "label": "Enabled"},
+  {"default": "Moodle", "fieldname": "adapter", "fieldtype": "Select", "label": "Adapter", "options": "Moodle\nMock", "reqd": 1},
   {"fieldname": "base_url", "fieldtype": "Data", "label": "Base URL", "options": "URL"},
   {"fieldname": "api_token", "fieldtype": "Password", "label": "API Token"},
-  {"default": "External Tenant", "fieldname": "tenant_strategy", "fieldtype": "Select", "label": "Tenant Strategy", "options": "External Tenant\nMoodle Category", "reqd": 1}
+  {"default": "20", "fieldname": "connection_timeout", "fieldtype": "Int", "label": "Connection Timeout (seconds)", "reqd": 1},
+  {"default": "0", "fieldname": "default_member_limit", "fieldtype": "Int", "label": "Default Tenant Member Limit", "description": "MuTMS uses 0 for no member limit."},
+  {"fieldname": "teacher_role_id", "fieldtype": "Int", "label": "Moodle Teacher Role ID", "description": "Read the role ID from this Moodle site's administration; Moodle has no core role-discovery web-service function."},
+  {"fieldname": "student_role_id", "fieldtype": "Int", "label": "Moodle Student Role ID", "description": "Read the role ID from this Moodle site's administration; Moodle has no core role-discovery web-service function."},
+  {"fieldname": "school_manager_role_id", "fieldtype": "Int", "label": "School Manager Course Role ID", "description": "A course-scoped role that lets the School Manager open this school's courses. Do not use a system or tenant administrator role."}
  ],
  "issingle": 1,
  "module": "Padars",
  "name": "LMS Settings",
  "permissions": [
   {"create": 1, "read": 1, "write": 1, "role": "System Manager"},
+  {"read": 1, "write": 1, "role": "Padars Platform Administrator"},
   {"read": 1, "write": 1, "role": "Padars Moodle Manager"}
  ]
 }

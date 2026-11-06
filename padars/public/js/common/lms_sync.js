@@ -32,7 +32,7 @@
       method: "frappe.client.get_list",
       args: {
         doctype: "LMS Entity Mapping",
-        fields: ["name", "remote_type", "remote_id", "remote_context", "status", "last_verified_at"],
+        fields: ["name", "remote_type", "remote_id", "remote_context", "remote_url", "status", "last_verified_at"],
         filters: { local_doctype: localDoctype, local_name: localName, status: "Active" },
         order_by: "modified desc",
         limit_page_length: 1,

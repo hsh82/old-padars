@@ -54,16 +54,26 @@ frappe.ui.form.on("School Course Offering", {
     frm.remove_custom_button(__("Retry Failed Synchronization"), __("Moodle"));
     frm.remove_custom_button(__("View Moodle Mapping"), __("Moodle"));
 
-    frm.add_custom_button(
-      __("Request Moodle Course Creation"),
-      () => requestProvisioning(frm),
-      __("Moodle"),
-    );
-    frm.add_custom_button(
-      __("View Synchronization Status"),
-      () => openSyncMonitor(frm),
-      __("Moodle"),
-    );
+    const isManager = frappe.user.has_role("Padars School Manager")
+      || frappe.user.has_role("Padars Platform Administrator")
+      || frappe.user.has_role("Padars Moodle Manager")
+      || frappe.user.has_role("System Manager");
+    if (isManager) {
+      frm.add_custom_button(
+        __("Request Moodle Course Creation"),
+        () => requestProvisioning(frm),
+        __("Moodle"),
+      );
+      frm.add_custom_button(
+        __("View Synchronization Status"),
+        () => openSyncMonitor(frm),
+        __("Moodle"),
+      );
+    }
+    if (isManager && frm.doc.status !== "Archived") {
+      frm.remove_custom_button(__("Enroll Students in Moodle"), __("Moodle"));
+      frm.add_custom_button(__("Enroll Students in Moodle"), () => selectStudentsForMoodle(frm), __("Moodle"));
+    }
     padars.lms
       .getMapping("School Course Offering", frm.doc.name)
       .then((mapping) => {
@@ -74,6 +84,14 @@ frappe.ui.form.on("School Course Offering", {
           () => frappe.set_route("Form", "LMS Entity Mapping", mapping.name),
           __("Moodle"),
         );
+        if (mapping.remote_url) {
+          frm.remove_custom_button(__("Open Moodle Course"), __("Moodle"));
+          frm.add_custom_button(
+            __("Open Moodle Course"),
+            () => window.open(mapping.remote_url, "_blank", "noopener"),
+            __("Moodle"),
+          );
+        }
       })
       .catch(() => {});
   },
@@ -156,4 +174,33 @@ function openSyncMonitor(frm) {
     target_name: frm.doc.name,
   };
   frappe.set_route("lms-sync-monitor");
+}
+
+function selectStudentsForMoodle(frm) {
+  frappe.call({
+    method: "padars.api.get_course_offering_students",
+    args: { course_offering: frm.doc.name },
+  }).then(({ message }) => {
+    const students = message || [];
+    if (!students.length) {
+      frappe.msgprint(__("This offering has no activated students with a submitted Program Enrollment in its active group."));
+      return;
+    }
+    new frappe.ui.form.MultiSelectDialog({
+      doctype: "Student",
+      target: frm,
+      setters: {},
+      get_query: () => ({ filters: { name: ["in", students] } }),
+      action(selected) {
+        if (!selected || !selected.length) return;
+        frappe.call({
+          method: "padars.api.request_student_enrollments",
+          args: { course_offering: frm.doc.name, students: selected },
+        }).then(() => {
+          frappe.show_alert({ message: __("Moodle enrollment synchronization queued."), indicator: "blue" });
+          refreshSyncState(frm);
+        }).catch(() => frappe.msgprint(__("The selected students could not be queued for Moodle enrollment.")));
+      },
+    });
+  }).catch(() => frappe.msgprint(__("Eligible students could not be loaded for this offering.")));
 }

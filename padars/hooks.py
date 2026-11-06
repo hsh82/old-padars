@@ -17,6 +17,7 @@ web_include_js = ["/assets/padars/js/first_login.js"]
 doctype_js = {
 	"School": "public/js/school.js",
 	"Program": "public/js/education/program_curriculum.js",
+	"Instructor": "public/js/education/instructor.js",
 	"Student": "public/js/education/student.js",
 	"Program Enrollment": "public/js/education/program_enrollment.js",
 	"Student Group": "public/js/education/student_group.js",
@@ -168,7 +169,12 @@ doc_events = {
 	"Student": {"validate": "padars.education_hooks.validate_student_identity", "on_update": "padars.student_identity.attach_matching_user"},
 	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
 	"Program": {"validate": "padars.curriculum.validate_program"},
-	"Student Group": {"validate": "padars.education_hooks.validate_student_group"},
+	"Instructor": {"validate": "padars.integrations.moodle.teacher_identity.validate_instructor_mapping"},
+	"Student Group": {
+		"validate": "padars.education_hooks.validate_student_group",
+		"after_insert": "padars.integrations.moodle.service.sync_group_roster_after_update",
+		"on_update": "padars.integrations.moodle.service.sync_group_roster_after_update",
+	},
 	"Course Schedule": {"validate": "padars.education_hooks.validate_linked_education_context"},
 	"Assessment Plan": {"validate": "padars.education_hooks.validate_linked_education_context"},
 	"Assessment Result": {"validate": "padars.education_hooks.validate_linked_education_context"},

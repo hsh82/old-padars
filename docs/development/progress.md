@@ -6,7 +6,21 @@
 > [Phase 0 results](../quality/phase0-results.md). This progress log retains
 > earlier shared-site work as implementation history.
 
-Updated: 2026-11-05
+Updated: 2026-11-06
+
+## Temporary Phase 8 priority
+
+The development order is temporarily changed to complete Moodle/MuTMS
+integration before the unfinished academic phases. Phase 4 is already
+complete. Phase 5 remains in progress in the preserved uncommitted working
+tree; its latest focused run had 3 passes and 2 failures. Phases 6 and 7 are
+not started. The precise checkpoint and administration boundaries are in
+[the Phase 8 priority checkpoint](phase8-priority-checkpoint.md). After Phase
+8's implementation and focused offline verification, with 13 contract tests
+and 8 service tests passing, the same Phase 5 work resumes after the Phase 8
+commit. Live Moodle acceptance remains blocked by unconfigured web services,
+token, and role IDs. Continue with Phases 6 and 7 after Phase 5; do not redo
+Phase 4 or rebuild Phase 8.
 
 ## Phase 3 implementation handoff
 

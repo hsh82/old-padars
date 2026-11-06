@@ -6,6 +6,7 @@ from padars.permissions import (
 	can_manage_moodle,
 	get_user_schools,
 	has_school_access,
+	is_lms_operator,
 	is_platform_admin,
 )
 
@@ -14,46 +15,132 @@ from padars.integrations.moodle.service import (
 	request_course_offering_sync as create_course_offering_sync,
 	request_school_tenant_sync as create_school_tenant_sync,
 	request_user_sync as create_user_sync,
+	request_student_enrollments as create_student_enrollments,
+	get_offering_students as list_offering_students,
 	retry_sync_operation as retry_operation,
 )
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def request_course_offering_sync(course_offering):
 	offering = frappe.get_doc("School Course Offering", course_offering)
+	if offering.status == "Archived":
+		frappe.throw(_("Archived Course Offerings cannot be synchronized."))
 	if not can_manage_moodle(offering.school):
-		frappe.throw(_("Only a Moodle Manager can request course provisioning."), frappe.PermissionError)
+		frappe.throw(_("Only this School's Manager or company Moodle support can request course provisioning."), frappe.PermissionError)
 	operation = create_course_offering_sync(offering)
 	return operation.as_dict()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def retry_sync_operation(operation):
 	operation_doc = frappe.get_doc("LMS Sync Operation", operation)
 	if not can_manage_moodle(operation_doc.school):
-		frappe.throw(_("Only a Moodle Manager can retry a synchronization operation."), frappe.PermissionError)
+		frappe.throw(_("You are not authorized to retry this synchronization operation."), frappe.PermissionError)
+	if operation_doc.operation_type == "Provision Tenant" and not is_lms_operator():
+		frappe.throw(_("Only company Moodle operators can retry tenant provisioning."), frappe.PermissionError)
 	return retry_operation(operation_doc.name).as_dict()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def request_school_tenant_sync(school):
 	school_doc = frappe.get_doc("School", school)
-	if not is_platform_admin():
-		frappe.throw(_("Only a Platform Administrator can provision a Moodle tenant."), frappe.PermissionError)
+	if not is_lms_operator():
+		frappe.throw(_("Only company Moodle operators can provision a Moodle tenant."), frappe.PermissionError)
+	if school_doc.status != "Active":
+		frappe.throw(_("Moodle can be enabled only for an active School."))
+	return create_school_tenant_sync(school_doc).as_dict()
+
+
+@frappe.whitelist(methods=["POST"])
+def set_school_lms_enabled(school, enabled):
+	if not is_lms_operator():
+		frappe.throw(_("Only company Moodle operators can enable or disable LMS."), frappe.PermissionError)
+	school_doc = frappe.get_doc("School", school)
+	enabled = int(enabled or 0)
+	if enabled not in (0, 1):
+		frappe.throw(_("LMS enabled must be Yes or No."))
+	if enabled and school_doc.status != "Active":
+		frappe.throw(_("Moodle can be enabled only for an active School."))
+	if int(school_doc.lms_enabled or 0) == enabled:
+		return _school_lms_status(school_doc)
+	school_doc.lms_enabled = enabled
+	school_doc.save(ignore_permissions=True)
+	return _school_lms_status(school_doc)
+
+
+def _school_lms_status(school):
+	return {
+		"name": school.name,
+		"enabled": int(school.lms_enabled or 0),
+		"status": school.lms_status,
+		"tenant_name": school.lms_tenant_name,
+		"tenant_id": school.lms_tenant_id,
+		"moodle_url": school.lms_moodle_url,
+		"last_sync": school.lms_last_sync,
+		"last_error": school.lms_last_error,
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def reconnect_school_lms(school):
+	if not is_lms_operator():
+		frappe.throw(_("Only company Moodle operators can reconnect a Moodle tenant."), frappe.PermissionError)
+	school_doc = frappe.get_doc("School", school)
+	if not school_doc.lms_enabled:
+		frappe.throw(_("Enable Moodle for this School before reconnecting."))
+	if school_doc.status != "Active":
+		frappe.throw(_("Moodle can be reconnected only for an active School."))
+	old_flag = frappe.flags.get("padars_lms_service_update")
+	frappe.flags.padars_lms_service_update = True
+	try:
+		school_doc.lms_provisioning_generation = int(school_doc.lms_provisioning_generation or 0) + 1
+		school_doc.lms_status = "Provisioning"
+		school_doc.lms_last_error = None
+		school_doc.save(ignore_permissions=True)
+	finally:
+		frappe.flags.padars_lms_service_update = old_flag
 	return create_school_tenant_sync(school_doc).as_dict()
 
 
 @frappe.whitelist()
+def check_moodle_connection():
+	if not is_lms_operator():
+		frappe.throw(_("Only company Moodle operators can check the Moodle connection."), frappe.PermissionError)
+	from padars.integrations.moodle.service import get_adapter
+
+	result = get_adapter().health_check()
+	return {key: result.get(key) for key in ("sitename", "username", "userid", "release") if key in result}
+
+
+@frappe.whitelist(methods=["POST"])
 def request_student_user_provisioning(student, school):
 	student_doc = frappe.get_doc("Student", student)
 	if not can_manage_moodle(school):
 		frappe.throw(_("You do not have access to School {0}.").format(school), frappe.PermissionError)
 	if not student_doc.enabled or not student_doc.user:
 		frappe.throw(_("Student {0} does not have a linked Frappe User yet.").format(student))
+	if not frappe.db.exists("User", {"name": student_doc.user, "enabled": 1, "user_type": "System User"}):
+		frappe.throw(_("The Student's Frappe User is not enabled."))
 	return create_user_sync(frappe.get_doc("User", student_doc.user), frappe.get_doc("School", school)).as_dict()
 
 
 @frappe.whitelist()
+def get_course_offering_students(course_offering):
+	return list_offering_students(course_offering)
+
+
+@frappe.whitelist(methods=["POST"])
+def request_student_enrollments(course_offering, students):
+	offering = frappe.get_doc("School Course Offering", course_offering)
+	if offering.status == "Archived":
+		frappe.throw(_("Archived Course Offerings cannot enroll Moodle members."))
+	if not can_manage_moodle(offering.school):
+		frappe.throw(_("You are not authorized to manage Moodle enrollments for this School."), frappe.PermissionError)
+	return [operation.as_dict() for operation in create_student_enrollments(offering, students)]
+
+
+@frappe.whitelist(methods=["POST"])
 def request_enrollment_state_sync(enrollment_state):
 	enrollment_doc = frappe.get_doc("LMS Enrollment State", enrollment_state)
 	if not can_manage_moodle(enrollment_doc.school):

@@ -7,3 +7,4 @@
 padars.patches.v1_0.ensure_stage1_roles
 padars.patches.v1_0.add_stage1_constraints
 padars.patches.v1_0.ensure_site_permissions
+padars.patches.v1_0.ensure_lms_integrity_keys

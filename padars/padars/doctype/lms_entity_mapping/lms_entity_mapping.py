@@ -1,3 +1,5 @@
+import hashlib
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -17,6 +19,12 @@ ALLOWED_LOCAL_DOCTYPES = {
 
 class LMSEntityMapping(Document):
 	def validate(self):
+		self.local_mapping_key = hashlib.sha256(
+			f"{self.local_doctype}\0{self.local_name}".encode()
+		).hexdigest()
+		self.remote_mapping_key = hashlib.sha256(
+			f"{self.remote_context}\0{self.remote_type}\0{self.remote_id}".encode()
+		).hexdigest()
 		if self.local_doctype not in ALLOWED_LOCAL_DOCTYPES:
 			frappe.throw(_("Local DocType {0} cannot be mapped by Padars.").format(self.local_doctype))
 		if not frappe.db.exists(self.local_doctype, self.local_name):
@@ -25,6 +33,12 @@ class LMSEntityMapping(Document):
 			frappe.throw(_("You do not have access to School {0}.").format(self.school), frappe.PermissionError)
 		if self._get_local_school() != self.school:
 			frappe.throw(_("The mapping School must match the local record's School."))
+		old = self.get_doc_before_save()
+		if old and not frappe.flags.get("padars_lms_service_update") and any(
+			old.get(field) != self.get(field)
+			for field in ("local_doctype", "local_name", "remote_type", "remote_id", "remote_context", "remote_url")
+		):
+			frappe.throw(_("LMS entity mappings are immutable and managed by Padars."), frappe.PermissionError)
 		if frappe.db.exists(
 			"LMS Entity Mapping",
 			{

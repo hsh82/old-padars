@@ -38,6 +38,19 @@
  },
  {
   "doctype": "Custom Field",
+  "dt": "Instructor",
+  "fieldname": "padars_user",
+  "fieldtype": "Link",
+  "insert_after": "department",
+  "label": "Linked Frappe User",
+  "module": "Padars",
+  "name": "Instructor-padars_user",
+  "options": "User",
+  "read_only": 1,
+  "unique": 1
+ },
+ {
+  "doctype": "Custom Field",
   "dt": "Program",
   "fieldname": "padars_grade_level",
   "fieldtype": "Select",

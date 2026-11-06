@@ -19,13 +19,22 @@ frappe.ui.form.on("Student", {
 			}, __("Registration"));
 		}
 		frm.remove_custom_button(__("Request Moodle User Provisioning"), __("Moodle"));
-		frm.add_custom_button(
-			__("Request Moodle User Provisioning"),
-			() => requestStudentUserProvisioning(frm),
-			__("Moodle"),
-		);
+		if (canManageMoodle()) {
+			frm.add_custom_button(
+				__("Request Moodle User Provisioning"),
+				() => requestStudentUserProvisioning(frm),
+				__("Moodle"),
+			);
+		}
   },
 });
+
+function canManageMoodle() {
+	return frappe.user.has_role("Padars School Manager")
+		|| frappe.user.has_role("Padars Moodle Manager")
+		|| frappe.user.has_role("Padars Platform Administrator")
+		|| frappe.user.has_role("System Manager");
+}
 
 function requestStudentUserProvisioning(frm) {
 	frappe.prompt(

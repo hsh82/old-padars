@@ -263,6 +263,8 @@ def process_sync_operation(operation, adapter=None):
 			school = frappe.get_doc("School", operation.school)
 			if school.lms_auto_enrollment:
 				queue_school_auto_enrollment(school.name)
+			else:
+				queue_school_roster_withdrawals(school.name)
 		operation.state = "Succeeded"
 		operation.last_error = None
 		operation.next_retry_at = None
@@ -497,9 +499,22 @@ def queue_school_auto_enrollment(school_name):
 	for offering_name in offerings:
 		offering = frappe.get_doc("School Course Offering", offering_name)
 		request_course_offering_sync(offering)
-		queue_offering_student_enrollments(offering)
+		if offering.student_group:
+			sync_group_roster_after_update(frappe.get_doc("Student Group", offering.student_group))
 		queued.append(offering_name)
 	return queued
+
+
+def queue_school_roster_withdrawals(school_name):
+	"""Recheck mapped rosters after reconnect without creating course enrollments."""
+	offerings = frappe.get_all("School Course Offering", filters={
+		"school": school_name, "status": ["!=", "Archived"], "student_group": ["is", "set"],
+	}, fields=["name", "student_group"])
+	groups = {row.student_group for row in offerings if frappe.db.exists("LMS Entity Mapping", {
+		"school": school_name, "local_doctype": "School Course Offering", "local_name": row.name,
+		"status": "Active",
+	})}
+	return [sync_group_roster_after_update(frappe.get_doc("Student Group", group)) for group in groups]
 
 
 def _save_tenant_binding(school, remote):

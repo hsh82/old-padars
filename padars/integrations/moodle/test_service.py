@@ -411,6 +411,33 @@ class TestMoodleService(IntegrationTestCase):
 			"school": self.school.name, "local_doctype": "School Course Offering", "local_name": self.offering.name,
 		}), 1)
 
+		# Roster edits while LMS is disabled are reconciled after tenant reconnect.
+		from padars.api import set_school_lms_enabled
+		second_user = frappe.db.get_value("Student", students[1], "user")
+		second_state = frappe.db.get_value("LMS Enrollment State", {
+			"course_offering": self.offering.name, "user": second_user, "role": "Student",
+		}, "name")
+		self.school.db_set("lms_auto_enrollment", 0, update_modified=False)
+		with patch("frappe.enqueue"):
+			set_school_lms_enabled(self.school.name, 0)
+			self.group.reload()
+			for row in self.group.students:
+				if row.student == students[1]:
+					row.active = 0
+			self.group.save()
+			self.assertEqual(frappe.db.get_value("LMS Enrollment State", second_state, "desired_state"), "Enrolled")
+			set_school_lms_enabled(self.school.name, 1)
+			tenant_operation = frappe.db.get_value("LMS Sync Operation", {
+				"school": self.school.name, "operation_type": "Provision Tenant", "state": "Queued",
+			}, "name")
+			self.assertTrue(tenant_operation)
+			result = process_sync_operation(tenant_operation, adapter=MockMoodleAdapter())
+		self.assertEqual(result.state, "Succeeded")
+		self.assertEqual(frappe.db.get_value("LMS Enrollment State", second_state, "desired_state"), "Not Enrolled")
+		self.assertEqual(frappe.db.count("LMS Entity Mapping", {
+			"school": self.school.name, "local_doctype": "School", "local_name": self.school.name,
+		}), 1)
+
 	def test_failure_is_recorded_and_retry_can_succeed(self):
 		with patch("frappe.enqueue"):
 			operation = request_course_offering_sync(self.offering)

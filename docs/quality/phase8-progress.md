@@ -71,6 +71,11 @@ blocker, not evidence that a live Moodle deployment works.
   test processed both replacement operations and confirmed reuse of the course
   mapping; eight Moodle service and five staff tests passed on the disposable
   site. Live replacement remains unverified and conflicting roles require review.
+- After a tenant reconnect, mapped rosters are reconciled even when automatic
+  enrollment is disabled; with it enabled, full eligible rosters are reconciled.
+  A mock test covers a group removal while LMS is disabled, re-enable, tenant
+  mapping reuse, and the resulting desired withdrawal. Live reconnect and queued
+  withdrawals still require verification on an authorized Moodle service.
 - The installed Moodle 5.2 manual unenrollment API removes the manual course
   enrollment rather than a specific role. Padars blocks withdrawal when another
   local role still needs or reports access, but cannot detect independent Moodle

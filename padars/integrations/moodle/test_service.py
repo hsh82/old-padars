@@ -277,26 +277,40 @@ class TestMoodleService(IntegrationTestCase):
 		)))
 
 		# Access can be withdrawn after a student leaves the local roster.
-		from padars.integrations.moodle.service import request_enrollment_sync
 		student_user = frappe.db.get_value("Student", students[0], "user")
 		state_name = frappe.db.get_value("LMS Enrollment State", {
 			"course_offering": self.offering.name, "user": student_user, "role": "Student",
 		}, "name")
 		self.group.reload()
+		self.school.db_set("lms_auto_enrollment", 1, update_modified=False)
 		for row in self.group.students:
 			if row.student == students[0]:
 				row.active = 0
-		self.group.save()
+		with patch("frappe.enqueue") as enqueue:
+			self.group.save()
 		state = frappe.get_doc("LMS Enrollment State", state_name)
-		state.desired_state = "Not Enrolled"
-		state.save(ignore_permissions=True)
+		self.assertEqual(state.desired_state, "Not Enrolled")
+		self.assertTrue(any(call.kwargs.get("enqueue_after_commit") for call in enqueue.call_args_list))
+		operation_name = frappe.db.get_value("LMS Sync Operation", {
+			"target_name": state.name, "target_doctype": "LMS Enrollment State", "state": "Queued",
+		}, "name")
+		self.assertTrue(operation_name)
 		adapter = MockMoodleAdapter()
 		with patch("frappe.enqueue"), patch.object(adapter, "ensure_user", side_effect=AssertionError("unexpected user provisioning")), \
 			patch.object(adapter, "create_course", side_effect=AssertionError("unexpected course provisioning")):
-			operation = request_enrollment_sync(state)
-			result = process_sync_operation(operation.name, adapter=adapter)
+			result = process_sync_operation(operation_name, adapter=adapter)
 		self.assertEqual(result.state, "Succeeded")
 		self.assertEqual(frappe.db.get_value("LMS Enrollment State", state_name, "remote_state"), "Not Enrolled")
+		withdrawal_revision = state.desired_revision
+		self.group.reload()
+		for row in self.group.students:
+			if row.student == students[0]:
+				row.active = 1
+		with patch("frappe.enqueue"):
+			self.group.save()
+		state.reload()
+		self.assertEqual(state.desired_state, "Enrolled")
+		self.assertEqual(state.desired_revision, withdrawal_revision + 1)
 
 	def test_failure_is_recorded_and_retry_can_succeed(self):
 		with patch("frappe.enqueue"):

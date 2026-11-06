@@ -48,8 +48,11 @@ blocker, not evidence that a live Moodle deployment works.
   after local eligibility is removed; the worker uses existing active mappings
   and refuses to create users or courses during withdrawal. The focused Moodle
   service suite passed eight tests on `padars-phase12-fresh.local`, including a
-  mock withdrawal after roster removal. Roster removal does not yet automatically
-  queue withdrawal; teacher replacement and live unenrollment remain unverified.
+  mock withdrawal after roster removal and a subsequent rejoin. When company
+  support enables automatic enrollment, a Student Group edit reconciles existing
+  student states and queues withdrawal after commit. Changes to Program Enrollment
+  or user eligibility alone do not yet trigger reconciliation; automatic enrollment
+  disabled, teacher replacement, and live unenrollment need further work.
 
 - An authorized company operator must enable the Moodle REST service, create a
   restricted service user/token, configure target role IDs and the Frappe host

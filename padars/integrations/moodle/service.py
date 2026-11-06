@@ -360,14 +360,32 @@ def queue_offering_staff_enrollments(course_offering):
 		request_enrollment_sync(state)
 
 
-def queue_offering_student_enrollments(course_offering, students=None):
+def queue_offering_student_enrollments(course_offering, students=None, reconcile=False):
 	offering = frappe.get_doc("School Course Offering", course_offering) if isinstance(course_offering, str) else course_offering
+	if reconcile and students is not None:
+		frappe.throw(_("Roster reconciliation requires the complete group, not a selected subset."))
 	students = students if students is not None else _get_offering_students(offering)
 	operations = []
+	eligible_users = set()
 	for student in students:
 		user = frappe.db.get_value("Student", student, "user")
+		eligible_users.add(user)
 		state = ensure_enrollment_state(offering, user, "Student")
 		operations.append(request_enrollment_sync(state))
+	if reconcile:
+		states = frappe.get_all("LMS Enrollment State", filters={
+			"school": offering.school, "course_offering": offering.name,
+			"role": "Student", "desired_state": "Enrolled",
+		}, fields=["name", "user"])
+		for row in states:
+			if row.user in eligible_users:
+				continue
+			frappe.db.sql("select name from `tabLMS Enrollment State` where name=%s for update", row.name)
+			state = frappe.get_doc("LMS Enrollment State", row.name)
+			if state.desired_state == "Enrolled":
+				state.desired_state = "Not Enrolled"
+				state.save(ignore_permissions=True)
+			operations.append(request_enrollment_sync(state))
 	return operations
 
 
@@ -387,7 +405,7 @@ def sync_group_roster_after_update(doc, method=None):
 	old_flag = frappe.flags.get("padars_lms_auto_sync")
 	frappe.flags.padars_lms_auto_sync = True
 	try:
-		return [queue_offering_student_enrollments(name) for name in offerings]
+		return [queue_offering_student_enrollments(name, reconcile=True) for name in offerings]
 	finally:
 		frappe.flags.padars_lms_auto_sync = old_flag
 

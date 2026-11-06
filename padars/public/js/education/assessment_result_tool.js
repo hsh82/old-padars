@@ -57,12 +57,13 @@ frappe.ui.form.on("Assessment Result Tool", {
         frappe.call({
           method: "education.education.api.mark_assessment_result",
           args: {assessment_plan: frm.doc.assessment_plan,
-            scores: {student: student.student, assessment_details: details, comment: comment.val()}},
+            scores: {student: student.student, assessment_details: details, comment: comment.val(), expected_modified: student.modified}},
           callback(response) {
             if (response.message) {
               total.text(response.message.total_score);
               status.text(__("Draft saved"));
               showResult(response.message.name);
+              student.modified = response.message.modified;
             }
           },
           error() { status.text(__("Save failed; change a value to retry.")); },

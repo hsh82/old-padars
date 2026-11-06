@@ -26,6 +26,13 @@ individual Education Assessment Result for approval from its native form; the
 draft table links to existing or newly saved results for that review.
 The bulk submission endpoint remains closed.
 
+Development after Stage 1 runs on `codex/full-product` in a separate worktree.
+Draft result updates now require the revision loaded by the client. Roster and
+save responses carry the revision; stale or missing revisions reject updates
+instead of overwriting newer marks. The nine focused scheduling/assessment
+tests passed using that worktree on `padars-phase12-fresh.local`, including a
+stale-write rejection. This change is not deployed to `kara.loc` Stage 1.
+
 A manager-only preview API reads submitted Education results for a verified
 school/program/year enrollment, optionally constrained to an Academic Term.
 The Student form provides a manager action to select those filters and review

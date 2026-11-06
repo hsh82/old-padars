@@ -233,7 +233,9 @@ class TestScheduling(IntegrationTestCase):
 			frappe.set_user(teacher)
 			self.assertTrue(frappe.has_permission("Assessment Result Tool", "read"))
 			first = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 70}})
-			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
+			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}, "expected_modified": first["modified"]})
+			with self.assertRaises(frappe.TimestampMismatchError):
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}, "expected_modified": first["modified"]})
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
 			from padars.scheduling import validate_assessment_plan
@@ -260,7 +262,7 @@ class TestScheduling(IntegrationTestCase):
 			with self.assertRaises(frappe.PermissionError):
 				get_assessment_students(plan.name, "unrelated-group")
 			with self.assertRaises(frappe.ValidationError):
-				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: -1}})
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: -1}, "expected_modified": second["modified"]})
 			frappe.set_user(outsider)
 			self.assertFalse(frappe.has_permission("Assessment Result Tool", "read"))
 			with self.assertRaises(frappe.PermissionError):

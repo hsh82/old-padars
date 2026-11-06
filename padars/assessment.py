@@ -110,6 +110,7 @@ def get_assessment_students(assessment_plan, student_group):
 			student.assessment_details.update({"total_score": [str(result.total_score), result.grade], "comment": result.comment})
 			student.docstatus = result.docstatus
 			student.name = result.name
+			student.modified = str(result.modified)
 	return students
 
 
@@ -138,10 +139,12 @@ def mark_assessment_result(assessment_plan, scores):
 	if len(existing) > 1:
 		frappe.throw(_("Multiple assessment results exist; resolve the conflict before entering marks."))
 	if existing:
-		result = frappe.get_doc("Assessment Result", existing[0])
+		result = frappe.get_doc("Assessment Result", existing[0], for_update=True)
 		result.check_permission("write")
 		if result.docstatus != 0:
 			frappe.throw(_("Submitted assessment results require an authorized correction workflow."))
+		if str(scores.get("expected_modified") or "") != str(result.modified):
+			frappe.throw(_("This assessment result changed after it was loaded. Reload before saving marks."), frappe.TimestampMismatchError)
 	else:
 		result = frappe.new_doc("Assessment Result")
 		result.assessment_plan = plan.name
@@ -154,7 +157,7 @@ def mark_assessment_result(assessment_plan, scores):
 		for key, value in scores["assessment_details"].items()])
 	result.save()
 	return {"name": result.name, "student": result.student, "total_score": result.total_score,
-		"grade": result.grade, "details": {row.assessment_criteria: row.grade for row in result.details}}
+		"modified": str(result.modified), "grade": result.grade, "details": {row.assessment_criteria: row.grade for row in result.details}}
 
 
 def validate_result_scores(doc, method=None):

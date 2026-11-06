@@ -209,7 +209,7 @@ class TestScheduling(IntegrationTestCase):
 			frappe.set_user("Administrator")
 
 	def test_assigned_teacher_can_create_and_update_only_scoped_draft_results(self):
-		from padars.assessment import mark_assessment_result
+		from padars.assessment import get_assessment_students, mark_assessment_result
 		student_user = self._user("learner")
 		with patch("education.education.doctype.student.student.Student.on_update"):
 			student = frappe.get_doc({"doctype": "Student", "first_name": "Learner",
@@ -230,11 +230,18 @@ class TestScheduling(IntegrationTestCase):
 			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
+			roster = get_assessment_students(plan.name, self.group.name)
+			self.assertEqual(roster[0].student, student.name)
+			self.assertEqual(float(roster[0].assessment_details[criterion][0]), 80)
+			with self.assertRaises(frappe.PermissionError):
+				get_assessment_students(plan.name, "unrelated-group")
 			with self.assertRaises(frappe.ValidationError):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: -1}})
 			frappe.set_user(outsider)
 			with self.assertRaises(frappe.PermissionError):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
+			with self.assertRaises(frappe.PermissionError):
+				get_assessment_students(plan.name, self.group.name)
 			frappe.set_user("Administrator")
 			frappe.get_doc("Assessment Result", first["name"]).submit()
 			frappe.set_user(teacher)

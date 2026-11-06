@@ -18,6 +18,38 @@ def get_assessment_details(assessment_plan):
 	} for row in plan.assessment_criteria]
 
 
+@frappe.whitelist()
+def get_assessment_students(assessment_plan, student_group):
+	"""Return the native tool roster only for a plan within grade-entry scope."""
+	plan = frappe.get_doc("Assessment Plan", assessment_plan)
+	plan.check_permission("read")
+	if plan.docstatus != 1 or plan.student_group != student_group:
+		frappe.throw(_("Choose the submitted Assessment Plan's own Student Group."), frappe.PermissionError)
+	from padars.scheduling import validate_assessment_result_relationships
+	students = frappe.get_all("Student Group Student", filters={"parent": student_group, "active": 1},
+		fields=["student", "student_name"], order_by="group_roll_number asc")
+	for student in students:
+		candidate = frappe.new_doc("Assessment Result")
+		candidate.assessment_plan = plan.name
+		candidate.student = student.student
+		validate_assessment_result_relationships(candidate)
+		candidate.check_permission("create")
+		results = frappe.get_all("Assessment Result", filters={
+			"assessment_plan": plan.name, "student": student.student, "docstatus": ["!=", 2],
+		}, pluck="name")
+		if len(results) > 1:
+			frappe.throw(_("Multiple assessment results exist; resolve the conflict before entering marks."))
+		student.assessment_details = None
+		if results:
+			result = frappe.get_doc("Assessment Result", results[0])
+			result.check_permission("read")
+			student.assessment_details = {row.assessment_criteria: [str(row.score), row.grade] for row in result.details}
+			student.assessment_details.update({"total_score": [str(result.total_score), result.grade], "comment": result.comment})
+			student.docstatus = result.docstatus
+			student.name = result.name
+	return students
+
+
 @frappe.whitelist(methods=["POST"])
 def mark_assessment_result(assessment_plan, scores):
 	"""Create or update one permitted draft Education result for a plan."""

@@ -11,7 +11,10 @@ introduced.
 The native Assessment Result form can load criteria for an Assessment Plan the
 caller can read. The native mark-result RPC now creates or updates one scoped
 draft through Education's document lifecycle, with a plan lock to serialize
-concurrent creation. It rejects inactive group members, invalid scores and
+concurrent creation. Direct Assessment Result document writes take the same
+plan lock and check for another active student/plan result. A focused test
+rejects a duplicate direct insert; concurrent requests have not been stress-tested.
+The entry service rejects inactive group members, invalid scores and
 submitted results. A scoped roster API is connected to the native bulk tool.
 Padars replaces the upstream HTML template renderer with DOM text and attribute
 setters for names, criteria and comments, and the tool saves draft marks. A

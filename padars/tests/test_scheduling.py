@@ -233,6 +233,9 @@ class TestScheduling(IntegrationTestCase):
 			second = mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 80}})
 			self.assertEqual(first["name"], second["name"])
 			self.assertEqual(second["total_score"], 80)
+			duplicate = frappe.copy_doc(frappe.get_doc("Assessment Result", first["name"]))
+			with self.assertRaises(frappe.ValidationError):
+				duplicate.insert(ignore_permissions=True)
 			roster = get_assessment_students(plan.name, self.group.name)
 			self.assertEqual(roster[0].student, student.name)
 			self.assertEqual(float(roster[0].assessment_details[criterion][0]), 80)

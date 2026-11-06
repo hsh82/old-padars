@@ -121,3 +121,18 @@ def validate_result_scores(doc, method=None):
 	if seen != set(maxima):
 		frappe.throw(_("Enter a score for each Assessment Plan criterion."))
 	doc.maximum_score = sum(maxima.values())
+
+
+def validate_result_uniqueness(doc, method=None):
+	"""Serialize direct and API result writes against the same Education plan."""
+	if not doc.assessment_plan or not doc.student:
+		return
+	if not frappe.db.sql("select name from `tabAssessment Plan` where name=%s for update", doc.assessment_plan):
+		frappe.throw(_("Choose an existing Assessment Plan."))
+	duplicates = frappe.db.sql("""
+		select name from `tabAssessment Result`
+		where assessment_plan=%s and student=%s and docstatus < 2 and name != %s
+		limit 1 for update
+	""", (doc.assessment_plan, doc.student, doc.name or ""))
+	if duplicates:
+		frappe.throw(_("An active Assessment Result already exists for this student and plan."))

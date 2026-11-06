@@ -205,15 +205,18 @@ extend_doctype_class = {
 before_login = ["padars.student_activation.resolve_student_login"]
 
 doc_events = {
+	"School": {"before_rename": "padars.identity_lifecycle.protect_bound_identity"},
+	"School Course Offering": {"before_rename": "padars.identity_lifecycle.protect_bound_identity"},
 	"Data Import": {"validate": "padars.student_import.validate_import"},
 	"File": {"validate": "padars.file_security.validate_private_attachment"},
 	"DocShare": {"validate": "padars.file_security.validate_share"},
 	"Student": {
+		"before_rename": "padars.identity_lifecycle.protect_bound_identity",
 		"validate": "padars.education_hooks.validate_student_identity",
 		"on_update": ["padars.student_identity.attach_matching_user", "padars.integrations.moodle.service.sync_student_eligibility_change", "padars.guardian_access.revoke_changed_relationships"],
 	},
 	"Guardian": {"on_update": "padars.guardian_access.revoke_changed_relationships"},
-	"User": {"on_update": "padars.integrations.moodle.service.sync_user_eligibility_change"},
+	"User": {"before_rename": "padars.identity_lifecycle.protect_bound_identity", "on_update": "padars.integrations.moodle.service.sync_user_eligibility_change"},
 	"Program Enrollment": {
 		"validate": "padars.education_hooks.validate_program_enrollment",
 		"on_submit": "padars.integrations.moodle.service.sync_program_enrollment_change",

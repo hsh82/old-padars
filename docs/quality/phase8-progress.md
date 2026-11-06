@@ -100,3 +100,11 @@ blocker, not evidence that a live Moodle deployment works.
 See [Moodle and MuTMS setup](../operations/moodle-mutms-setup.md),
 [integration architecture](../architecture/moodle-integration.md), and the
 [Phase 8 priority checkpoint](../development/phase8-priority-checkpoint.md).
+
+A scoped stable-identity guard now blocks framework rename/merge of already-bound
+School/Offering/User/Student keys, including pending operations and merge targets.
+This prevents remote duplicate creation or broken immutable provenance after a
+local key change. Native unbound Student creation/rename still pass the focused
+framework-service test. Primary-key/email changes need reviewed reconciliation;
+no broad creation or customization restriction was added. Live acceptance is
+still pending approved target/service configuration.

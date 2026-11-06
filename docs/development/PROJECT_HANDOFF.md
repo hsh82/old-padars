@@ -101,5 +101,7 @@ completion. The Stage 1 checkout remains protected.
 Teacher overview is now implemented at `/teacher`, with native scoped schedules,
 course links and roster counts. Shared course-launch checks support observed
 Teacher and School Manager enrollment without exposing tokens. Two focused
-teaching/link tests passed. Next inspect stable identity lifecycle safeguards
-around Moodle-bound document renames, then continue release/live gates.
+teaching/link tests passed. Stable-identity rename/merge safeguards are now implemented and focused-tested
+through Frappe's rename service. Next continue independent release checks and
+role workflows while the approved live target/configuration question is pending.
+Do not claim all phases or live Moodle/PlugNmeet acceptance complete.

@@ -34,3 +34,7 @@ Learning source/publication: 17 focused integration tests and 15 offline adapter
 contracts passed. An extended focused journey verifies changed dates are held
 for teacher review. Live service/worker/browser evidence remains unperformed.
 Session-specific asynchronous policy/evidence evaluation and reviewed native attendance are implemented. Live/combined rules and final acceptance remain.
+
+Stable identity lifecycle: actual framework rename/merge tests passed for bound
+School/Offering/User/Student records and unbound Student compatibility. Reviewed
+bound email/key migration and other academic master rename cases remain open.

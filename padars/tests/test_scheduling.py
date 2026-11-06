@@ -882,6 +882,40 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 
+	def test_bound_identity_keys_cannot_rename_or_merge(self):
+		from frappe.client import rename_doc
+		from padars.integrations.moodle.service import request_course_offering_sync, request_user_sync
+		self.school.db_set("lms_enabled", 1)
+		with patch("frappe.enqueue"):
+			op = request_course_offering_sync(self.offering)
+		new_name = f"RENAMED-{self.key}"
+		with self.assertRaisesRegex(frappe.PermissionError, "reviewed identity migration"):
+			rename_doc("School Course Offering", self.offering.name, new_name)
+		self.assertTrue(frappe.db.exists("School Course Offering", self.offering.name))
+		self.assertFalse(frappe.db.exists("School Course Offering", new_name))
+		self.assertEqual(frappe.db.get_value("LMS Sync Operation", op.name, "target_name"), self.offering.name)
+		user = self._user("rename-user")
+		with patch("frappe.enqueue"):
+			request_user_sync(user, self.school)
+		with self.assertRaisesRegex(frappe.PermissionError, "reviewed identity migration"):
+			rename_doc("User", user, f"renamed-{self.key.lower()}@example.invalid")
+		with self.assertRaisesRegex(frappe.PermissionError, "reviewed identity migration"):
+			rename_doc("School", self.school.name, new_name)
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Identity", "enabled": 1,
+				"user": user, "student_email_id": user}).insert()
+		with self.assertRaisesRegex(frappe.PermissionError, "reviewed identity migration"):
+			rename_doc("Student", student.name, new_name)
+		free_user = self._user("unbound-user")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			free_student = frappe.get_doc({"doctype": "Student", "first_name": "Unbound", "enabled": 1,
+				"user": free_user, "student_email_id": free_user}).insert()
+		with self.assertRaisesRegex(frappe.PermissionError, "reviewed identity migration"):
+			rename_doc("Student", free_student.name, student.name, merge=True)
+		# Native creation and rename without Padars history still work.
+		renamed = rename_doc("Student", free_student.name, new_name)
+		self.assertTrue(frappe.db.exists("Student", renamed))
+
 	def test_teacher_overview_uses_native_assignment_scope(self):
 		from padars.teaching import get_teaching_overview
 		date = self._monday()

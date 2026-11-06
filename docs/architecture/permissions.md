@@ -110,3 +110,8 @@ Group and Room references have narrow Padars role permissions. Managers can
 configure them and submit grading scales; teaching/grade staff can read them.
 This does not grant Academics User, User administration or customization roles.
 The independent-school database is the master-data boundary.
+
+Bound School/Offering/User/Student primary keys are protected by a scoped
+before_rename hook, including merge destinations. See [stable identities](stable-identities.md).
+This guards external identity/provenance integrity; ordinary creation and permitted
+label edits retain native authorization.

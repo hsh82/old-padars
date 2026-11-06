@@ -44,6 +44,13 @@ blocker, not evidence that a live Moodle deployment works.
 
 ## Acceptance still required
 
+- Withdrawal prerequisite: an existing enrollment may be set to Not Enrolled
+  after local eligibility is removed; the worker uses existing active mappings
+  and refuses to create users or courses during withdrawal. The focused Moodle
+  service suite passed eight tests on `padars-phase12-fresh.local`, including a
+  mock withdrawal after roster removal. Roster removal does not yet automatically
+  queue withdrawal; teacher replacement and live unenrollment remain unverified.
+
 - An authorized company operator must enable the Moodle REST service, create a
   restricted service user/token, configure target role IDs and the Frappe host
   allowlist, and save credentials in LMS Settings.

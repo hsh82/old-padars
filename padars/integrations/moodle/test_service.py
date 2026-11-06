@@ -276,6 +276,28 @@ class TestMoodleService(IntegrationTestCase):
 			ignore_permissions=True,
 		)))
 
+		# Access can be withdrawn after a student leaves the local roster.
+		from padars.integrations.moodle.service import request_enrollment_sync
+		student_user = frappe.db.get_value("Student", students[0], "user")
+		state_name = frappe.db.get_value("LMS Enrollment State", {
+			"course_offering": self.offering.name, "user": student_user, "role": "Student",
+		}, "name")
+		self.group.reload()
+		for row in self.group.students:
+			if row.student == students[0]:
+				row.active = 0
+		self.group.save()
+		state = frappe.get_doc("LMS Enrollment State", state_name)
+		state.desired_state = "Not Enrolled"
+		state.save(ignore_permissions=True)
+		adapter = MockMoodleAdapter()
+		with patch("frappe.enqueue"), patch.object(adapter, "ensure_user", side_effect=AssertionError("unexpected user provisioning")), \
+			patch.object(adapter, "create_course", side_effect=AssertionError("unexpected course provisioning")):
+			operation = request_enrollment_sync(state)
+			result = process_sync_operation(operation.name, adapter=adapter)
+		self.assertEqual(result.state, "Succeeded")
+		self.assertEqual(frappe.db.get_value("LMS Enrollment State", state_name, "remote_state"), "Not Enrolled")
+
 	def test_failure_is_recorded_and_retry_can_succeed(self):
 		with patch("frappe.enqueue"):
 			operation = request_course_offering_sync(self.offering)

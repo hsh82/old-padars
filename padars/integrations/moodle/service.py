@@ -306,14 +306,30 @@ def process_remote_operation(operation, adapter):
 		state = frappe.get_doc("LMS Enrollment State", operation.target_name)
 		offering = frappe.get_doc("School Course Offering", state.course_offering)
 		school = frappe.get_doc("School", state.school)
-		tenant = adapter.ensure_tenant(school)
-		tenant_mapping = upsert_entity_mapping("School", school.name, school.name, tenant)
-		_save_tenant_binding(school, tenant)
-		course = adapter.create_course(offering)
-		course_mapping = upsert_entity_mapping("School Course Offering", offering.name, offering.school, course)
-		user = frappe.get_doc("User", state.user)
-		remote_user = adapter.ensure_user(user, school, tenant=tenant)
-		user_mapping = upsert_entity_mapping("User", user.name, school.name, remote_user)
+		if state.desired_state == "Not Enrolled":
+			# Never create or modify a remote account or course while removing access.
+			mappings = []
+			for doctype, name in (("School", school.name), ("School Course Offering", offering.name), ("User", state.user)):
+				mapping_name = frappe.db.get_value("LMS Entity Mapping", {
+					"school": school.name, "local_doctype": doctype, "local_name": name, "status": "Active",
+				}, "name")
+				if not mapping_name:
+					frappe.throw(_("Cannot withdraw Moodle access without an active {0} mapping; operator reconciliation is required.").format(doctype))
+				mappings.append(frappe.get_doc("LMS Entity Mapping", mapping_name))
+			tenant_mapping, course_mapping, user_mapping = mappings
+			if course_mapping.remote_context != user_mapping.remote_context:
+				frappe.throw(_("Moodle user and course mappings have different tenant contexts."))
+			course = {"remote_id": course_mapping.remote_id, "remote_context": course_mapping.remote_context, "remote_url": course_mapping.remote_url}
+			remote_user = {"remote_id": user_mapping.remote_id, "remote_context": user_mapping.remote_context}
+		else:
+			tenant = adapter.ensure_tenant(school)
+			tenant_mapping = upsert_entity_mapping("School", school.name, school.name, tenant)
+			_save_tenant_binding(school, tenant)
+			course = adapter.create_course(offering)
+			course_mapping = upsert_entity_mapping("School Course Offering", offering.name, offering.school, course)
+			user = frappe.get_doc("User", state.user)
+			remote_user = adapter.ensure_user(user, school, tenant=tenant)
+			user_mapping = upsert_entity_mapping("User", user.name, school.name, remote_user)
 		remote = adapter.sync_enrollment(state, remote_user, course)
 		state.remote_state = remote["remote_state"]
 		state.last_error = None

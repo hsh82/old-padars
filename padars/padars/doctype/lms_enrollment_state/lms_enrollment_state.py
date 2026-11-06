@@ -11,8 +11,12 @@ class LMSEnrollmentState(Document):
 	def validate(self):
 		old = self.get_doc_before_save()
 		if old:
+			if any(self.get(field) != old.get(field) for field in ("school", "user", "course_offering", "role")):
+				frappe.throw(_("An existing Moodle enrollment identity cannot be changed."))
 			self.desired_revision = int(old.desired_revision or 1) + int(self.desired_state != old.desired_state)
 		else:
+			if self.desired_state == "Not Enrolled":
+				frappe.throw(_("Only an existing enrollment can be withdrawn."))
 			self.desired_revision = max(1, int(self.desired_revision or 1))
 		self.enrollment_key = hashlib.sha256(
 			f"{self.school}\0{self.user}\0{self.course_offering}\0{self.role}".encode()
@@ -28,10 +32,12 @@ class LMSEnrollmentState(Document):
 			frappe.throw(_("Course Offering {0} does not exist.").format(self.course_offering))
 		if offering.school != self.school:
 			frappe.throw(_("The enrollment state School must match the Course Offering School."))
-		if not frappe.db.exists("User", {"name": self.user, "enabled": 1, "user_type": "System User"}):
+		if self.desired_state == "Enrolled" and not frappe.db.exists("User", {"name": self.user, "enabled": 1, "user_type": "System User"}):
 			frappe.throw(_("The Moodle account must be linked to an enabled System User."))
 
-		if self.role == "Student":
+		if self.desired_state == "Not Enrolled":
+			pass  # Withdrawal must remain possible after local eligibility is removed.
+		elif self.role == "Student":
 			student = frappe.db.get_value("Student", {"user": self.user, "enabled": 1}, "name")
 			if not student or not frappe.db.exists(
 				"Student Group Student",

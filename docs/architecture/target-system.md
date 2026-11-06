@@ -46,7 +46,8 @@ and idempotent generation of the existing annual School Course Offering. See
 [curriculum model](curriculum-model.md) and
 [ADR-006](../decisions/ADR-006-curriculum-adoption.md).
 
-The current Moodle adapter is deterministic mock behavior. The local Moodle
-code tree is Moodle 5.2.4 with MuTMS 5.2.4.01, but enabled web-service
-functions, capabilities, tenant configuration, and SSO are not yet verified.
-See [Moodle integration](moodle-integration.md) and the version baseline.
+Padars includes both a deterministic mock adapter and a Moodle REST adapter.
+The local Moodle code tree is Moodle 5.2.4 with MuTMS 5.2.4.01. Live
+web-service capabilities, tenant provisioning, course and enrollment
+operations, and SSO have not yet been verified. See [Moodle integration](moodle-integration.md)
+and the version baseline.

@@ -44,8 +44,20 @@ class SchoolCourseOffering(Document):
 				frappe.throw(_("The Student Group belongs to another School."))
 
 	def validate_instructor(self):
-		if self.instructor and not frappe.db.exists("Instructor", {"name": self.instructor, "status": "Active"}):
-			frappe.throw(_("The Instructor must be active."))
+		old = self.get_doc_before_save()
+		changed = (not old and bool(self.instructor)) or (old and old.instructor != self.instructor)
+		if changed and not frappe.flags.get("padars_teacher_assignment_update"):
+			frappe.throw(_("Use Assign Teacher to update this Course Offering."), frappe.PermissionError)
+		if self.instructor:
+			instructor = frappe.db.get_value("Instructor", self.instructor,
+				["status", "padars_user"], as_dict=True)
+			if not instructor or instructor.status != "Active" or not instructor.padars_user:
+				frappe.throw(_("The Instructor must be active and linked to a Frappe User."))
+			user = frappe.db.get_value("User", instructor.padars_user, ["enabled", "user_type"], as_dict=True)
+			if not user or not user.enabled or user.user_type != "System User":
+				frappe.throw(_("The Instructor's Frappe User must be enabled."))
+			if "Padars Teacher" not in frappe.get_roles(instructor.padars_user):
+				frappe.throw(_("The Instructor's User must have the Padars Teacher role."))
 
 	def validate_duplicate(self):
 		if frappe.db.exists(

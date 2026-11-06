@@ -16,7 +16,32 @@ Retained as historical affiliation; it does not grant or gate authorization.
 Links an enabled User, optionally an Instructor, to a Program, Student Group,
 or School Course Offering, with status, validity dates, and action flags.
 The same active user/scope combination cannot be duplicated. Effective access
-also requires the appropriate Frappe role and action permission.
+also requires the appropriate Frappe role and action permission. Teacher
+assignments must match the Course Offering's Instructor and linked User; Grade
+Coordinators target Programs; Class Supervisors target Padars class sections.
+Attendance, sensitive-record viewing, and student-care management are separate
+flags. Enabling student-care management also enables sensitive viewing and
+grants the `Padars Sensitive Records` role; the active assignment still gates
+which students can be read or edited. Only school managers and platform
+administrators create or change assignments.
+
+## Education daily records
+
+Education Course Schedule, Student Attendance, Student Leave Application, and
+Student Log remain the session, attendance, leave, and student-care records.
+Padars adds late minutes and leave rollback metadata to Student Attendance;
+attendance status remains Education's Present/Absent/Leave options. The Padars
+Student Leave Application extension validates group/session relationships and
+replaces the native unsafe attendance submit/cancel side effects. No parallel
+attendance or session DocType is introduced. See
+[daily operations](daily-academic-operations.md).
+
+## Instructor Qualification
+
+Child rows on the Education Instructor record link a qualified Course and an
+optional Grade Level. A qualification cannot be duplicated for the same
+Instructor, Course, and Grade. Education remains authoritative for the
+Instructor and Course records.
 
 ## School Course Offering
 

@@ -5,7 +5,7 @@ from frappe import _
 
 PRIVATE_PARENT_DOCTYPES = {
 	"Student", "Guardian", "Student Log", "Student Group", "Program Enrollment", "Course Enrollment",
-	"Student Attendance", "Assessment Plan", "Assessment Result", "Academic Assignment", "Course Schedule",
+	"Student Attendance", "Student Leave Application", "Assessment Plan", "Assessment Result", "Academic Assignment", "Course Schedule",
 	"School Course Offering", "LMS Entity Mapping", "LMS Enrollment State", "LMS Sync Operation",
 	"Student Registration Application", "Student Identity",
 }

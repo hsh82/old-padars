@@ -10,17 +10,16 @@ Updated: 2026-11-06
 
 ## Temporary Phase 8 priority
 
-The development order is temporarily changed to complete Moodle/MuTMS
-integration before the unfinished academic phases. Phase 4 is already
-complete. Phase 5 remains in progress in the preserved uncommitted working
-tree; its latest focused run had 3 passes and 2 failures. Phases 6 and 7 are
-not started. The precise checkpoint and administration boundaries are in
-[the Phase 8 priority checkpoint](phase8-priority-checkpoint.md). After Phase
-8's implementation and focused offline verification, with 13 contract tests
-and 8 service tests passing, the same Phase 5 work resumes after the Phase 8
-commit. Live Moodle acceptance remains blocked by unconfigured web services,
-token, and role IDs. Continue with Phases 6 and 7 after Phase 5; do not redo
-Phase 4 or rebuild Phase 8.
+The temporary Moodle/MuTMS priority was implemented and committed, then work
+returned to the saved Phase 5 tree. Phase 5 is now complete for development
+handoff: its focused staff-management module passes 5 tests. Phase 6 is now
+complete for development handoff with 6 focused tests. Phase 7 daily operations
+is complete for development handoff with 5 focused tests. Phase 4 remains
+complete. The checkpoint history and
+administration boundaries are in [the Phase 8 priority checkpoint](phase8-priority-checkpoint.md).
+Phase 8's offline modules passed 13 contract and 8 service tests; live Moodle
+acceptance remains blocked by disabled web services and missing authorized
+token and role configuration. Do not redo Phase 4 or rebuild Phase 8.
 
 ## Phase 3 implementation handoff
 
@@ -103,7 +102,9 @@ The sections below record earlier work and do not supersede that evidence.
 
 ## Next milestone
 
-Phase 4 Curriculum Adoption and Offerings is approved and is the next milestone.
-Historical schema migration compatibility remains outside the pre-release
-clean-site scope.
+Phase 9 grade entry and report-card workflows are next. Phase 8 remains
+implemented and is not to be rebuilt when the original roadmap reaches it;
+live Moodle/MuTMS acceptance still needs authorized service configuration.
+Phase 10 and Phase 11 follow. Historical schema migration compatibility
+remains outside the pre-release clean-site scope.
 

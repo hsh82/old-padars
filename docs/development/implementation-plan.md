@@ -12,23 +12,29 @@
 ## Temporary priority and resume point
 
 Phase 8 Moodle/MuTMS implementation and focused offline verification are
-complete; live integration acceptance remains blocked until company service
-configuration is available. The exact preemption checkpoint, unfinished Phase
-5 work, and preservation rules are in
+complete and committed; live integration acceptance remains blocked until
+company service configuration is available. The saved Phase 5 checkpoint was
+resumed and its focused implementation is now complete. The exact preemption
+checkpoint and preservation history are in
 [`phase8-priority-checkpoint.md`](phase8-priority-checkpoint.md).
 
-After this Phase 8 implementation is committed, resume the existing Phase 5
-working tree, then continue Phases 6 and 7. Phase 4 is already complete and
-must not be repeated. Phase 8 remains implemented when the original sequence
-reaches it.
+Phase 4 remains complete and must not be repeated. Phases 5, 6, and 7 are now
+complete for development handoff; Phases 5 and 6 were rechecked after Phase 7
+permission changes. Phase 8 remains implemented when its original position is
+reached.
 
 ## Remaining roadmap
 
-1. Phase 8: implementation complete with offline verification; live MuTMS
-   tenant/course/user/enrollment acceptance is blocked on service credentials
-   and target capabilities.
-2. Resume Phase 5, then implement Phases 6 and 7.
-3. Continue with Phase 9 grades, Phase 10 guardians/extensions, and Phase 11
+1. Phase 5: implementation complete for development handoff; 5 focused tests
+   pass. See [Phase 5 results](../quality/phase5-progress.md).
+2. Phase 6: implementation complete for development handoff; 6 focused tests
+   pass. See [Phase 6 results](../quality/phase6-progress.md).
+3. Phase 7: implementation complete for development handoff; 5 focused tests
+   pass. See [Phase 7 results](../quality/phase7-progress.md).
+4. Phase 8: implementation complete with offline verification; live MuTMS
+   tenant/course/user/enrollment acceptance is blocked on authorized service
+   credentials and target capabilities.
+5. Next: Phase 9 grades, followed by Phase 10 guardians/extensions and Phase 11
    comprehensive integration and release verification.
 
 ## Frontend follow-up

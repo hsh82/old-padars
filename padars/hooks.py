@@ -66,7 +66,7 @@ override_whitelisted_methods = {
 	"education.education.utils.add_activity": "padars.education_api.deny_unreviewed",
 	"education.education.utils.evaluate_quiz": "padars.education_api.deny_unreviewed",
 	"education.education.utils.get_quiz": "padars.education_api.deny_unreviewed",
-	"education.education.doctype.student_leave_application.student_leave_application.get_student_groups": "padars.education_api.deny_unreviewed",
+	"education.education.doctype.student_leave_application.student_leave_application.get_student_groups": "padars.education_api.get_student_leave_groups",
 	"education.education.doctype.course.course.add_course_to_programs": "padars.education_api.deny_unreviewed",
 	"education.education.doctype.course.course.get_programs_without_course": "padars.education_api.deny_unreviewed",
 	"education.education.doctype.topic.topic.add_topic_to_courses": "padars.education_api.deny_unreviewed",
@@ -93,12 +93,17 @@ fixtures = [
 	{"dt": "Custom Field", "filters": [["module", "=", "Padars"]]},
 	{"dt": "Onboarding Step", "prefix": "01_padars", "filters": [["name", "like", "Padars %"]]},
 	{"dt": "Module Onboarding", "prefix": "02_padars", "filters": [["name", "=", "Padars School Onboarding"]]},
-	{"dt": "Permission Type", "prefix": "03_padars", "filters": [["name", "in", ["assessment_result_enter_grade", "assessment_result_approve_grade", "student_attendance_manage_attendance", "student_log_view_sensitive_student_data", "lms_sync_operation_manage_moodle"]]]},
+	{"dt": "Permission Type", "prefix": "03_padars", "filters": [["name", "in", ["assessment_result_enter_grade", "assessment_result_approve_grade", "student_attendance_manage_attendance", "student_log_view_sensitive_student_data", "student_log_manage_student_care", "lms_sync_operation_manage_moodle"]]]},
 ]
 
 after_install = "padars.install.after_install"
 after_sync = "padars.install.ensure_action_permissions"
-after_migrate = ["padars.install.ensure_action_permissions", "padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline"]
+after_migrate = [
+	"padars.install.ensure_stage1_roles", "padars.install.ensure_academic_permissions",
+	"padars.install.ensure_phase5_action_permissions", "padars.install.ensure_action_permissions",
+	"padars.install.ensure_phase7_permissions",
+	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
+]
 
 permission_query_conditions = {
 	"Data Import": "padars.import_permissions.query_conditions",
@@ -118,6 +123,7 @@ permission_query_conditions = {
 	"Assessment Plan": "padars.permissions.school_permission_query_conditions",
 	"Assessment Result": "padars.permissions.school_permission_query_conditions",
 	"Student Attendance": "padars.permissions.school_permission_query_conditions",
+	"Student Leave Application": "padars.permissions.school_permission_query_conditions",
 	"Student": "padars.permissions.school_permission_query_conditions",
 	"Instructor": "padars.permissions.school_permission_query_conditions",
 	"Academic Assignment": "padars.permissions.school_permission_query_conditions",
@@ -144,6 +150,7 @@ has_permission = {
 	"Assessment Plan": "padars.permissions.has_school_permission",
 	"Assessment Result": "padars.permissions.has_school_permission",
 	"Student Attendance": "padars.permissions.has_school_permission",
+	"Student Leave Application": "padars.permissions.has_school_permission",
 	"Student": "padars.permissions.has_school_permission",
 	"Instructor": "padars.permissions.has_school_permission",
 	"Academic Assignment": "padars.permissions.has_school_permission",
@@ -159,7 +166,11 @@ has_permission = {
 }
 
 data_import_providers = {"Student Identity": "padars.student_import.ProvisionalStudentImportProvider"}
-extend_doctype_class = {"Student": ["padars.student_extension.StudentOnboardingExtension"]}
+extend_doctype_class = {
+	"Student": ["padars.student_extension.StudentOnboardingExtension"],
+	"Course Scheduling Tool": ["padars.scheduling.CourseSchedulingToolExtension"],
+	"Student Leave Application": ["padars.daily_operations.StudentLeaveApplicationExtension"],
+}
 before_login = ["padars.student_activation.resolve_student_login"]
 
 doc_events = {
@@ -169,16 +180,44 @@ doc_events = {
 	"Student": {"validate": "padars.education_hooks.validate_student_identity", "on_update": "padars.student_identity.attach_matching_user"},
 	"Program Enrollment": {"validate": "padars.education_hooks.validate_program_enrollment"},
 	"Program": {"validate": "padars.curriculum.validate_program"},
-	"Instructor": {"validate": "padars.integrations.moodle.teacher_identity.validate_instructor_mapping"},
+	"Instructor": {"validate": [
+		"padars.integrations.moodle.teacher_identity.validate_instructor_mapping",
+		"padars.staff.validate_instructor_mapping",
+	]},
 	"Student Group": {
 		"validate": "padars.education_hooks.validate_student_group",
 		"after_insert": "padars.integrations.moodle.service.sync_group_roster_after_update",
 		"on_update": "padars.integrations.moodle.service.sync_group_roster_after_update",
 	},
-	"Course Schedule": {"validate": "padars.education_hooks.validate_linked_education_context"},
-	"Assessment Plan": {"validate": "padars.education_hooks.validate_linked_education_context"},
-	"Assessment Result": {"validate": "padars.education_hooks.validate_linked_education_context"},
-	"Student Attendance": {"validate": "padars.education_hooks.validate_linked_education_context"},
+	"Course Schedule": {
+		"validate": [
+			"padars.education_hooks.validate_linked_education_context",
+			"padars.scheduling.validate_course_schedule",
+		],
+		"on_trash": "padars.scheduling.validate_course_schedule_deletion",
+	},
+	"Assessment Plan": {
+		"validate": [
+			"padars.education_hooks.validate_linked_education_context",
+			"padars.scheduling.validate_assessment_plan",
+		],
+		"on_trash": "padars.scheduling.validate_assessment_plan_deletion",
+		"on_cancel": "padars.scheduling.validate_assessment_plan_deletion",
+	},
+	"Assessment Result": {
+		"validate": [
+			"padars.education_hooks.validate_linked_education_context",
+			"padars.scheduling.validate_assessment_result_relationships",
+		],
+	},
+	"Student Attendance": {
+		"validate": [
+			"padars.education_hooks.validate_linked_education_context",
+			"padars.daily_operations.validate_student_attendance",
+		],
+		"before_cancel": "padars.daily_operations.validate_attendance_cancellation",
+	},
+	"Student Log": {"validate": "padars.daily_operations.validate_student_log"},
 }
 
 scheduler_events = {

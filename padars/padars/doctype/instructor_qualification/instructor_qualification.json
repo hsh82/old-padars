@@ -1,0 +1,16 @@
+{
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["course", "grade_level", "qualification_note", "qualification_key"],
+ "fields": [
+  {"fieldname": "course", "fieldtype": "Link", "in_list_view": 1, "label": "Qualified Course", "options": "Course", "reqd": 1},
+  {"fieldname": "grade_level", "fieldtype": "Select", "in_list_view": 1, "label": "Grade Level", "options": "\n7\n8\n9\n10\n11\n12"},
+  {"fieldname": "qualification_note", "fieldtype": "Small Text", "label": "Qualification Note"},
+  {"fieldname": "qualification_key", "fieldtype": "Data", "hidden": 1, "label": "Qualification Key", "read_only": 1, "unique": 1}
+ ],
+ "istable": 1,
+ "module": "Padars",
+ "name": "Instructor Qualification",
+ "permissions": []
+}

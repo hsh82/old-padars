@@ -2,10 +2,11 @@
  "autoname": "naming_series:",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["naming_series", "user", "scope_type", "scope_name", "instructor", "status", "valid_from", "valid_to", "can_edit", "can_enter_marks", "can_manage_attendance", "can_view_sensitive", "active_key"],
+ "field_order": ["naming_series", "user", "assignment_type", "scope_type", "scope_name", "instructor", "status", "valid_from", "valid_to", "can_edit", "can_enter_marks", "can_manage_attendance", "can_view_sensitive", "can_manage_student_care", "active_key"],
  "fields": [
   {"default": "PAD-ASG-.#####", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-ASG-.#####"},
   {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "reqd": 1, "in_list_view": 1},
+  {"default": "Scoped Staff", "fieldname": "assignment_type", "fieldtype": "Select", "in_list_view": 1, "label": "Assignment Type", "options": "Scoped Staff\nTeacher\nGrade Coordinator\nClass Supervisor", "reqd": 1},
   {"fieldname": "scope_type", "fieldtype": "Link", "label": "Scope Type", "options": "DocType", "reqd": 1, "in_list_view": 1},
   {"fieldname": "scope_name", "fieldtype": "Dynamic Link", "label": "Scope", "options": "scope_type", "reqd": 1, "in_list_view": 1},
   {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor"},
@@ -16,6 +17,7 @@
   {"fieldname": "can_enter_marks", "fieldtype": "Check", "label": "Enter Marks"},
   {"fieldname": "can_manage_attendance", "fieldtype": "Check", "label": "Manage Attendance"},
   {"fieldname": "can_view_sensitive", "fieldtype": "Check", "label": "View Sensitive Student Records"},
+  {"fieldname": "can_manage_student_care", "fieldtype": "Check", "label": "Manage Student-Care Records"},
   {"fieldname": "active_key", "fieldtype": "Data", "hidden": 1, "label": "Active Key", "read_only": 1, "unique": 1}
  ],
  "module": "Padars",

@@ -16,7 +16,9 @@ frappe.ui.form.on("School Course Offering", {
         course: frm.doc.course || "",
       },
     }));
-    padars.school_context.setSchoolInstructorQuery(frm, "instructor", "school");
+    frm.set_query("instructor", () => ({
+      filters: { status: "Active", padars_user: ["is", "set"] },
+    }));
   },
 
   school(frm) {
@@ -64,16 +66,42 @@ frappe.ui.form.on("School Course Offering", {
         () => requestProvisioning(frm),
         __("Moodle"),
       );
-      frm.add_custom_button(
-        __("View Synchronization Status"),
-        () => openSyncMonitor(frm),
-        __("Moodle"),
-      );
     }
     if (isManager && frm.doc.status !== "Archived") {
       frm.remove_custom_button(__("Enroll Students in Moodle"), __("Moodle"));
       frm.add_custom_button(__("Enroll Students in Moodle"), () => selectStudentsForMoodle(frm), __("Moodle"));
+      frm.remove_custom_button(__("Assign Teacher"), __("Staff"));
+      frm.remove_custom_button(__("Unassign Teacher"), __("Staff"));
+      frm.add_custom_button(__("Assign Teacher"), () => {
+        frappe.prompt([
+          {
+            fieldtype: "Link", fieldname: "instructor", label: __("Instructor"),
+            options: "Instructor", default: frm.doc.instructor || "", reqd: 1,
+            get_query: () => ({ filters: { status: "Active", padars_user: ["is", "set"] } }),
+          },
+          { fieldtype: "Check", fieldname: "can_enter_marks", label: __("Enter Grades"), default: 1 },
+          { fieldtype: "Check", fieldname: "can_manage_attendance", label: __("Manage Attendance"), default: 1 },
+        ], (values) => {
+          frappe.call({
+            method: "padars.staff.assign_teacher_to_offering",
+            args: { offering: frm.doc.name, ...values },
+          }).then(() => frm.reload_doc());
+        }, __("Assign Teacher"), __("Assign"));
+      }, __("Staff"));
+      if (frm.doc.instructor) {
+        frm.add_custom_button(__("Unassign Teacher"), () => {
+          frappe.call({
+            method: "padars.staff.assign_teacher_to_offering",
+            args: { offering: frm.doc.name, instructor: null },
+          }).then(() => frm.reload_doc());
+        }, __("Staff"));
+      }
     }
+    frm.add_custom_button(
+      __("View Synchronization Status"),
+      () => openSyncMonitor(frm),
+      __("Moodle"),
+    );
     padars.lms
       .getMapping("School Course Offering", frm.doc.name)
       .then((mapping) => {

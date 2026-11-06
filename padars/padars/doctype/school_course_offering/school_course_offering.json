@@ -13,7 +13,7 @@
   {"fieldname": "program", "fieldtype": "Link", "label": "Program", "options": "Program", "reqd": 1},
   {"fieldname": "course", "fieldtype": "Link", "in_list_view": 1, "label": "Course", "options": "Course", "reqd": 1},
   {"fieldname": "student_group", "fieldtype": "Link", "in_list_view": 1, "label": "Student Group", "options": "Student Group", "reqd": 1},
-  {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor"},
+  {"fieldname": "instructor", "fieldtype": "Link", "label": "Instructor", "options": "Instructor", "read_only": 1},
   {"fieldname": "offering_identifier", "fieldtype": "Data", "in_list_view": 1, "label": "Offering Identifier", "reqd": 1},
   {"default": "Draft", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "label": "Status", "options": "Draft\nActive\nArchived", "reqd": 1},
   {"fieldname": "description", "fieldtype": "Small Text", "label": "Description"}
@@ -26,6 +26,7 @@
   {"read": 1, "role": "Instructor"},
   {"create": 1, "delete": 1, "read": 1, "write": 1, "role": "Padars School Manager"},
   {"create": 1, "read": 1, "write": 1, "role": "Padars Academic Staff"},
+  {"create": 1, "read": 1, "write": 1, "role": "Padars Grade Coordinator"},
   {"read": 1, "write": 1, "create": 1, "role": "Padars Teacher"},
   {"read": 1, "role": "Padars Grade Entry Staff"},
   {"read": 1, "role": "Padars Read Only"}

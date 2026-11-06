@@ -51,6 +51,17 @@
  },
  {
   "doctype": "Custom Field",
+  "dt": "Instructor",
+  "fieldname": "padars_qualifications",
+  "fieldtype": "Table",
+  "insert_after": "padars_user",
+  "label": "Subject Qualifications",
+  "module": "Padars",
+  "name": "Instructor-padars_qualifications",
+  "options": "Instructor Qualification"
+ },
+ {
+  "doctype": "Custom Field",
   "dt": "Program",
   "fieldname": "padars_grade_level",
   "fieldtype": "Select",
@@ -262,5 +273,45 @@
   "options": "School",
   "read_only": 1,
   "reqd": 1
+ },
+ {
+  "allow_on_submit": 1,
+  "default": "0",
+  "doctype": "Custom Field",
+  "dt": "Student Attendance",
+  "fieldname": "padars_late_minutes",
+  "fieldtype": "Int",
+  "insert_after": "status",
+  "label": "Late Minutes",
+  "module": "Padars",
+  "name": "Student Attendance-padars_late_minutes"
+ },
+ {
+  "allow_on_submit": 1,
+  "doctype": "Custom Field",
+  "dt": "Student Attendance",
+  "fieldname": "padars_leave_previous_status",
+  "fieldtype": "Select",
+  "hidden": 1,
+  "insert_after": "padars_late_minutes",
+  "label": "Status Before Leave",
+  "module": "Padars",
+  "name": "Student Attendance-padars_leave_previous_status",
+  "options": "Present\nAbsent",
+  "read_only": 1
+ },
+ {
+  "allow_on_submit": 1,
+  "default": "0",
+  "doctype": "Custom Field",
+  "dt": "Student Attendance",
+  "fieldname": "padars_leave_created_by_application",
+  "fieldtype": "Check",
+  "hidden": 1,
+  "insert_after": "padars_leave_previous_status",
+  "label": "Created by Leave Application",
+  "module": "Padars",
+  "name": "Student Attendance-padars_leave_created_by_application",
+  "read_only": 1
  }
 ]

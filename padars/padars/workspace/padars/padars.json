@@ -1,26 +1,135 @@
 {
- "doctype":"Workspace",
- "name":"Padars",
- "label":"Padars",
- "title":"Padars",
- "module":"Padars",
- "public":1,
- "icon":"education",
- "module_onboarding":"Padars School Onboarding",
- "roles":[{"role":"System Manager"},{"role":"Padars School Manager"}],
- "content":"[{\"id\":\"padars-onboarding\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Padars School Onboarding\",\"col\":12}},{\"id\":\"padars-setup\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"School Setup\",\"col\":3}},{\"id\":\"padars-year\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Year\",\"col\":3}},{\"id\":\"padars-program\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Program\",\"col\":3}},{\"id\":\"padars-registration\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Registration\",\"col\":3}},{\"id\":\"padars-students\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student\",\"col\":3}},{\"id\":\"padars-instructors\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Instructor\",\"col\":3}},{\"id\":\"padars-groups\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Group\",\"col\":3}},{\"id\":\"padars-offerings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Offering\",\"col\":3}},{\"id\":\"padars-assignments\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Assignment\",\"col\":3}},{\"id\":\"padars-schedule\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Schedule\",\"col\":3}},{\"id\":\"padars-moodle\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"LMS Synchronization\",\"col\":3}},{\"id\":\"padars-curriculum-adoption\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Curriculum Adoption\",\"col\":3}}]",
- "shortcuts":[
-  {"label":"School Setup","link_to":"padars-setup","type":"Page"},
-  {"label":"Academic Year","link_to":"Academic Year","type":"DocType"},
-  {"label":"Program","link_to":"Program","type":"DocType"},
-  {"label":"Student","link_to":"Student","type":"DocType"},
-  {"label":"Student Registration","link_to":"student-registration","type":"Page"},
-  {"label":"Instructor","link_to":"Instructor","type":"DocType"},
-  {"label":"Student Group","link_to":"Student Group","type":"DocType"},
-  {"label":"Course Offering","link_to":"School Course Offering","type":"DocType"},
-  {"label":"Academic Assignment","link_to":"Academic Assignment","type":"DocType"},
-  {"label":"Course Schedule","link_to":"Course Schedule","type":"DocType"},
-  {"label":"LMS Synchronization","link_to":"lms-sync-monitor","type":"Page"},
-  {"label":"Curriculum Adoption","link_to":"School Curriculum Adoption","type":"DocType"}
+ "doctype": "Workspace",
+ "name": "Padars",
+ "label": "Padars",
+ "title": "Padars",
+ "module": "Padars",
+ "public": 1,
+ "icon": "education",
+ "module_onboarding": "Padars School Onboarding",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Padars School Manager"
+  },
+  {
+   "role": "Padars Academic Staff"
+  },
+  {
+   "role": "Padars Class Supervisor"
+  },
+  {
+   "role": "Padars Grade Coordinator"
+  },
+  {
+   "role": "Padars Grade Entry Staff"
+  },
+  {
+   "role": "Padars Platform Administrator"
+  },
+  {
+   "role": "Padars Read Only"
+  },
+  {
+   "role": "Padars Sensitive Records"
+  },
+  {
+   "role": "Padars Teacher"
+  }
+ ],
+ "content": "[{\"id\":\"padars-onboarding\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Padars School Onboarding\",\"col\":12}},{\"id\":\"padars-setup\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"School Setup\",\"col\":3}},{\"id\":\"padars-year\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Year\",\"col\":3}},{\"id\":\"padars-program\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Program\",\"col\":3}},{\"id\":\"padars-registration\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Registration\",\"col\":3}},{\"id\":\"padars-students\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student\",\"col\":3}},{\"id\":\"padars-instructors\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Instructor\",\"col\":3}},{\"id\":\"padars-groups\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Group\",\"col\":3}},{\"id\":\"padars-offerings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Offering\",\"col\":3}},{\"id\":\"padars-assignments\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Academic Assignment\",\"col\":3}},{\"id\":\"padars-schedule\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Schedule\",\"col\":3}},{\"id\":\"padars-moodle\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"LMS Synchronization\",\"col\":3}},{\"id\":\"padars-curriculum-adoption\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Curriculum Adoption\",\"col\":3}},{\"id\":\"padars-teacher-workload\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Teacher Workload\",\"col\":3}},{\"id\":\"padars-daily-0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Attendance Tool\",\"col\":3}},{\"id\":\"padars-daily-1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Attendance\",\"col\":3}},{\"id\":\"padars-daily-2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Leave Application\",\"col\":3}},{\"id\":\"padars-daily-3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Student Log\",\"col\":3}},{\"id\":\"padars-daily-4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Attendance Register\",\"col\":3}}]",
+ "shortcuts": [
+  {
+   "label": "School Setup",
+   "link_to": "padars-setup",
+   "type": "Page"
+  },
+  {
+   "label": "Academic Year",
+   "link_to": "Academic Year",
+   "type": "DocType"
+  },
+  {
+   "label": "Program",
+   "link_to": "Program",
+   "type": "DocType"
+  },
+  {
+   "label": "Student",
+   "link_to": "Student",
+   "type": "DocType"
+  },
+  {
+   "label": "Student Registration",
+   "link_to": "student-registration",
+   "type": "Page"
+  },
+  {
+   "label": "Instructor",
+   "link_to": "Instructor",
+   "type": "DocType"
+  },
+  {
+   "label": "Student Group",
+   "link_to": "Student Group",
+   "type": "DocType"
+  },
+  {
+   "label": "Course Offering",
+   "link_to": "School Course Offering",
+   "type": "DocType"
+  },
+  {
+   "label": "Academic Assignment",
+   "link_to": "Academic Assignment",
+   "type": "DocType"
+  },
+  {
+   "label": "Course Schedule",
+   "link_to": "Course Schedule",
+   "type": "DocType"
+  },
+  {
+   "label": "LMS Synchronization",
+   "link_to": "lms-sync-monitor",
+   "type": "Page"
+  },
+  {
+   "label": "Curriculum Adoption",
+   "link_to": "School Curriculum Adoption",
+   "type": "DocType"
+  },
+  {
+   "label": "Teacher Workload",
+   "link_to": "Teacher Workload",
+   "type": "Report"
+  },
+  {
+   "label": "Student Attendance Tool",
+   "link_to": "Student Attendance Tool",
+   "type": "DocType"
+  },
+  {
+   "label": "Student Attendance",
+   "link_to": "Student Attendance",
+   "type": "DocType"
+  },
+  {
+   "label": "Student Leave Application",
+   "link_to": "Student Leave Application",
+   "type": "DocType"
+  },
+  {
+   "label": "Student Log",
+   "link_to": "Student Log",
+   "type": "DocType"
+  },
+  {
+   "label": "Daily Attendance Register",
+   "link_to": "Padars Daily Attendance Register",
+   "type": "Report"
+  }
  ]
 }

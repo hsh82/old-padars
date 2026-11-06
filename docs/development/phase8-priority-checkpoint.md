@@ -76,3 +76,35 @@ passed. No live remote records or browser journey were run.
 Resume Phase 5 from the existing working tree. Do not reset, stage, or replace
 its changes as part of the Phase 8 commit. Phase 4 stays complete, and Phase 8
 must remain in place when the original roadmap reaches it.
+
+## Phase 5 return result
+
+Updated: 2026-11-06. The saved Phase 5 implementation is complete for
+development handoff. Its five focused staff-management tests pass on
+`padars-phase12-fresh.local`. The prior 3-pass / 2-failure result was diagnosed:
+the Phase 8 Instructor mapping guard needed to be honored by the Phase 5
+linking service, and the unassignment path incorrectly applied an active-only
+Instructor match check to an inactive assignment. Both issues are fixed. See
+[Phase 5 verification](../quality/phase5-progress.md).
+
+Phase 6 implementation is complete with six focused tests passing on
+`padars-phase12-fresh.local`; see [Phase 6 verification](../quality/phase6-progress.md).
+Phase 7 daily academic operations is implemented with five focused tests
+passing on `padars-phase12-fresh.local`; see
+[Phase 7 verification](../quality/phase7-progress.md). The original Phase 8
+implementation is preserved and its live acceptance remains blocked on
+authorized Moodle service configuration.
+
+## Phase 7 return result
+
+Updated: 2026-11-06. The temporary priority has returned to the saved roadmap.
+Phase 4 remains complete; Phases 5, 6, and 7 are complete for development
+handoff. Phase 8 remains committed and implemented in its temporary-priority
+slice, with live Moodle/MuTMS acceptance still blocked on authorized service
+configuration. The next roadmap phase is Phase 9.
+
+The Phase 7 focused module passed five tests. Phase 5 passed five and Phase 6
+passed six focused tests after the Phase 7 permission changes. The disposable
+site migration succeeded. No browser journey, other-app suite, or full Padars
+suite was run. See [daily operations](../architecture/daily-academic-operations.md)
+for the model boundaries and limitations.

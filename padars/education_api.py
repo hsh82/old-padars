@@ -96,35 +96,30 @@ def get_program_courses(doctype, txt, searchfield, start, page_len, filters):
 
 @frappe.whitelist()
 def get_student_attendance_records(based_on, date=None, student_group=None, course_schedule=None):
-	if course_schedule:
-		student_group = frappe.db.get_value("Course Schedule", course_schedule, "student_group")
-	if not _can_read_group(student_group):
-		frappe.throw(_("You are not authorized to view attendance for this group."), frappe.PermissionError)
-	return _attendance_roster(student_group, course_schedule, date)
+	from padars.daily_operations import get_student_attendance_records as scoped
 
-
-def _attendance_roster(student_group, course_schedule, date):
-	students = get_school_group_students(student_group)
-	filters = {"course_schedule": course_schedule} if course_schedule else {"student_group": student_group, "date": date}
-	statuses = {row.student: row.status for row in frappe.get_all("Student Attendance", fields=["student", "status"], filters=filters)}
-	for student in students:
-		if student.student in statuses:
-			student.status = statuses[student.student]
-	return students
+	return scoped(based_on, date, student_group, course_schedule)
 
 
 @frappe.whitelist()
 def check_attendance_records_exist(course_schedule=None, student_group=None, date=None):
-	if course_schedule:
-		student_group = frappe.db.get_value("Course Schedule", course_schedule, "student_group")
-	_require_group_manager(student_group)
-	filters = {"course_schedule": course_schedule} if course_schedule else {"student_group": student_group, "date": date}
-	return frappe.get_all("Student Attendance", filters=filters, fields=["name", "student", "status"])
+	from padars.daily_operations import check_attendance_records_exist as scoped
+
+	return scoped(course_schedule, student_group, date)
 
 
 @frappe.whitelist()
 def mark_attendance(*args, **kwargs):
-	_deny_unsupported(_("Bulk attendance marking"))
+	from padars.daily_operations import mark_attendance as scoped
+
+	return scoped(*args, **kwargs)
+
+
+@frappe.whitelist()
+def get_student_leave_groups(student):
+	from padars.daily_operations import get_student_leave_groups as scoped
+
+	return scoped(student)
 
 
 @frappe.whitelist()

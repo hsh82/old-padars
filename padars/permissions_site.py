@@ -9,13 +9,16 @@ from frappe.utils import getdate, today
 from padars.school_context import get_primary_school
 
 PLATFORM_ROLES = {"System Manager", "Padars Platform Administrator"}
-STAFF_ROLES = {"Padars Academic Staff", "Padars Teacher", "Padars Grade Entry Staff", "Padars Read Only"}
+STAFF_ROLES = {
+	"Padars Academic Staff", "Padars Teacher", "Padars Grade Coordinator", "Padars Class Supervisor",
+	"Padars Grade Entry Staff", "Padars Read Only",
+}
 MANAGER_ROLE = "Padars School Manager"
 SCOPED_DOCTYPES = {
 	"School", "School Membership", "Academic Assignment", "School Course Offering", "LMS Entity Mapping",
 	"School Curriculum Adoption",
 	"LMS Enrollment State", "LMS Sync Operation", "Program Enrollment", "Student Group", "Course Enrollment",
-	"Course Schedule", "Assessment Plan", "Assessment Result", "Student Attendance", "Student", "Instructor",
+	"Course Schedule", "Assessment Plan", "Assessment Result", "Student Attendance", "Student Leave Application", "Student", "Instructor",
 	"Student Log", "Guardian", "Program",
 	"Program Enrollment Tool", "Student Group Creation Tool", "Course Scheduling Tool",
 	"Student Attendance Tool", "Assessment Result Tool", "Student Report Generation Tool",
@@ -74,7 +77,7 @@ def _assignments(user, action="read"):
 	rows = frappe.get_all(
 		"Academic Assignment", filters={"user": user, "status": "Active"},
 		fields=["scope_type", "scope_name", "instructor", "valid_from", "valid_to", "can_edit",
-			"can_enter_marks", "can_manage_attendance", "can_view_sensitive"],
+			"can_enter_marks", "can_manage_attendance", "can_view_sensitive", "can_manage_student_care"],
 	)
 	current = getdate(today())
 	return [r for r in rows if (not r.valid_from or getdate(r.valid_from) <= current)
@@ -120,10 +123,28 @@ def school_permission_query_conditions(user=None, doctype=None):
 	if doctype == "Student Log":
 		if "Padars Sensitive Records" not in frappe.get_roles(user):
 			return "1=0"
-		groups = _scopes(user, "can_view_sensitive").groups
+		groups = _scopes(user, "can_view_sensitive").groups | _scopes(user, "can_manage_student_care").groups
 		if not groups:
 			return "1=0"
 		return "exists (select 1 from `tabStudent Group Student` sgs where sgs.student=`tabStudent Log`.`student` and sgs.active=1 and " + _in("sgs.parent", groups) + ")"
+	if doctype == "Student Leave Application":
+		if is_school_manager(get_primary_school(), user):
+			return ""
+		scope = _scopes(user)
+		student = get_student_for_user(user)
+		parts = []
+		if student:
+			parts.append(f"`tabStudent Leave Application`.`student`={frappe.db.escape(student)}")
+		parts.append(
+			"exists (select 1 from `tabStudent Group` sg where sg.name=`tabStudent Leave Application`.`student_group` and "
+			+ _in("sg.name", scope.broad_groups) + ")"
+		)
+		parts.append(
+			"exists (select 1 from `tabCourse Schedule` cs where cs.name=`tabStudent Leave Application`.`course_schedule` and ("
+			+ _in("cs.student_group", scope.broad_groups) + " or "
+			+ _in("cs.padars_course_offering", scope.offerings) + "))"
+		)
+		return "(" + " or ".join(parts) + ")"
 	if doctype in {"LMS Entity Mapping", "LMS Enrollment State", "LMS Sync Operation"}:
 		return "" if can_manage_moodle(get_primary_school(), user) else "1=0"
 	if is_school_manager(get_primary_school(), user):
@@ -206,11 +227,47 @@ def _matches_write_scope(doc, scope):
 	return matched
 
 
+def _student_in_group_scope(student, groups):
+	return bool(student and groups and frappe.db.exists(
+		"Student Group Student", {"student": student, "active": 1, "parent": ["in", sorted(groups)]}
+	))
+
+
+def _can_manage_student_care(doc, scope, user=None):
+	user = user or frappe.session.user
+	if "Padars Sensitive Records" not in frappe.get_roles(user):
+		return False
+	if not _student_in_group_scope(doc.get("student"), scope.groups):
+		return False
+	if doc.name and not doc.is_new():
+		old = frappe.get_doc("Student Log", doc.name)
+		if old.student != doc.student:
+			return False
+	return True
+
+
+def _can_manage_leave_scope(doc, user):
+	group = doc.get("student_group") or frappe.db.get_value("Course Schedule", doc.get("course_schedule"), "student_group")
+	if not group or not _student_in_group_scope(doc.get("student"), {group}):
+		return False
+	scope = _scopes(user, "can_manage_attendance")
+	if group in scope.broad_groups:
+		return True
+	if doc.get("attendance_based_on") == "Course Schedule" and doc.get("course_schedule"):
+		offering = frappe.db.get_value("Course Schedule", doc.course_schedule, "padars_course_offering")
+		return bool(offering and offering in scope.offerings)
+	return False
+
+
 def has_school_permission(doc, ptype, user=None, **kwargs):
 	user = user or frappe.session.user
 	if is_platform_admin(user):
 		return True
 	if not doc or doc.doctype not in SCOPED_DOCTYPES:
+		return False
+	if doc.doctype == "Student Attendance Tool":
+		if ptype in {"read", "select", "create", "write"}:
+			return is_school_manager(get_primary_school(), user) or bool(_assignments(user, "can_manage_attendance"))
 		return False
 	if doc.doctype == "Assessment Result" and ptype in {"submit", "cancel", "amend"}:
 		return False  # Approval and correction are introduced with report-card workflows.
@@ -226,22 +283,49 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 			return frappe.has_permission(doc.doctype, custom, doc=doc, user=user, ignore_share_permissions=True)
 		return True
 	if ptype == "view_sensitive_student_data" and doc.doctype == "Student Log":
-		if doc.is_new():
+		if doc.is_new() or "Padars Sensitive Records" not in frappe.get_roles(user):
 			return False
 		condition = school_permission_query_conditions(user, doc.doctype)
 		return bool(frappe.db.sql(f"select name from `tabStudent Log` where name=%s and ({condition}) limit 1", doc.name))
 	if doc.doctype == "Student Log" and ptype in {"read", "print", "select"}:
 		return frappe.has_permission("Student Log", "view_sensitive_student_data", doc=doc, user=user, ignore_share_permissions=True)
+	if doc.doctype == "Student Log" and ptype in {"create", "write"}:
+		return _can_manage_student_care(doc, _scopes(user, "can_manage_student_care"), user)
+	if doc.doctype == "Student Leave Application":
+		if is_school_manager(get_primary_school(), user):
+			return True
+		student = get_student_for_user(user)
+		if ptype in {"read", "print", "select"}:
+			if doc.is_new():
+				return False
+			condition = school_permission_query_conditions(user, doc.doctype)
+			return bool(frappe.db.sql(
+				f"select name from `tabStudent Leave Application` where name=%s and ({condition}) limit 1", doc.name
+			))
+		if student and doc.get("student") == student and ptype == "create" and doc.is_new():
+			return True
+		if student and doc.get("student") == student and ptype == "write" and doc.docstatus == 0:
+			return True
+		return ptype in {"create", "write", "submit", "cancel"} and _can_manage_leave_scope(doc, user)
 	custom_actions = {"enter_grade": ("Assessment Result", "can_enter_marks"),
-		"manage_attendance": ("Student Attendance", "can_manage_attendance")}
+		"manage_attendance": ("Student Attendance", "can_manage_attendance"),
+		"manage_student_care": ("Student Log", "can_manage_student_care")}
 	if ptype in custom_actions:
 		expected_doctype, action = custom_actions[ptype]
+		if ptype == "manage_student_care":
+			return doc.doctype == expected_doctype and _can_manage_student_care(doc, _scopes(user, action), user)
 		return doc.doctype == expected_doctype and _can_write_in_scope(doc, _scopes(user, action))
 	if ptype in {"read", "print", "select"}:
 		if doc.is_new():
 			return False
 		condition = school_permission_query_conditions(user, doc.doctype)
 		return bool(frappe.db.sql(f"select name from `tab{doc.doctype}` where name=%s and ({condition}) limit 1", doc.name))
+	if doc.doctype == "Student Attendance" and ptype == "cancel":
+		return bool(frappe.flags.get("padars_leave_attendance_cancel")
+			and doc.get("leave_application") == frappe.flags.padars_leave_attendance_cancel
+			and _can_write_in_scope(doc, _scopes(user, "can_manage_attendance")))
+	if doc.doctype == "Student Attendance" and ptype == "submit":
+		return _can_write_in_scope(doc, _scopes(user, "can_manage_attendance"))
 	if ptype not in {"write", "create"}:
 		return False
 	if doc.doctype in {"Assessment Result", "Student Attendance"}:
@@ -256,7 +340,7 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 def _can_write_in_scope(doc, scope):
 	if not _matches_write_scope(doc, scope):
 		return False
-	if not doc.is_new():
+	if doc.name and not doc.is_new():
 		# Check both versions: a read-only assignment must not permit moving an
 		# unrelated record into a scope where this user has write access.
 		old = frappe.get_doc(doc.doctype, doc.name)
@@ -269,6 +353,7 @@ def _can_write_in_scope(doc, scope):
 			"Assessment Plan": ("academic_year", "program", "course", "student_group", "padars_course_offering"),
 			"Assessment Result": ("assessment_plan", "student", "academic_year", "program", "course", "student_group", "padars_course_offering"),
 			"Student Attendance": ("student", "student_group", "course_schedule"),
+		"Student Log": ("student",),
 		}.get(doc.doctype, ())
 		if any(old.get(field) != doc.get(field) for field in fixed_fields):
 			return False

@@ -1,0 +1,18 @@
+{
+ "add_total_row": 0,
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "doctype": "Report",
+ "is_standard": "Yes",
+ "module": "Padars",
+ "name": "Teacher Workload",
+ "prepared_report": 0,
+ "ref_doctype": "School Course Offering",
+ "report_name": "Teacher Workload",
+ "report_type": "Script Report",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "Padars Platform Administrator"},
+  {"role": "Padars School Manager"}
+ ]
+}

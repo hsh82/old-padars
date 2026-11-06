@@ -3,5 +3,6 @@
  {"doctype":"Permission Type","name":"assessment_result_approve_grade","doc_type":"Assessment Result","perm_type":"approve_grade"},
  {"doctype":"Permission Type","name":"student_attendance_manage_attendance","doc_type":"Student Attendance","perm_type":"manage_attendance"},
  {"doctype":"Permission Type","name":"student_log_view_sensitive_student_data","doc_type":"Student Log","perm_type":"view_sensitive_student_data"},
+ {"doctype":"Permission Type","name":"student_log_manage_student_care","doc_type":"Student Log","perm_type":"manage_student_care"},
  {"doctype":"Permission Type","name":"lms_sync_operation_manage_moodle","doc_type":"LMS Sync Operation","perm_type":"manage_moodle"}
 ]

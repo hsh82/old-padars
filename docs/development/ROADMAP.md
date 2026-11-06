@@ -18,6 +18,7 @@ capability inventory is not a replacement domain list.
 ## Protected staging baseline
 
 - `staging-1`: `81792d9`, served by `kara.loc`, for Stage 1 manual feedback.
+- `staging-2`: independent `http://stage2.kara.loc` runtime, scoped default profiles and synthetic test school.
 - `codex/full-product`: ongoing work in the separate development worktree.
 - Routine development tests target `padars-phase12-fresh.local`; the fresh-install
   gate additionally uses disposable `padars-release-fresh.local`. Never promote
@@ -68,7 +69,7 @@ delivery and generated PDF. Twelve focused tests pass; browser/concurrency and
 release acceptance remain open. Controlled Education mark corrections now have
 focused implementation, including atomic rollback and protected audit metadata.
 Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Moodle discovery, mapping and reviewed draft import are connected; sixteen focused integration tests pass. Learning discovery/publication and completion are connected; asynchronous session policies, reviewed evidence confirmation and correction are implemented; live meeting analytics and final acceptance remain. Development
-changes are not promoted to staging.
+changes are now available in the independent Staging 2 snapshot; Stage 1 remains preserved.
 
 ## Work discipline and handoff
 
@@ -104,3 +105,31 @@ comparison defect was traced to SQL date/timedelta versus incoming strings;
 canonical date/time comparisons fix unchanged submissions without permitting
 real past rescheduling. All 24 focused product tests pass. Final deployment
 snapshot promotion and synthetic publication verification follow this commit.
+
+## Staging 2 ready for manual testing (2026-11-06)
+
+The installed product snapshot includes `fb8953c` (twelve default profiles) and
+`76b7457` (assessment schedule fix and staging tooling), followed by the final
+deployment-record commit. The local `staging-2` branch and independent clone
+are pinned to that record. Open `http://stage2.kara.loc/login`; map the name to
+the same server IP as `kara.loc` if needed. See [manual guide](STAGING_2_TEST_GUIDE.md)
+and [deployment tooling](../../scripts/staging2/README.md). Credentials are in the
+owner-only private file documented in the guide, outside Git.
+
+Verified: genuine fresh Frappe/ERPNext/Education/Padars install with twelve
+profiles; 26 DocType/fixture/index gate; all 24 focused product tests; real HTTP
+manager/teacher/student/guardian login and role landing; academic lists; teacher
+three-student roster; own timetable/attendance; native saved-parent private CSV
+upload/download; unrelated attachment denial; private-file/student/guardian
+isolation; real teacher mark entry, manager approval and three report-card
+publications; scoped report pages and generated PDF; app JS assets; realtime
+transport HTTP 200; one worker online and scheduler enabled. New seeds are
+repeatable and preserve credentials/data. Runtime proxy now resolves changing
+Docker upstream addresses instead of retaining a stale address after restart.
+
+Not verified: interactive browser acceptance, execution of a new CSV/Excel
+identity batch on this new site, SMS delivery, live Moodle/MuTMS/PlugNmeet or SSO,
+performance/concurrency and final Phase 11 release acceptance. LMS/SMS remain
+disabled; mocked or absent services are not reported as live. Follow the user’s
+staging-test priority; collect feedback before another staging promotion. Keep
+Stage 1's original branch/worktree, including new user edits, untouched.

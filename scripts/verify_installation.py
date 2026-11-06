@@ -27,6 +27,12 @@ def verify(site, sites_path, fresh=False, expected_app_root=None):
 			assert frappe.db.count("Student") == 0
 			assert frappe.db.count("LMS Entity Mapping") == 0
 		assert frappe.db.get_value("Role", "Padars Guardian", "desk_access") == 0
+		from padars.role_profiles import DEFAULT_ROLE_PROFILES
+		for name, expected_roles in DEFAULT_ROLE_PROFILES.items():
+			assert frappe.db.exists("Role Profile", name), f"Missing Role Profile: {name}"
+			if fresh:
+				actual = {row.role for row in frappe.get_doc("Role Profile", name).roles}
+				assert actual == set(expected_roles), f"Unexpected fresh profile roles: {name}"
 		count = 0
 		for path in (app_root / "padars/padars/doctype").glob("*/*.json"):
 			definition = json.loads(path.read_text())

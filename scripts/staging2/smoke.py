@@ -81,6 +81,15 @@ def verify(base_url, credentials):
         get(student, "/api/method/padars.portal.get_academic_overview", 403, params={"student": other})
         get(student, "/api/resource/Role Profile", 403)
         get(student, attachment["file_url"], 403)
+        cards = get(student, "/api/method/padars.publication.list_report_cards").json()["message"]
+        own_card = demo["publications"][number - 1]
+        assert [row["name"] for row in cards] == [own_card]
+        assert "Staging Mathematics" in get(student, "/report-cards", params={"publication": own_card}).text
+        get(student, "/api/method/padars.publication.read_report_card", 403,
+            params={"publication": demo["publications"][1 if number == 1 else 0]})
+        if number == 1:
+            pdf = get(student, "/api/method/padars.publication.download_report_card", params={"publication": own_card})
+            assert pdf.content.startswith(b"%PDF"), "Report card PDF generation failed"
     print("PASS: two student logins and own timetable/course; other student's overview and role administration denied")
 
     guardian = login("guardian@stage2.example.invalid")
@@ -88,7 +97,11 @@ def verify(base_url, credentials):
     own = get(guardian, "/api/method/padars.portal.get_academic_overview", params={"student": demo["students"][0]}).json()["message"]
     assert own["courses"] and own["attendance"]
     get(guardian, "/api/method/padars.portal.get_academic_overview", 403, params={"student": demo["students"][1]})
-    print("PASS: verified guardian's child timetable/attendance; unrelated child denied")
+    cards = get(guardian, "/api/method/padars.publication.list_report_cards", params={"student": demo["students"][0]}).json()["message"]
+    assert [row["name"] for row in cards] == [demo["publications"][0]]
+    get(guardian, "/api/method/padars.publication.read_report_card", 403, params={"publication": demo["publications"][1]})
+    print("PASS: verified guardian's child timetable/attendance/report; unrelated child and report denied")
+    print("PASS: published student report pages and generated PDF; cross-student reports denied")
 
     from padars.hooks import app_include_js
     for asset in app_include_js:

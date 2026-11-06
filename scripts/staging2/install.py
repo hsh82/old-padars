@@ -9,6 +9,9 @@ from frappe.installer import _new_site
 site='stage2.kara.loc'
 assert str(Path(padars.__file__).resolve()).startswith('/workspace/frappe-bench/apps/padars/')
 assert not Path(site).exists(), 'Refusing to overwrite an existing site'
+common=json.loads(Path('common_site_config.json').read_text())
+assert common.get('default_site')==site and common.get('redis_queue')=='redis://redis-queue:6379', 'Wrong staging Bench configuration'
+assert Path('/workspace/frappe-bench/config/pids').is_dir(), 'Incomplete isolated Bench layout'
 root_password=sys.stdin.read().strip()
 assert root_password
 password=secrets.token_urlsafe(24)

@@ -115,3 +115,13 @@ Bound School/Offering/User/Student primary keys are protected by a scoped
 before_rename hook, including merge destinations. See [stable identities](stable-identities.md).
 This guards external identity/provenance integrity; ordinary creation and permitted
 label edits retain native authorization.
+
+## Installable Role Profile presets
+
+`padars.role_profiles.DEFAULT_ROLE_PROFILES` defines twelve native presets,
+created after installation/migration only when missing. Operator-customized
+profiles are preserved. School customer presets omit Academics User/System
+Manager; company administrator is explicitly privileged. Fixed-role school
+services retain native multi-profile semantics and reject profiles adding
+unrequested authority. Profiles never replace Academic Assignment scopes or
+verified guardian access. Existing legacy user roles are not silently revoked.

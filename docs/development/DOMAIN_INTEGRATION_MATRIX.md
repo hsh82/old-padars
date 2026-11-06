@@ -28,3 +28,9 @@ no mock or local source inspection establishes a live integration result.
 Staging 2 access: installable native Role Profile presets now connect company,
 manager, teacher, staff, student and guardian access to existing scoped roles.
 Profile assignment does not replace Academic Assignments or verified guardianship.
+
+Staging 2 manual-test snapshot connects the synthetic school through academic
+terms, class/curriculum/offering, assigned teacher, three enrollments, weekly
+sessions, official attendance, teacher marks, manager approvals and three
+published student/guardian report cards. Real HTTP scoped access/PDF/upload
+checks pass; live external integration and complete domain closure remain open.

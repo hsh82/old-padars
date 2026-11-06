@@ -2,6 +2,11 @@
 {% block page_content %}
 <main dir="auto">
   <h1>{{ _("Report Cards") }}</h1>
+  {% if linked_children %}
+  <nav aria-label="{{ _('Linked students') }}"><ul>{% for child in linked_children %}
+    <li><a href="/report-cards?student={{ child.student | urlencode }}">{{ child.student_name | e }}</a></li>
+  {% endfor %}</ul></nav>
+  {% endif %}
   {% if report is defined %}
   <h2>{{ report.snapshot.student_name | e }}</h2>
   <p>{{ report.snapshot.school_name | e }} · {{ report.snapshot.program | e }} · {{ report.snapshot.academic_year | e }} · {{ report.snapshot.academic_term | e }}</p>

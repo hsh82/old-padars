@@ -385,6 +385,49 @@ class TestScheduling(IntegrationTestCase):
 				read_report_card(publication["name"])
 			with self.assertRaises(frappe.PermissionError):
 				report_card_pdf(publication["name"])
+			# A native relationship alone grants no report access.
+			from padars.guardian_access import verify_guardian_access, revoke_guardian_access, linked_students
+			frappe.set_user("Administrator")
+			parent_user = self._user("parent")
+			frappe.get_doc("User", parent_user).add_roles("Guardian")
+			guardian = frappe.get_doc({"doctype": "Guardian", "guardian_name": "Verified parent",
+				"email_address": parent_user, "user": parent_user}).insert()
+			student.reload()
+			student.append("guardians", {"guardian": guardian.name, "relation": "Mother"})
+			student.save()
+			frappe.set_user(parent_user)
+			self.assertEqual(linked_students(), [])
+			with self.assertRaises(frappe.PermissionError):
+				read_report_card(publication["name"])
+			with self.assertRaises(frappe.PermissionError):
+				verify_guardian_access(student.name, guardian.name, reason="Self verified")
+			frappe.set_user(manager)
+			with self.assertRaises(frappe.ValidationError):
+				verify_guardian_access(student.name, guardian.name, reason="")
+			grant = verify_guardian_access(student.name, guardian.name, reason="School checked guardian records")
+			self.assertEqual(grant, verify_guardian_access(student.name, guardian.name, reason="Repeated request"))
+			frappe.set_user(parent_user)
+			self.assertEqual(linked_students(), [student.name])
+			self.assertEqual(len(list_report_cards(student.name)), 2)
+			self.assertEqual(read_report_card(publication["name"])["snapshot"]["student"], student.name)
+			self.assertNotIn("correction_reason", get_permitted_fields("Report Card Publication"))
+			self.assertFalse(frappe.has_permission("Assessment Result", "read", doc=frappe.get_doc("Assessment Result", amended["name"])))
+			with self.assertRaises(frappe.PermissionError):
+				list_report_cards("unrelated-student")
+			frappe.set_user(manager)
+			revoke_guardian_access(grant["name"], "School access review")
+			frappe.set_user(parent_user)
+			with self.assertRaises(frappe.PermissionError):
+				report_card_pdf(publication["name"])
+			frappe.set_user(manager)
+			second_grant = verify_guardian_access(student.name, guardian.name, reason="Reverified")
+			self.assertNotEqual(second_grant["name"], grant["name"])
+			student.reload()
+			student.set("guardians", [])
+			student.save()
+			self.assertEqual(frappe.db.get_value("Verified Guardian Access", second_grant["name"], "status"), "Revoked")
+			frappe.set_user(parent_user)
+			self.assertEqual(linked_students(), [])
 			frappe.set_user(teacher)
 			with self.assertRaises(frappe.PermissionError):
 				calculate_scheme(scheme.name, student.name)
@@ -394,6 +437,41 @@ class TestScheduling(IntegrationTestCase):
 				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}})
 		finally:
 			frappe.set_user("Administrator")
+
+	def test_guardian_verification_creates_only_scoped_website_account(self):
+		from padars.guardian_access import verify_guardian_access, linked_students
+		child_user = self._user("guardian-child")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Child", "enabled": 1, "student_email_id": child_user, "user": child_user}).insert()
+		email = f"family-{self.key.lower()}@example.invalid"
+		guardian = frappe.get_doc({"doctype": "Guardian", "guardian_name": "Family",
+			"email_address": email}).insert()
+		student.append("guardians", {"guardian": guardian.name, "relation": "Father"})
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student.save()
+		manager = self._user("family-manager")
+		frappe.get_doc("User", manager).add_roles("Padars School Manager")
+		frappe.set_user(manager)
+		self.assertFalse(frappe.has_permission("User", "write", doc=frappe.get_doc("User", child_user)))
+		grant = verify_guardian_access(student.name, guardian.name, reason="School verified relationship")
+		account = frappe.get_doc("User", grant["user"])
+		self.assertEqual(account.user_type, "Website User")
+		self.assertEqual({row.role for row in account.roles}, {"Padars Guardian"})
+		self.assertEqual(frappe.db.get_value("Guardian", guardian.name, "user"), email)
+		frappe.set_user(email)
+		self.assertEqual(linked_students(), [student.name])
+		from padars.www.report_cards import get_context
+		with patch.dict(frappe.form_dict, {}, clear=True):
+			context = get_context(frappe._dict())
+		self.assertEqual(context.linked_children[0]["student"], student.name)
+		self.assertEqual(context.reports, [])
+		frappe.set_user(manager)
+		guardian.reload()
+		guardian.email_address = f"changed-{email}"
+		guardian.save()
+		self.assertEqual(frappe.db.get_value("Verified Guardian Access", grant["name"], "status"), "Revoked")
+		frappe.set_user(email)
+		self.assertEqual(linked_students(), [])
 
 	def test_scheme_rejects_invalid_weights_and_allocates_versions(self):
 		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)

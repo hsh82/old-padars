@@ -178,6 +178,11 @@
    "role": "Padars School Manager",
    "permlevel": 1,
    "read": 1
+  },
+  {
+   "role": "Padars Guardian",
+   "read": 1,
+   "print": 1
   }
  ],
  "sort_field": "creation",

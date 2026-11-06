@@ -18,6 +18,8 @@ STAGE1_ROLES = (
 
 
 def ensure_stage1_roles():
+	if not frappe.db.exists("Role", "Padars Guardian"):
+		frappe.get_doc({"doctype": "Role", "role_name": "Padars Guardian", "desk_access": 0}).insert(ignore_permissions=True)
 	for role_name in STAGE1_ROLES:
 		if not frappe.db.exists("Role", role_name):
 			frappe.get_doc({"doctype": "Role", "role_name": role_name, "desk_access": 1}).insert(
@@ -32,6 +34,7 @@ def after_install():
 	ensure_phase7_permissions()
 	ensure_assessment_tool_permissions()
 	ensure_assessment_approval_permissions()
+	ensure_guardian_management_permissions()
 	ensure_registration_import_permissions()
 	validate_security_baseline()
 
@@ -225,3 +228,16 @@ def ensure_phase7_permissions():
 			for ptype in ptypes:
 				update_permission_property(doctype, role, 0, ptype, 1, validate=False)
 		frappe.clear_cache(doctype=doctype)
+
+
+def ensure_guardian_management_permissions():
+	"""School managers maintain native relationships without User administration."""
+	from frappe.permissions import add_permission, update_permission_property
+
+	role = "Padars School Manager"
+	filters = {"parent": "Guardian", "role": role, "permlevel": 0, "if_owner": 0}
+	if not frappe.db.exists("Custom DocPerm", filters):
+		add_permission("Guardian", role, 0, "read")
+		for ptype in ("create", "write"):
+			update_permission_property("Guardian", role, 0, ptype, 1, validate=False)
+	frappe.clear_cache(doctype="Guardian")

@@ -120,8 +120,9 @@ def publish_report_card(enrollment, schemes, expected_digest, correction_reason=
 
 
 def _can_read(doc, user=None):
+	from padars.guardian_access import linked_students
 	user = user or frappe.session.user
-	return doc.school == get_primary_school() and (is_school_manager(doc.school, user) or get_student_for_user(user) == doc.student)
+	return doc.school == get_primary_school() and (is_school_manager(doc.school, user) or get_student_for_user(user) == doc.student or doc.student in linked_students(user))
 
 
 def has_permission(doc, ptype, user=None, **kwargs):
@@ -129,13 +130,17 @@ def has_permission(doc, ptype, user=None, **kwargs):
 
 
 def query_conditions(user=None):
+	from padars.guardian_access import linked_students
 	user = user or frappe.session.user
 	school = get_primary_school()
 	base = f"`tabReport Card Publication`.school={frappe.db.escape(school or '')}"
 	if is_school_manager(school, user):
 		return base
+	students = set(linked_students(user))
 	student = get_student_for_user(user)
-	return f"({base}) and `tabReport Card Publication`.student={frappe.db.escape(student)}" if student else "1=0"
+	if student:
+		students.add(student)
+	return f"({base}) and `tabReport Card Publication`.student in ({', '.join(frappe.db.escape(name) for name in sorted(students))})" if students else "1=0"
 
 
 @frappe.whitelist()
@@ -149,12 +154,16 @@ def read_report_card(publication):
 
 @frappe.whitelist()
 def list_report_cards(student=None, start=0, limit=20):
+	from padars.guardian_access import linked_students
 	school = get_primary_school(required=True)
 	if not is_school_manager(school):
 		own = get_student_for_user()
-		if not own or (student and student != own):
-			frappe.throw(_("Report cards are restricted to your own student account."), frappe.PermissionError)
-		student = own
+		allowed = set(linked_students())
+		if own:
+			allowed.add(own)
+		student = student or own
+		if not student or student not in allowed:
+			frappe.throw(_("Report cards are restricted to your student account and verified linked children."), frappe.PermissionError)
 	if not student:
 		frappe.throw(_("Select a student to view published report cards."))
 	start, limit = int(start), int(limit)

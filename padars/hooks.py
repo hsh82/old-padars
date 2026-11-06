@@ -15,6 +15,7 @@ app_include_css = "/assets/padars/css/padars.css"
 web_include_js = ["/assets/padars/js/first_login.js"]
 
 standard_portal_menu_items = [
+	{"title": "Family Report Cards", "route": "/report-cards", "reference_doctype": "Report Card Publication", "role": "Padars Guardian"},
 	{"title": "Report Cards", "route": "/report-cards", "reference_doctype": "Report Card Publication", "role": "Student"},
 ]
 
@@ -108,6 +109,7 @@ after_migrate = [
 	"padars.install.ensure_phase7_permissions",
 	"padars.install.ensure_assessment_tool_permissions",
 	"padars.install.ensure_assessment_approval_permissions",
+	"padars.install.ensure_guardian_management_permissions",
 	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
 ]
 
@@ -187,8 +189,9 @@ doc_events = {
 	"DocShare": {"validate": "padars.file_security.validate_share"},
 	"Student": {
 		"validate": "padars.education_hooks.validate_student_identity",
-		"on_update": ["padars.student_identity.attach_matching_user", "padars.integrations.moodle.service.sync_student_eligibility_change"],
+		"on_update": ["padars.student_identity.attach_matching_user", "padars.integrations.moodle.service.sync_student_eligibility_change", "padars.guardian_access.revoke_changed_relationships"],
 	},
+	"Guardian": {"on_update": "padars.guardian_access.revoke_changed_relationships"},
 	"User": {"on_update": "padars.integrations.moodle.service.sync_user_eligibility_change"},
 	"Program Enrollment": {
 		"validate": "padars.education_hooks.validate_program_enrollment",

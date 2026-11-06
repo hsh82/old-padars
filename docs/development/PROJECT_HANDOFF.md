@@ -33,8 +33,11 @@ Assessment schemes and immutable publication now have focused implementation:
 eleven tests cover weights, approval, previews, publication versions, student
 isolation and generated PDF. Controlled Education mark corrections are now also
 implemented and focused-tested, preserving published snapshots and correction
-audit metadata. Next: Moodle grade mapping/reconciliation and verified guardian
-report access, advancing the latter independently if live LMS remains blocked.
+audit metadata. Verified guardian delivery is now connected through native relationships,
+manager verification/revocation actions and the published report portal. Twelve
+focused tests cover account creation, isolation, explicit revocation and source
+relationship changes. Next: Moodle grade mapping/reconciliation and connected
+student/guardian academic views while the external live gate remains blocked.
 Education remains authoritative; do not introduce fixed national formulas.
 The full student/guardian portals, learning-activity and
 PlugNmeet evidence integration, and Phase 11 release gates remain unfinished.

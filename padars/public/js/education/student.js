@@ -10,6 +10,8 @@ frappe.ui.form.on("Student", {
     }
 		if (!frm.is_new() && (frappe.user.has_role("Padars School Manager")
 			|| frappe.user.has_role("Padars Platform Administrator") || frappe.user.has_role("System Manager"))) {
+			frm.add_custom_button(__("Verify Guardian Access"), () => verifyGuardianAccess(frm), __("Guardians"));
+			frm.add_custom_button(__("Guardian Access History"), () => frappe.set_route("List", "Verified Guardian Access", {student: frm.doc.name}), __("Guardians"));
 			frm.add_custom_button(__("Review Approved Results"), () => reviewApprovedResults(frm), __("Assessments"));
 		}
 		if (frm.is_new() || !frm.doc.user) return;
@@ -102,4 +104,20 @@ function requestStudentUserProvisioning(frm) {
 		__("Request Moodle User Provisioning"),
 		__("Request"),
 	);
+}
+
+function verifyGuardianAccess(frm) {
+	const guardians = (frm.doc.guardians || []).map((row) => row.guardian).filter(Boolean);
+	if (!guardians.length) {
+		frappe.msgprint(__("Add and save the native guardian relationship first."));
+		return;
+	}
+	frappe.prompt([
+		{fieldname: "guardian", fieldtype: "Link", options: "Guardian", label: __("Guardian"), reqd: 1,
+			get_query: () => ({filters: {name: ["in", guardians]}})},
+		{fieldname: "reason", fieldtype: "Small Text", label: __("School Verification Reason"), reqd: 1},
+	], (values) => frappe.call({method: "padars.guardian_access.verify_guardian_access",
+		args: {student: frm.doc.name, ...values}, freeze: true}).then((response) => {
+		frappe.msgprint(__("Published report access verified for {0}. New guardian accounts use Frappe password reset to set their password; no invitation was sent.", [response.message.user]));
+	}), __("Verify Guardian Access"), __("Verify"));
 }

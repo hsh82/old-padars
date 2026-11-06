@@ -94,3 +94,8 @@ stop for unsafe records without deleting them. Reports and selected Education
 RPCs that have not been reviewed for scope are disabled for academic users;
 some native workflows therefore remain unavailable until scoped replacements
 are implemented. This is not a complete audit of all upstream endpoints.
+
+Verified guardian report access is a narrow service/permission-hook extension;
+see [guardian access](guardian-access.md). A native relationship alone grants
+nothing. School Managers maintain Guardian records, verify/revoke grants, and
+cannot administer arbitrary Users through this service.

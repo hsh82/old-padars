@@ -2,7 +2,7 @@
 
 This tracks unclosed gates. Earlier focused passes are evidence for the covered
 rules, not whole-product acceptance. See phase quality reports for commands and
-results. No new test run was performed for this roadmap update.
+results. Latest guardian/assessment module: twelve integration tests passed on the disposable development site.
 
 | Gate | Status | Required next evidence |
 | --- | --- | --- |
@@ -13,9 +13,9 @@ results. No new test run was performed for this roadmap update.
 | Independent Moodle role assignments | Unresolved | Explicit reconciliation policy and live tests for manual unenrollment removing whole enrollment. |
 | Assessment UI | Outstanding | Final renderer behavior, hostile text, stale edits, loading/error/retry states and manager review in a browser. |
 | Assessment concurrency | Outstanding | Competing draft creates/updates and identity claims; verify locking and stale revision rejection across connections. |
-| Grading scheme and publication | Focused implementation; release checks outstanding | Eleven focused tests now cover schemes, coverage, publication versions, own-student access and PDF. Browser journeys, concurrent publication, real approved school schemes and underlying-mark corrections remain. |
+| Grading scheme and publication | Focused implementation; release checks outstanding | Eleven focused tests now cover schemes, coverage, publication versions, own-student access and PDF. Browser journeys, concurrent publication, real approved school schemes and cross-connection correction checks remain. |
 | Learning and PlugNmeet evidence | Implementation/live contracts pending | Actual session-specific data, policy evaluation, unavailable sources, deduplication and authorized override. |
-| Guardian/student isolation | Implementation pending | Linked-student access plus direct endpoint negatives for unrelated users and unpublished records. |
+| Guardian/student isolation | Focused report-access checks passed | Verified native links, account creation, list/read denial, revocation and source changes tested; full academic portals, browser flow and final endpoint audit remain. |
 | Full endpoint/report audit | Outstanding | Customer restrictions, Files/DocShares, reports, RPCs, User administration and privileged customization denial. |
 | Fresh current-build installation | Outstanding | G9 on a disposable site; optional integrations disabled must not block basic setup. |
 | Recovery and deployment | Partial | Backup exists for Stage 1; restore has not been verified. Prove restore and document compatible code/schema/assets. |

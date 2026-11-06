@@ -72,6 +72,12 @@ and requires replacement approval. Published snapshots stay unchanged. Eleven
 focused tests passed after correction fields were migrated on the disposable
 site, including failed-correction rollback, teacher denial and revised calculation.
 
-Moodle grade mapping/import, guardian delivery, browser acceptance and concurrency stress tests remain
+Moodle grade mapping/import, browser acceptance and concurrency stress tests remain
 unfinished. Schools must explicitly configure and approve their calculation
 schemes; no national grading formula has been introduced.
+
+Verified guardian published-report delivery is implemented. Twelve focused
+scheduling/assessment tests pass after the guardian schema and narrow native
+permissions were applied on the disposable site. Verification/revocation,
+account creation and source relationship changes are covered. Full Phase 10
+portals and final browser/security gates remain open.

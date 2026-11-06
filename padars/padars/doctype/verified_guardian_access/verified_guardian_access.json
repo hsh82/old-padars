@@ -1,0 +1,126 @@
+{
+ "doctype": "DocType",
+ "name": "Verified Guardian Access",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "student",
+  "guardian",
+  "user",
+  "verified_by",
+  "revoked_by",
+  "relationship_row",
+  "active_key",
+  "status",
+  "verification_reason",
+  "verified_at",
+  "revocation_reason",
+  "revoked_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "options": "School",
+   "label": "School",
+   "read_only": 1
+  },
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "options": "Student",
+   "label": "Student",
+   "read_only": 1
+  },
+  {
+   "fieldname": "guardian",
+   "fieldtype": "Link",
+   "options": "Guardian",
+   "label": "Guardian",
+   "read_only": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Verified By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoked_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Revoked By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "relationship_row",
+   "fieldtype": "Data",
+   "label": "Relationship Row",
+   "read_only": 1
+  },
+  {
+   "fieldname": "active_key",
+   "fieldtype": "Data",
+   "label": "Active Key",
+   "read_only": 1,
+   "hidden": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "read_only": 1,
+   "options": "Active\nRevoked"
+  },
+  {
+   "fieldname": "verification_reason",
+   "fieldtype": "Small Text",
+   "label": "Verification Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verified_at",
+   "fieldtype": "Datetime",
+   "label": "Verified At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revocation_reason",
+   "fieldtype": "Small Text",
+   "label": "Revocation Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoked_at",
+   "fieldtype": "Datetime",
+   "label": "Revoked At",
+   "read_only": 1
+  }
+ ],
+ "track_changes": 1,
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  }
+ ]
+}

@@ -473,6 +473,94 @@ class TestScheduling(IntegrationTestCase):
 		frappe.set_user(email)
 		self.assertEqual(linked_students(), [])
 
+	def test_academic_portal_projects_only_authorized_native_records(self):
+		from padars.portal import get_academic_overview
+		from padars.guardian_access import verify_guardian_access
+		learner = self._user("portal-student")
+		frappe.get_doc("User", learner).add_roles("Student")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Portal learner",
+				"enabled": 1, "student_email_id": learner, "user": learner}).insert()
+		frappe.get_doc({"doctype": "Program Enrollment", "student": student.name,
+			"program": self.program.name, "academic_year": self.year.name,
+			"enrollment_date": "2020-01-01", "padars_school": self.school.name}).insert().submit()
+		self.group.append("students", {"student": student.name, "active": 1})
+		self.group.save()
+		date = getdate(today()) - timedelta(days=getdate(today()).weekday())
+		lesson = self._schedule(self.group, date, "11:00:00", "12:00:00", offering=self.offering.name)
+		other = self._other_group()
+		hidden = self._schedule(other, date, "13:00:00", "14:00:00")
+		frappe.get_doc({"doctype": "Student Attendance", "student": student.name,
+			"course_schedule": lesson.name, "student_group": self.group.name,
+			"date": date, "status": "Present"}).insert().submit()
+		frappe.set_user(learner)
+		result = get_academic_overview(week=str(date))
+		self.assertEqual([row.name for row in result["sessions"]], [lesson.name])
+		self.assertNotIn(hidden.name, str(result))
+		self.assertEqual(result["attendance"][0].status, "Present")
+		self.assertEqual(result["courses"][0].course_name, self.course.course_name)
+		self.assertIsNone(result["courses"][0].moodle_url)
+		self.assertFalse(result["sso_verified"])
+		self.assertNotIn("student_mobile_number", str(result))
+		from pathlib import Path
+		template = Path(frappe.get_app_path("padars", "www", "school.html")).read_text()
+		body = template.split("{% block page_content %}", 1)[1].split("{% endblock %}", 1)[0]
+		probe = frappe._dict(result.copy())
+		probe.student_name = "<script>alert(1)</script>"
+		html = frappe.render_template(body, {"overview": probe, "children": []})
+		self.assertNotIn("<script>", html)
+		self.assertIn("&lt;script&gt;", html)
+		with self.assertRaises(frappe.PermissionError):
+			get_academic_overview("unrelated-student", week=str(date))
+		frappe.set_user("Administrator")
+		parent = self._user("portal-parent")
+		guardian = frappe.get_doc({"doctype": "Guardian", "guardian_name": "Portal family",
+			"email_address": parent, "user": parent}).insert()
+		student.reload()
+		student.append("guardians", {"guardian": guardian.name, "relation": "Mother"})
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student.save()
+		verify_guardian_access(student.name, guardian.name, reason="Verified for portal")
+		frappe.set_user(parent)
+		self.assertEqual(get_academic_overview(student.name, str(date))["sessions"][0].name, lesson.name)
+		frappe.set_user("Administrator")
+		self.group.reload()
+		self.group.students[0].active = 0
+		self.group.save()
+		frappe.set_user(learner)
+		withdrawn = get_academic_overview(week=str(date))
+		self.assertEqual(withdrawn["sessions"], [])
+		self.assertEqual(withdrawn["courses"], [])
+		self.assertEqual(withdrawn["attendance"][0].status, "Present")
+		frappe.set_user("Guest")
+		with self.assertRaises(frappe.PermissionError):
+			get_academic_overview(student.name, str(date))
+
+	def test_portal_moodle_links_require_verified_tenant_and_observed_roster(self):
+		from padars.portal import _course_links
+		school = frappe._dict(lms_enabled=1, lms_status="Connected", lms_tenant_id=42)
+		settings = frappe._dict(enabled=1, adapter="Moodle", base_url="https://lms.example.invalid")
+		with patch("padars.portal.get_student_for_user", return_value="STUDENT"), \
+			patch("padars.portal.frappe.get_doc", return_value=school), \
+			patch("padars.portal.frappe.get_single", return_value=settings), \
+			patch.dict(frappe.conf, {"padars_moodle_allowed_hosts": ["lms.example.invalid"]}), \
+			patch("padars.portal.frappe.db.exists", return_value=True) as exists, \
+			patch("padars.portal.frappe.get_all", side_effect=[["OFFERING"],
+				[frappe._dict(local_name="OFFERING", remote_id="57", remote_url="javascript:bad")]]) as query:
+			self.assertEqual(_course_links(self.school.name, "STUDENT", ["OFFERING"]),
+				{"OFFERING": "https://lms.example.invalid/course/view.php?id=57"})
+			self.assertEqual(exists.call_args.args[1]["remote_context"], "moodle:https://lms.example.invalid:tenant:42")
+			self.assertEqual(query.call_args_list[0].kwargs["filters"]["remote_state"], "Enrolled")
+			self.assertEqual(query.call_args_list[1].kwargs["filters"]["remote_context"], "moodle:https://lms.example.invalid:tenant:42")
+		with patch("padars.portal.get_student_for_user", return_value="OTHER"):
+			self.assertEqual(_course_links(self.school.name, "STUDENT", ["OFFERING"]), {})
+		with patch("padars.portal.get_student_for_user", return_value="STUDENT"), \
+			patch("padars.portal.frappe.get_doc", return_value=school), \
+			patch("padars.portal.frappe.get_single", return_value=settings), \
+			patch.dict(frappe.conf, {"padars_moodle_allowed_hosts": ["lms.example.invalid"]}), \
+			patch("padars.portal.frappe.db.exists", return_value=False):
+			self.assertEqual(_course_links(self.school.name, "STUDENT", ["OFFERING"]), {})
+
 	def test_scheme_rejects_invalid_weights_and_allocates_versions(self):
 		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
 		plan.submit()

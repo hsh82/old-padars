@@ -22,3 +22,13 @@ checks passed. No browser journey or full app suite was run for this milestone.
 Next: connect student/guardian timetable, attendance and course views, then
 learning data when actual Moodle service capabilities are available. Full
 Phase 10 and release acceptance remain unfinished.
+
+The `/school` portal now connects weekly Education sessions, course/teacher
+names and submitted attendance to Students and verified guardians. Active
+roster/program-year enrollment scope controls sessions; withdrawn students
+retain attendance history. Week navigation and published-report links are
+connected. Only the Student receives a Moodle course link after local tenant,
+user/course and observed-enrollment checks. SSO and learning deadlines remain
+explicitly unavailable. Fourteen focused tests passed, including projection
+scope, withdrawal, escaped HTML and course-link contracts. Browser and live
+service acceptance remain open.

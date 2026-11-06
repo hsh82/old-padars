@@ -35,7 +35,7 @@ capability inventory is not a replacement domain list.
 | 7 | Development handoff complete | Manual attendance/leave/care implemented; online evidence remains. |
 | 8 | Implementation partial at product level; live gate blocked | Adapter and roster lifecycle exist; live service acceptance remains outstanding. |
 | 9 | In progress | Draft entry, approval, schemes, corrections and immutable publication exist; Moodle grade exchange and final acceptance remain. |
-| 10 | In progress | Verified guardian published-report access exists; unified academic and learning portals remain. |
+| 10 | In progress | Verified family report access and weekly timetable/course/attendance views exist; learning and full role experiences remain. |
 | 11 | Unfinished | Comprehensive installation, integration, security and release gates remain. |
 
 ## Milestone goals and completion evidence
@@ -66,7 +66,7 @@ G6 has coverage-checked immutable publication, successor versions, student and v
 delivery and generated PDF. Twelve focused tests pass; browser/concurrency and
 release acceptance remain open. Controlled Education mark corrections now have
 focused implementation, including atomic rollback and protected audit metadata.
-Verified guardian delivery is implemented. Next: Moodle grade mapping/reconciliation and connected academic portals. Development
+Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Next: Moodle grade mapping/reconciliation and learning/session evidence. Development
 changes are not promoted to staging.
 
 ## Work discipline and handoff

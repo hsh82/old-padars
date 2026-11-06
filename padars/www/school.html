@@ -1,0 +1,34 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<main dir="auto">
+<h1>{{ _('My School') }}</h1>
+{% if children %}<nav aria-label="{{ _('Verified children') }}"><ul>{% for child in children %}
+<li><a href="/school?student={{ child.student | urlencode }}">{{ child.student_name | e }}</a></li>
+{% endfor %}</ul></nav>{% endif %}
+{% if overview %}
+<h2>{{ overview.student_name | e }}</h2>
+<p><a href="/report-cards?student={{ overview.student | urlencode }}">{{ _('Published report cards') }}</a></p>
+<nav aria-label="{{ _('Week navigation') }}">
+<a href="/school?student={{ overview.student | urlencode }}&amp;week={{ overview.previous_week }}">{{ _('Previous week') }}</a>
+ · {{ overview.week_start }} — {{ overview.week_end }} ·
+<a href="/school?student={{ overview.student | urlencode }}&amp;week={{ overview.next_week }}">{{ _('Next week') }}</a>
+</nav>
+<h3>{{ _('Weekly timetable') }}</h3>
+{% if overview.sessions %}<div class="table-responsive"><table class="table"><thead><tr>
+<th>{{ _('Date') }}</th><th>{{ _('Time') }}</th><th>{{ _('Course') }}</th><th>{{ _('Teacher') }}</th><th>{{ _('Room') }}</th>
+</tr></thead><tbody>{% for lesson in overview.sessions %}<tr>
+<td>{{ lesson.schedule_date | e }}</td><td>{{ lesson.from_time | e }}–{{ lesson.to_time | e }}</td>
+<td>{{ lesson.course_name | e }}</td><td>{{ lesson.teacher_name | e }}</td><td>{{ (lesson.room or '') | e }}</td>
+</tr>{% endfor %}</tbody></table></div>{% else %}<p>{{ _('No scheduled lessons this week.') }}</p>{% endif %}
+<h3>{{ _('Courses') }}</h3>
+<ul>{% for course in overview.courses %}<li>{{ course.course_name | e }} · {{ course.teacher_name | e }}
+{% if course.moodle_url %} · <a href="{{ course.moodle_url | e }}" rel="noopener noreferrer">{{ _('Open Moodle course') }}</a>{% endif %}
+</li>{% else %}<li>{{ _('No active course offerings.') }}</li>{% endfor %}</ul>
+<p>{{ _('Moodle links use normal Moodle login. Single sign-on has not been verified. Activity deadlines, completion and live-class evidence are not available here yet.') }}</p>
+<h3>{{ _('Official attendance this week') }}</h3>
+<ul>{% for record in overview.attendance %}<li>{{ record.date | e }} · {{ record.status | e }}</li>
+{% else %}<li>{{ _('No confirmed attendance records this week. Missing records do not mean absence.') }}</li>{% endfor %}</ul>
+{% if overview.truncated %}<p role="status">{{ _('Some records exceed this view’s limit. Contact the school for the complete record.') }}</p>{% endif %}
+{% else %}<p>{{ _('Choose a verified child above. If no children appear, ask the school to verify your guardian access.') }}</p>{% endif %}
+</main>
+{% endblock %}

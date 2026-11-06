@@ -36,10 +36,13 @@ implemented and focused-tested, preserving published snapshots and correction
 audit metadata. Verified guardian delivery is now connected through native relationships,
 manager verification/revocation actions and the published report portal. Twelve
 focused tests cover account creation, isolation, explicit revocation and source
-relationship changes. Next: Moodle grade mapping/reconciliation and connected
-student/guardian academic views while the external live gate remains blocked.
+relationship changes. The `/school` student/family view now connects weekly sessions, courses and
+official attendance; fourteen focused tests pass. Course links require matched
+tenant mappings and observed enrollment, and use normal Moodle login.
+Next: Moodle grade mapping/reconciliation and learning/session evidence while
+the external live gate remains blocked.
 Education remains authoritative; do not introduce fixed national formulas.
-The full student/guardian portals, learning-activity and
+The remaining learning views and broader role portals, learning-activity and
 PlugNmeet evidence integration, and Phase 11 release gates remain unfinished.
 The approved twelve-domain list has not yet been supplied; the existing matrix
 records that gap and must not be relabelled as a recovered twelve-domain list.

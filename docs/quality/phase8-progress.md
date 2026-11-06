@@ -51,8 +51,10 @@ blocker, not evidence that a live Moodle deployment works.
   mock withdrawal after roster removal and a subsequent rejoin. When company
   support enables automatic enrollment, a Student Group edit reconciles existing
   student states and queues withdrawal after commit. Changes to Program Enrollment
-  or user eligibility alone do not yet trigger reconciliation; automatic enrollment
-  disabled and live unenrollment need further work.
+  now trigger reconciliation when a Program Enrollment is submitted or cancelled.
+  The focused mock test covers cancellation and subsequent submission. Changes to
+  Student or User eligibility alone do not yet trigger reconciliation; automatic
+  enrollment disabled and live unenrollment need further work.
 - Teacher assignment or removal on a mapped, enabled offering now queues the
   current teacher and withdraws former teacher states. A focused mock integration
   test processed both replacement operations and confirmed reuse of the course

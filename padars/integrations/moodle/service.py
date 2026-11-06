@@ -430,6 +430,28 @@ def sync_group_roster_after_update(doc, method=None):
 		frappe.flags.padars_lms_auto_sync = old_flag
 
 
+def sync_program_enrollment_change(doc, method=None):
+	"""Reconcile affected offerings after an annual enrollment is submitted or cancelled."""
+	school = doc.get("padars_school")
+	if not school or not frappe.db.get_value("School", school, "lms_enabled"):
+		return []
+	if not frappe.db.get_value("School", school, "lms_auto_enrollment"):
+		return []
+	groups = frappe.get_all("Student Group Student", filters={"student": doc.student, "active": 1}, pluck="parent")
+	if not groups:
+		return []
+	offerings = frappe.get_all("School Course Offering", filters={
+		"school": school, "academic_year": doc.academic_year, "program": doc.program,
+		"student_group": ["in", groups], "status": ["!=", "Archived"],
+	}, pluck="name")
+	old_flag = frappe.flags.get("padars_lms_auto_sync")
+	frappe.flags.padars_lms_auto_sync = True
+	try:
+		return [queue_offering_student_enrollments(name, reconcile=True) for name in offerings]
+	finally:
+		frappe.flags.padars_lms_auto_sync = old_flag
+
+
 def queue_school_auto_enrollment(school_name):
 	if not frappe.db.get_value("School", school_name, "lms_enabled"):
 		return []

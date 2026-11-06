@@ -315,6 +315,26 @@ class TestMoodleService(IntegrationTestCase):
 		state.reload()
 		self.assertEqual(state.desired_state, "Enrolled")
 		self.assertEqual(state.desired_revision, withdrawal_revision + 1)
+		# Cancelling the Program Enrollment also removes eligibility without a group edit.
+		enrollment_name = frappe.db.get_value("Program Enrollment", {
+			"student": students[0], "program": self.program.name,
+			"academic_year": self.year.name, "docstatus": 1,
+		}, "name")
+		with patch("frappe.enqueue"):
+			frappe.get_doc("Program Enrollment", enrollment_name).cancel()
+		state.reload()
+		self.assertEqual(state.desired_state, "Not Enrolled")
+		self.assertTrue(frappe.db.exists("LMS Sync Operation", {
+			"target_doctype": "LMS Enrollment State", "target_name": state.name, "state": "Queued",
+		}))
+		with patch("frappe.enqueue"):
+			replacement = frappe.get_doc({
+				"doctype": "Program Enrollment", "student": students[0], "program": self.program.name,
+				"academic_year": self.year.name, "enrollment_date": "2099-01-01", "padars_school": self.school.name,
+			}).insert()
+			replacement.submit()
+		state.reload()
+		self.assertEqual(state.desired_state, "Enrolled")
 
 		# Replacing the instructor queues the new teacher and withdraws the old one.
 		from padars.staff import assign_teacher_to_offering

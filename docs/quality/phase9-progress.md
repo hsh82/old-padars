@@ -66,7 +66,12 @@ resolution. The self-contained PDF path uses the same escaped print format and
 passed. Schema migration and print-format loading were performed only on
 `padars-phase12-fresh.local`. No Stage 1 build or migration was performed.
 
-Moodle grade mapping/import, controlled correction of underlying Education
-marks, guardian delivery, browser acceptance and concurrency stress tests remain
+Controlled Education mark correction is implemented: a manager-only action
+retains the old result, creates an amendment draft, protects correction metadata,
+and requires replacement approval. Published snapshots stay unchanged. Eleven
+focused tests passed after correction fields were migrated on the disposable
+site, including failed-correction rollback, teacher denial and revised calculation.
+
+Moodle grade mapping/import, guardian delivery, browser acceptance and concurrency stress tests remain
 unfinished. Schools must explicitly configure and approve their calculation
 schemes; no national grading formula has been introduced.

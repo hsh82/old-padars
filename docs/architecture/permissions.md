@@ -51,7 +51,9 @@ permission-checked individual schedule records within their assignments.
 Frappe custom permission types control `enter_grade`, `manage_attendance`,
 `view_sensitive_student_data`, `manage_student_care`, and `manage_moodle`;
 `approve_grade` permits School Managers to submit individual Assessment Results;
-teachers cannot submit and cancellation/correction remains closed. Student Log access
+teachers cannot submit. A manager-only correction service can cancel a retained
+source and create an amendment draft with protected reason/reviewer metadata;
+direct cancellation and amendment remain closed. Student Log access
 requires the `Padars Sensitive Records` role and an active scoped assignment;
 creating or editing a note also requires `can_manage_student_care`. Student
 care is not automatically granted to School Managers.

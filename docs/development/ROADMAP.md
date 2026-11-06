@@ -64,8 +64,9 @@ only missing product connections. Do not restart Phase 8 from scratch.
 G4 now has a focused implementation of versioned manager-approved schemes.
 G6 has coverage-checked immutable publication, successor versions, student-only
 delivery and generated PDF. Eleven focused tests pass; browser/concurrency and
-release acceptance remain open. The immediate task is controlled correction of
-approved Education marks, then Moodle grade mapping/reconciliation. Development
+release acceptance remain open. Controlled Education mark corrections now have
+focused implementation, including atomic rollback and protected audit metadata.
+Next: Moodle grade mapping/reconciliation and verified guardian delivery. Development
 changes are not promoted to staging.
 
 ## Work discipline and handoff

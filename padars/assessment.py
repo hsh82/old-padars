@@ -111,6 +111,7 @@ def get_assessment_students(assessment_plan, student_group):
 			student.docstatus = result.docstatus
 			student.name = result.name
 			student.modified = str(result.modified)
+			student.correction_pending = bool(result.amended_from and result.docstatus == 0)
 	return students
 
 
@@ -207,3 +208,91 @@ def validate_result_uniqueness(doc, method=None):
 def validate_result_ready_for_approval(doc, method=None):
 	if frappe.db.get_value("Assessment Plan", doc.assessment_plan, "docstatus") != 1:
 		frappe.throw(_("An Assessment Result can be approved only for a submitted Assessment Plan."))
+
+
+def validate_result_correction(doc, method=None):
+	from frappe.utils import get_datetime
+	old = doc.get_doc_before_save()
+	metadata = ("padars_correction_reason", "padars_corrected_by", "padars_correction_at")
+	if old and old.amended_from != doc.amended_from:
+		frappe.throw(_("An assessment correction's source cannot be changed."))
+	def normalized(record, field):
+		value = record.get(field)
+		return get_datetime(value) if field == "padars_correction_at" and value else value
+	if old and any(normalized(old, field) != normalized(doc, field) for field in metadata):
+		frappe.throw(_("Recorded correction reason and reviewer cannot be changed."))
+	if not doc.amended_from:
+		if any(doc.get(field) for field in metadata):
+			frappe.throw(_("Correction metadata is valid only on a controlled correction."))
+		return
+	from padars.permissions import is_school_manager
+	from padars.school_context import get_primary_school
+	if not is_school_manager(get_primary_school()):
+		frappe.throw(_("Only a School Manager can change a result correction."), frappe.PermissionError)
+	source = frappe.db.get_value("Assessment Result", doc.amended_from,
+		["docstatus", "student", "assessment_plan"], as_dict=True)
+	if not source or (source.docstatus, source.student, source.assessment_plan) != (2, doc.student, doc.assessment_plan):
+		frappe.throw(_("The correction must reference a cancelled result for the same student and plan."))
+	if doc.is_new() and frappe.flags.get("padars_result_correction") != doc.amended_from:
+		frappe.throw(_("Start a correction through the reviewed result action."), frappe.PermissionError)
+	if not doc.padars_correction_reason or not doc.padars_corrected_by or not doc.padars_correction_at:
+		frappe.throw(_("A correction must retain its reason, reviewer and timestamp."))
+
+
+def validate_result_cancellation(doc, method=None):
+	from padars.permissions import is_platform_admin
+	if not is_platform_admin() and frappe.flags.get("padars_result_correction") != doc.name:
+		frappe.throw(_("Approved results can be cancelled only through a controlled correction."), frappe.PermissionError)
+
+
+def protect_result_history(doc, method=None):
+	if doc.docstatus or doc.amended_from:
+		frappe.throw(_("Approved and corrected assessment history cannot be deleted."), frappe.PermissionError)
+
+
+@frappe.whitelist(methods=["POST"])
+def correct_assessment_result(result, expected_modified, reason):
+	from padars.permissions import is_school_manager
+	from padars.school_context import get_primary_school
+	from frappe.utils import escape_html
+	from frappe.utils import now_datetime
+	school = get_primary_school()
+	if not is_school_manager(school):
+		frappe.throw(_("Only a School Manager can start a result correction."), frappe.PermissionError)
+	if not isinstance(reason, str) or not reason.strip():
+		frappe.throw(_("A correction reason is required."))
+	plan = frappe.db.get_value("Assessment Result", result, "assessment_plan")
+	if not plan:
+		frappe.throw(_("Choose an existing Assessment Result."))
+	frappe.db.sql("select name from `tabAssessment Plan` where name=%s for update", plan)
+	source = frappe.get_doc("Assessment Result", result, for_update=True)
+	source.check_permission("read")
+	if source.padars_school != school:
+		frappe.throw(_("The result belongs to another School."), frappe.PermissionError)
+	if not frappe.has_permission("Assessment Result", "approve_grade", doc=source):
+		frappe.throw(_("Grade approval permission is required for corrections."), frappe.PermissionError)
+	if source.docstatus != 1 or str(source.modified) != str(expected_modified):
+		frappe.throw(_("The approved result changed after review. Reload before starting a correction."), frappe.TimestampMismatchError)
+	amended = frappe.copy_doc(source)
+	amended.docstatus = 0
+	amended.amended_from = source.name
+	amended.owner = frappe.session.user
+	amended.padars_correction_reason = reason.strip()
+	amended.padars_corrected_by = frappe.session.user
+	amended.padars_correction_at = now_datetime()
+	amended.flags.ignore_permissions = False
+	point = "padars_correction_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(point)
+	previous_flag = frappe.flags.get("padars_result_correction")
+	frappe.flags.padars_result_correction = source.name
+	try:
+		source.flags.ignore_permissions = True
+		source.cancel()
+		amended.insert()
+		source.add_comment("Info", _("Correction draft {0}. Reason: {1}").format(escape_html(amended.name), escape_html(reason.strip())))
+	except Exception:
+		frappe.db.rollback(save_point=point)
+		raise
+	finally:
+		frappe.flags.padars_result_correction = previous_flag
+	return {"name": amended.name, "modified": str(amended.modified), "amended_from": source.name}

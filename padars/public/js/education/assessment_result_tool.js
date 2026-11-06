@@ -28,9 +28,11 @@ frappe.ui.form.on("Assessment Result Tool", {
       row.append($("<td>").text(student.student), $("<td>").text(student.student_name));
       const inputs = [];
       const submitted = student.docstatus === 1;
+      const manager = ["Padars School Manager", "Padars Platform Administrator", "System Manager"].some((role) => frappe.user.has_role(role));
+      const readOnly = submitted || (student.correction_pending && !manager);
       criteria.forEach((criterion) => {
         const input = $("<input>").attr({type: "number", min: "0", max: criterion.maximum_score, step: "any",
-          "aria-label": `${student.student_name}: ${criterion.assessment_criteria}`}).prop("disabled", submitted);
+          "aria-label": `${student.student_name}: ${criterion.assessment_criteria}`}).prop("disabled", readOnly);
         if (student.assessment_details && student.assessment_details[criterion.assessment_criteria]) {
           input.val(student.assessment_details[criterion.assessment_criteria][0]);
         }
@@ -38,9 +40,9 @@ frappe.ui.form.on("Assessment Result Tool", {
         row.append($("<td>").append(input));
       });
       const comment = $("<input>").attr({type: "text", "aria-label": __("Comment for {0}", [student.student_name])})
-        .val(student.assessment_details?.comment || "").prop("disabled", submitted);
+        .val(student.assessment_details?.comment || "").prop("disabled", readOnly);
       const total = $("<td>").text(student.assessment_details?.total_score?.[0] ?? "");
-      const status = $("<span>").attr("aria-live", "polite").text(submitted ? __("Submitted") : __("Draft"));
+      const status = $("<span>").attr("aria-live", "polite").text(submitted ? __("Submitted") : student.correction_pending ? __("Correction under manager review") : __("Draft"));
       const link = $("<a>").text(__("Open result")).hide();
       const showResult = (name) => {
         if (name) link.attr("href", `/app/assessment-result/${encodeURIComponent(name)}`).show();
@@ -49,7 +51,7 @@ frappe.ui.form.on("Assessment Result Tool", {
       const statusCell = $("<td>").append(status, document.createTextNode(" "), link);
       row.append($("<td>").append(comment), total, statusCell);
       const save = () => {
-        if (submitted || inputs.some(({input}) => input.val() === "" || !input[0].checkValidity())) return;
+        if (readOnly || inputs.some(({input}) => input.val() === "" || !input[0].checkValidity())) return;
         const details = Object.create(null);
         inputs.forEach(({input, criterion}) => { details[criterion.assessment_criteria] = Number(input.val()); });
         const controls = row.find("input").prop("disabled", true);

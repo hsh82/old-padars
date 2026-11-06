@@ -32,3 +32,19 @@ Frappe PDF attempt on the disposable test hostname failed to resolve site assets
 the self-contained export avoids that dependency and produced a PDF in focused
 tests. Browser interaction, cross-request concurrency and final deployment
 verification remain open. This development work is not deployed to Stage 1.
+
+## Correcting underlying marks
+
+The approved Assessment Result form exposes a manager-only Correct Result
+action. It requires grade-approval permission, a current result revision and a
+reason. The service atomically cancels the retained source and creates a native
+Education amendment draft using `amended_from`. Failure restores the original
+approved result. The reason, reviewer and timestamp are protected Custom Fields;
+teachers cannot edit correction drafts or forge amendment links. A manager must
+review and submit the replacement before it can contribute to a calculation.
+Approved/cancelled/amended result history cannot be deleted through the app.
+
+Existing publications stay unchanged after the correction. A new source preview
+and explicit publication correction reason are required to issue another report
+version. Focused tests cover rollback on draft-creation failure, teacher denial,
+metadata protection, replacement approval and preservation of the earlier report.

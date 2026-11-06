@@ -345,6 +345,34 @@ class TestScheduling(IntegrationTestCase):
 			self.assertEqual(updated["version"], 2)
 			self.assertEqual(read_report_card(publication["name"])["snapshot"]["courses"][0]["score"], "16.00")
 			self.assertEqual(read_report_card(updated["name"])["snapshot"]["courses"][0]["score"], "80.00")
+			from padars.assessment import correct_assessment_result
+			current = str(frappe.get_doc("Assessment Result", first["name"]).modified)
+			with self.assertRaises(frappe.ValidationError):
+				correct_assessment_result(first["name"], current, "")
+			with patch("education.education.doctype.assessment_result.assessment_result.AssessmentResult.insert", side_effect=frappe.ValidationError("test correction failure")):
+				with self.assertRaises(frappe.ValidationError):
+					correct_assessment_result(first["name"], current, "Review score")
+			self.assertEqual(frappe.db.get_value("Assessment Result", first["name"], "docstatus"), 1)
+			amended = correct_assessment_result(first["name"], current, "School verified revised mark")
+			self.assertEqual(frappe.db.get_value("Assessment Result", first["name"], "docstatus"), 2)
+			self.assertEqual(frappe.db.get_value("Assessment Result", amended["name"], "amended_from"), first["name"])
+			self.assertEqual(frappe.db.get_value("Assessment Result", amended["name"], "padars_corrected_by"), manager)
+			correction_doc = frappe.get_doc("Assessment Result", amended["name"])
+			correction_doc.padars_correction_reason = "Changed audit reason"
+			with self.assertRaises(frappe.ValidationError):
+				correction_doc.save(ignore_permissions=True)
+			frappe.set_user(teacher)
+			with self.assertRaises(frappe.PermissionError):
+				mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}, "expected_modified": amended["modified"]})
+			with self.assertRaises(frappe.PermissionError):
+				correct_assessment_result(amended["name"], amended["modified"], "Teacher attempt")
+			frappe.set_user(manager)
+			mark_assessment_result(plan.name, {"student": student.name, "assessment_details": {criterion: 90}, "expected_modified": amended["modified"]})
+			frappe.get_doc("Assessment Result", amended["name"]).submit()
+			self.assertEqual(calculate_scheme(revised.name, student.name)["score"], "90.00")
+			self.assertEqual(read_report_card(updated["name"])["snapshot"]["courses"][0]["score"], "80.00")
+			with self.assertRaises(frappe.TimestampMismatchError):
+				publish_report_card(enrollment, [revised.name], correction["digest"], "Stale review")
 			frappe.set_user(student_user)
 			from frappe.model import get_permitted_fields
 			self.assertNotIn("correction_reason", get_permitted_fields("Report Card Publication"))

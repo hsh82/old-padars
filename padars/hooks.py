@@ -221,8 +221,10 @@ doc_events = {
 		"on_cancel": "padars.scheduling.validate_assessment_plan_deletion",
 	},
 	"Assessment Result": {
-		"before_validate": ["padars.assessment.validate_result_uniqueness", "padars.assessment.validate_result_scores"],
+		"before_validate": ["padars.assessment.validate_result_correction", "padars.assessment.validate_result_uniqueness", "padars.assessment.validate_result_scores"],
 		"before_submit": "padars.assessment.validate_result_ready_for_approval",
+		"before_cancel": "padars.assessment.validate_result_cancellation",
+		"on_trash": "padars.assessment.protect_result_history",
 		"validate": [
 			"padars.education_hooks.validate_linked_education_context",
 			"padars.scheduling.validate_assessment_result_relationships",

@@ -279,6 +279,8 @@ def has_school_permission(doc, ptype, user=None, **kwargs):
 		)
 	if doc.doctype == "Assessment Result" and ptype in {"cancel", "amend"}:
 		return False  # Published-result correction is a separate workflow.
+	if doc.doctype == "Assessment Result" and doc.get("amended_from") and ptype in {"write", "create"} and not is_school_manager(get_primary_school(), user):
+		return False
 	if doc.doctype == "LMS Entity Mapping":
 		return can_manage_moodle(get_primary_school(), user) and ptype in {"read", "print", "select"}
 	if doc.doctype in {"LMS Enrollment State", "LMS Sync Operation"}:

@@ -313,5 +313,42 @@
   "module": "Padars",
   "name": "Student Attendance-padars_leave_created_by_application",
   "read_only": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Result",
+  "fieldname": "padars_correction_reason",
+  "fieldtype": "Small Text",
+  "label": "Correction Reason",
+  "module": "Padars",
+  "name": "Assessment Result-padars_correction_reason",
+  "read_only": 1,
+  "hidden": 1,
+  "insert_after": "amended_from"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Result",
+  "fieldname": "padars_corrected_by",
+  "fieldtype": "Link",
+  "label": "Correction Started By",
+  "module": "Padars",
+  "name": "Assessment Result-padars_corrected_by",
+  "read_only": 1,
+  "hidden": 1,
+  "insert_after": "amended_from",
+  "options": "User"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Assessment Result",
+  "fieldname": "padars_correction_at",
+  "fieldtype": "Datetime",
+  "label": "Correction Started At",
+  "module": "Padars",
+  "name": "Assessment Result-padars_correction_at",
+  "read_only": 1,
+  "hidden": 1,
+  "insert_after": "amended_from"
  }
 ]

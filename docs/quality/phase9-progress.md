@@ -16,7 +16,8 @@ submitted results. A scoped roster API is connected to the native bulk tool.
 Padars replaces the upstream HTML template renderer with DOM text and attribute
 setters for names, criteria and comments, and the tool saves draft marks. A
 School Manager with the explicit `approve_grade` permission can submit an
-individual Education Assessment Result for approval from its native form.
+individual Education Assessment Result for approval from its native form; the
+draft table links to existing or newly saved results for that review.
 The bulk submission endpoint remains closed.
 
 The focused `padars.tests.test_scheduling` integration module passed nine tests

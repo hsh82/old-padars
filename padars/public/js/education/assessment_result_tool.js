@@ -2,7 +2,7 @@
 // comments and criteria are school data and must not be interpreted as HTML.
 frappe.ui.form.on("Assessment Result Tool", {
   refresh(frm) {
-    frm.set_intro(__("Marks are saved as drafts. Result approval is not yet available."));
+    frm.set_intro(__("Marks are saved as drafts. Open a saved result for manager approval."));
     frm.page.clear_primary_action();
   },
 
@@ -39,9 +39,15 @@ frappe.ui.form.on("Assessment Result Tool", {
       });
       const comment = $("<input>").attr({type: "text", "aria-label": __("Comment for {0}", [student.student_name])})
         .val(student.assessment_details?.comment || "").prop("disabled", submitted);
-      const total = $("<td>").text(student.assessment_details?.total_score?.[0] || "");
-      const status = $("<td>").attr("aria-live", "polite").text(submitted ? __("Submitted") : __("Draft"));
-      row.append($("<td>").append(comment), total, status);
+      const total = $("<td>").text(student.assessment_details?.total_score?.[0] ?? "");
+      const status = $("<span>").attr("aria-live", "polite").text(submitted ? __("Submitted") : __("Draft"));
+      const link = $("<a>").text(__("Open result")).hide();
+      const showResult = (name) => {
+        if (name) link.attr("href", `/app/assessment-result/${encodeURIComponent(name)}`).show();
+      };
+      if (student.assessment_details) showResult(student.name);
+      const statusCell = $("<td>").append(status, document.createTextNode(" "), link);
+      row.append($("<td>").append(comment), total, statusCell);
       const save = () => {
         if (submitted || inputs.some(({input}) => input.val() === "" || !input[0].checkValidity())) return;
         const details = Object.create(null);
@@ -56,6 +62,7 @@ frappe.ui.form.on("Assessment Result Tool", {
             if (response.message) {
               total.text(response.message.total_score);
               status.text(__("Draft saved"));
+              showResult(response.message.name);
             }
           },
           error() { status.text(__("Save failed; change a value to retry.")); },

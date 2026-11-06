@@ -3,7 +3,8 @@
 import frappe
 from frappe import _
 
-from padars.permissions import is_platform_admin
+from padars.permissions import is_platform_admin, is_school_manager
+from padars.school_context import get_primary_school
 from padars.permissions_site import STAFF_ROLES
 
 DAILY_ATTENDANCE_REPORT = "Padars Daily Attendance Register"
@@ -12,6 +13,8 @@ DAILY_ATTENDANCE_REPORT = "Padars Daily Attendance Register"
 def _require_reviewed_report_access(report_name=None):
 	user = frappe.session.user
 	if is_platform_admin(user):
+		return
+	if report_name == "Teacher Workload" and is_school_manager(get_primary_school(), user):
 		return
 	roles = set(frappe.get_roles(user))
 	if report_name == DAILY_ATTENDANCE_REPORT and roles.intersection(STAFF_ROLES | {"Padars School Manager"}) \

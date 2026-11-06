@@ -1,5 +1,9 @@
 # Padars deployment runbook
 
+Current deployment: see [Stage 1 deployment](../releases/stage1-deployment.md)
+for the authorized 2026-11-06 `kara.loc` update and its backup/verification.
+The discovery notes below describe the earlier environment, not today's status.
+
 Updated: 2026-11-04
 
 ## Current environment finding

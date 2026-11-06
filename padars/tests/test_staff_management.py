@@ -184,6 +184,14 @@ class TestStaffManagement(IntegrationTestCase):
 		self.assertFalse(frappe.has_permission("Student Attendance", "manage_attendance", doc=attendance, user=supervisor))
 
 	def test_workload_report_aggregates_adopted_expected_hours(self):
+		from padars.reports import _require_reviewed_report_access
+		manager = self._user("report-manager", ["Padars School Manager"])
+		frappe.set_user(manager)
+		_require_reviewed_report_access("Teacher Workload")
+		frappe.set_user(self._user("report-outsider"))
+		with self.assertRaises(frappe.PermissionError):
+			_require_reviewed_report_access("Teacher Workload")
+		frappe.set_user("Administrator")
 		section = self._class_section()
 		offering_name = generate_course_offerings(section.name)["offerings"][0]
 		instructor = self._instructor("workload")

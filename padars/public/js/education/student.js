@@ -8,6 +8,10 @@ frappe.ui.form.on("Student", {
         "orange",
       );
     }
+		if (!frm.is_new() && (frappe.user.has_role("Padars School Manager")
+			|| frappe.user.has_role("Padars Platform Administrator") || frappe.user.has_role("System Manager"))) {
+			frm.add_custom_button(__("Review Approved Results"), () => reviewApprovedResults(frm), __("Assessments"));
+		}
 		if (frm.is_new() || !frm.doc.user) return;
 		if (frappe.user.has_role("Padars School Manager") || frappe.user.has_role("System Manager")) {
 			frm.add_custom_button(__("Reconcile National ID"), () => {
@@ -28,6 +32,38 @@ frappe.ui.form.on("Student", {
 		}
   },
 });
+
+function reviewApprovedResults(frm) {
+	frappe.prompt([
+		{fieldname: "program", fieldtype: "Link", options: "Program", label: __("Program"), reqd: 1},
+		{fieldname: "academic_year", fieldtype: "Link", options: "Academic Year", label: __("Academic Year"), reqd: 1},
+		{fieldname: "academic_term", fieldtype: "Link", options: "Academic Term", label: __("Academic Term (optional)")},
+	], (values) => {
+		frappe.call({method: "padars.assessment.preview_approved_results", args: {student: frm.doc.name, ...values},
+			freeze: true, freeze_message: __("Loading approved results...")}).then((response) => {
+			const dialog = new frappe.ui.Dialog({title: __("Approved Results"), fields: [{fieldname: "results", fieldtype: "HTML"}]});
+			const container = $(dialog.fields_dict.results.wrapper).empty();
+			const rows = response.message?.results || [];
+			if (!rows.length) {
+				container.append($("<p>").text(__("No approved results found for this selection.")));
+			} else {
+				const table = $("<table>").addClass("table table-bordered");
+				const header = $("<tr>");
+				[__("Course"), __("Assessment"), __("Term"), __("Score"), __("Grade")].forEach((label) => header.append($("<th>").text(label)));
+				table.append($("<thead>").append(header));
+				const body = $("<tbody>");
+				rows.forEach((item) => {
+					const row = $("<tr>");
+					[item.course, item.assessment_plan, item.academic_term || "—", `${item.total_score} / ${item.maximum_score}`, item.grade || "—"]
+						.forEach((value) => row.append($("<td>").text(value)));
+					body.append(row);
+				});
+				container.append(table.append(body));
+			}
+			dialog.show();
+		});
+	}, __("Review Approved Results"), __("Review"));
+}
 
 function canManageMoodle() {
 	return frappe.user.has_role("Padars School Manager")

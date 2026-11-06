@@ -14,6 +14,7 @@
 <a href="/school?student={{ overview.student | urlencode }}&amp;week={{ overview.next_week }}">{{ _('Next week') }}</a>
 </nav>
 <h3>{{ _('Weekly timetable') }}</h3>
+<p>{{ _('School timezone') }}: {{ overview.timezone | e }}</p>
 {% if overview.sessions %}<div class="table-responsive"><table class="table"><thead><tr>
 <th>{{ _('Date') }}</th><th>{{ _('Time') }}</th><th>{{ _('Course') }}</th><th>{{ _('Teacher') }}</th><th>{{ _('Room') }}</th>
 </tr></thead><tbody>{% for lesson in overview.sessions %}<tr>

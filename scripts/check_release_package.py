@@ -18,7 +18,7 @@ REQUIRED = {
 	"padars/padars/page/student_registration/student_registration.json",
 	"padars/padars/print_format/padars_report_card/padars_report_card.json",
 }
-PORTALS = ("school", "report-cards", "student-activation", "student-application")
+PORTALS = ("school", "teacher", "report-cards", "student-activation", "student-application")
 CRITICAL_DOCTYPES = (
 	"school", "school_course_offering", "lms_sync_operation", "student_identity",
 	"school_assessment_scheme", "report_card_publication", "verified_guardian_access",

@@ -8,7 +8,7 @@ from datetime import timedelta
 
 import frappe
 from frappe import _
-from frappe.utils import getdate, today
+from frappe.utils import get_system_timezone, getdate, today
 
 from padars.guardian_access import linked_students, list_linked_students
 from padars.permissions_site import get_student_for_user, is_school_manager
@@ -31,6 +31,13 @@ def _course_links(school, student, offerings):
 	"""Return token-free links only for observed, tenant-matched enrollments."""
 	if not offerings or get_student_for_user() != student:
 		return {}
+	return _enrolled_course_links(school, offerings, "Student")
+
+
+def _enrolled_course_links(school, offerings, role):
+	"""Internal: callers must first derive the user's authorized offerings."""
+	if not offerings or role not in {"Student", "Teacher", "School Manager"}:
+		return {}
 	doc = frappe.get_doc("School", school)
 	if not doc.lms_enabled or doc.lms_status != "Connected" or not doc.lms_tenant_id:
 		return {}
@@ -48,7 +55,7 @@ def _course_links(school, student, offerings):
 		"local_name": user, "remote_type": "Moodle User", "remote_context": context, "status": "Active"}):
 		return {}
 	states = set(frappe.get_all("LMS Enrollment State", filters={"school": school, "user": user,
-		"role": "Student", "desired_state": "Enrolled", "remote_state": "Enrolled",
+		"role": role, "desired_state": "Enrolled", "remote_state": "Enrolled",
 		"course_offering": ["in", offerings]}, pluck="course_offering"))
 	if not states:
 		return {}
@@ -102,7 +109,7 @@ def get_academic_overview(student=None, week=None):
 	from padars.integrations.moodle.learning import _learning_for_student
 	learning = _learning_for_student(student, [row.name for row in courses[:100]])
 	return {"student": student, "student_name": frappe.db.get_value("Student", student, "student_name"),
-		"week_start": str(start), "week_end": str(end),
+		"week_start": str(start), "week_end": str(end), "timezone": get_system_timezone(),
 		"previous_week": str(start - timedelta(days=7)), "next_week": str(start + timedelta(days=7)),
 		"sessions": sessions[:200], "courses": courses[:100], "attendance": attendance[:200],
 		"truncated": len(sessions) > 200 or len(courses) > 100 or len(attendance) > 200,

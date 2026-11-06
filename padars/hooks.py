@@ -15,6 +15,7 @@ app_include_css = "/assets/padars/css/padars.css"
 web_include_js = ["/assets/padars/js/first_login.js"]
 
 portal_menu_items = [
+	{"title": "My Teaching", "route": "/teacher", "role": "Padars Teacher"},
 	{"title": "My School", "route": "/school", "role": "Student"},
 	{"title": "Family School", "route": "/school", "role": "Padars Guardian"},
 	{"title": "Family Report Cards", "route": "/report-cards", "reference_doctype": "Report Card Publication", "role": "Padars Guardian"},

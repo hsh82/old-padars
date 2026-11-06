@@ -42,3 +42,10 @@ publication. Empty selection withdraws sharing. Seventeen focused integration
 tests and fifteen offline contracts passed; the extended metadata-review journey
 also passed. Session attendance evidence remains unfinished and live services,
 workers and browsers are not claimed verified.
+
+A teacher overview at `/teacher` now connects assigned today/weekly lessons,
+roster counts, native session/attendance access and course integration forms.
+Course launch links require the teacher's own tenant-matched observed enrollment;
+manager launch uses that manager's own enrollment. Two focused scope/link tests
+passed. This reuses native attendance tooling and does not recreate Moodle's
+course editor. Normal Moodle login remains the unverified-SSO fallback.

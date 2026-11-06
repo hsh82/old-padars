@@ -882,6 +882,28 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
 
+	def test_teacher_overview_uses_native_assignment_scope(self):
+		from padars.teaching import get_teaching_overview
+		date = self._monday()
+		own = self._schedule(self.group, date, "09:00:00", "10:00:00", offering=self.offering.name)
+		other = self._other_group()
+		hidden = self._schedule(other, date, "11:00:00", "12:00:00")
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		frappe.set_user(teacher)
+		result = get_teaching_overview(str(date))
+		self.assertEqual([row.name for row in result["sessions"]], [own.name])
+		self.assertNotIn(hidden.name, str(result))
+		self.assertEqual([row.name for row in result["courses"]], [self.offering.name])
+		self.assertEqual(result["sessions"][0].roster_count, 0)
+		self.assertFalse(result["sessions"][0].can_mark_attendance)
+		self.assertIsNone(result["courses"][0].moodle_url)
+		self.assertFalse(result["sso_verified"])
+		frappe.set_user("Administrator")
+		self.assertEqual(len(get_teaching_overview(str(date))["sessions"]), 2)
+		frappe.set_user("Guest")
+		with self.assertRaises(frappe.PermissionError):
+			get_teaching_overview(str(date))
+
 	def test_student_and_guardian_navigation_keep_both_shared_routes(self):
 		from padars.install import sync_portal_navigation
 		from frappe.website.utils import get_portal_sidebar_items

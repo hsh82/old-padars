@@ -97,3 +97,9 @@ configuration without a broad Academics User or System Manager role. Continue
 with verified PlugNmeet session analytics/combined policies only when its actual
 configuration/contracts are available; do not infer live attendance from module
 completion. The Stage 1 checkout remains protected.
+
+Teacher overview is now implemented at `/teacher`, with native scoped schedules,
+course links and roster counts. Shared course-launch checks support observed
+Teacher and School Manager enrollment without exposing tokens. Two focused
+teaching/link tests passed. Next inspect stable identity lifecycle safeguards
+around Moodle-bound document renames, then continue release/live gates.

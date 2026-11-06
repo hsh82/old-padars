@@ -1,0 +1,25 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<main dir="auto">
+<h1>{{ _('My Teaching') }}</h1>
+<p>{{ _('School timezone') }}: {{ overview.timezone | e }}</p>
+<h2>{{ _("Today's lessons") }}</h2>
+<ul>{% for lesson in overview.today_lessons %}<li><a href="/app/course-schedule/{{ lesson.name | urlencode }}">{{ lesson.course_name | e }} · {{ lesson.group_name | e }}</a> · {{ lesson.from_time | e }}–{{ lesson.to_time | e }}</li>
+{% else %}<li>{{ _('No lessons today in the selected week.') }}</li>{% endfor %}</ul>
+<h2>{{ _('Weekly timetable') }}</h2>
+<nav aria-label="{{ _('Week navigation') }}"><a href="/teacher?week={{ overview.previous_week }}">{{ _('Previous week') }}</a> · {{ overview.week_start }} — {{ overview.week_end }} · <a href="/teacher?week={{ overview.next_week }}">{{ _('Next week') }}</a></nav>
+{% if overview.sessions %}<div class="table-responsive"><table class="table"><thead><tr><th>{{ _('Date and time') }}</th><th>{{ _('Course and class') }}</th><th>{{ _('Room and mode') }}</th><th>{{ _('Roster') }}</th><th>{{ _('Actions') }}</th></tr></thead>
+<tbody>{% for lesson in overview.sessions %}<tr><td>{{ lesson.schedule_date | e }} · {{ lesson.from_time | e }}–{{ lesson.to_time | e }}</td>
+<td>{{ lesson.course_name | e }} · {{ lesson.group_name | e }}</td><td>{{ (lesson.room or '') | e }} · {{ lesson.padars_session_mode | e }}</td>
+<td>{{ lesson.roster_count if lesson.roster_count is not none else '—' }}</td><td><a href="/app/course-schedule/{{ lesson.name | urlencode }}">{{ _('Open lesson') }}</a>
+{% if lesson.can_mark_attendance %}<div>{{ _('Use Mark Attendance on the lesson.') }}</div>{% endif %}
+{% if lesson.padars_session_mode == 'Asynchronous' %}<div>{{ _('Activity evidence policy and review are on the lesson.') }}</div>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p>{{ _('No assigned lessons this week.') }}</p>{% endif %}
+<h2>{{ _('Assigned courses') }}</h2>
+<ul>{% for course in overview.courses %}<li><a href="/app/school-course-offering/{{ course.name | urlencode }}">{{ course.course_name | e }} · {{ course.group_name | e }}</a> · {{ course.status | e }}
+{% if course.moodle_url %} · <a href="{{ course.moodle_url | e }}" rel="noopener noreferrer">{{ _('Open Moodle course') }}</a>{% endif %}
+</li>{% else %}<li>{{ _('No active course assignments.') }}</li>{% endfor %}</ul>
+<p>{{ _('Course forms provide learning discovery and source review. Assessment plans and native results keep their existing authorization. Moodle links use normal login; SSO is not verified.') }}</p>
+{% if overview.truncated %}<p role="status">{{ _('This view reached its record limit. Use native lists for the complete selection.') }}</p>{% endif %}
+</main>
+{% endblock %}

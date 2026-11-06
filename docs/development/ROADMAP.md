@@ -36,7 +36,7 @@ capability inventory is not a replacement domain list.
 | 7 | Development handoff complete | Manual attendance/leave/care implemented; online evidence remains. |
 | 8 | Implementation partial at product level; live gate blocked | Adapter and roster lifecycle exist; live service acceptance remains outstanding. |
 | 9 | In progress | Draft entry, approval, schemes, corrections and immutable publication exist; Moodle grade discovery, approved mappings and reviewed draft imports exist; live/browser/concurrency acceptance remains. |
-| 10 | In progress | Verified family report access and weekly timetable/course/attendance views exist; published learning selections and per-child completion are connected; evidence and full role experiences remain. |
+| 10 | In progress | Verified family report access and weekly timetable/course/attendance views exist; published learning selections and per-child completion are connected; asynchronous evidence and teacher overview are connected; remaining live/combined experiences and final acceptance remain. |
 | 11 | Unfinished | Comprehensive installation, integration, security and release gates remain. |
 
 ## Milestone goals and completion evidence

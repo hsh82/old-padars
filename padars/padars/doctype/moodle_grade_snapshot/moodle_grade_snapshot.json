@@ -1,0 +1,145 @@
+{
+ "doctype": "DocType",
+ "name": "Moodle Grade Snapshot",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_offering",
+  "student",
+  "source_operation",
+  "remote_context",
+  "remote_course",
+  "remote_user",
+  "observed_at",
+  "snapshot_key",
+  "payload_digest",
+  "items",
+  "grade_preview"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "label": "School",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "label": "Course Offering",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "student",
+   "label": "Student",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Student",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_operation",
+   "label": "Source Operation",
+   "fieldtype": "Link",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "LMS Sync Operation"
+  },
+  {
+   "fieldname": "remote_context",
+   "label": "Remote Context",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_course",
+   "label": "Remote Course",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_user",
+   "label": "Remote User",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "observed_at",
+   "label": "Observed At",
+   "fieldtype": "Datetime",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "snapshot_key",
+   "label": "Snapshot Key",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1,
+   "hidden": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "payload_digest",
+   "label": "Payload Digest",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "items",
+   "label": "Grade Items",
+   "fieldtype": "Code",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON",
+   "hidden": 1
+  },
+  {
+   "fieldname": "grade_preview",
+   "fieldtype": "HTML",
+   "label": "Grade Review"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ],
+ "sort_field": "observed_at",
+ "sort_order": "DESC"
+}

@@ -51,3 +51,7 @@ class MockMoodleAdapter:
 			"remote_state": enrollment_state.desired_state,
 		}
 
+
+	def read_grade_items(self, school, course_mapping, user_mapping):
+		# No synthetic grades are invented for school records.
+		return []

@@ -31,6 +31,12 @@ policy.
    - `enrol_manual_unenrol_users`
    - `core_enrol_get_users_courses`
 
+For instructional grade discovery also add `gradereport_user_get_grade_items`
+and review its capabilities in the installed site's API Documentation. It
+requires course grade-report access, including other-user grade visibility for
+the company service account. Never grant those service capabilities to students
+or browser code. The endpoint is read-only; Padars does not update Moodle grades.
+
 4. Assign the service user only the capabilities shown by the target Moodle's
    API Documentation for those functions. MuTMS tenant lookup requires
    `tool/mutenancy:view`; tenant creation requires the system-context

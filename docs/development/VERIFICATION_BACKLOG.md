@@ -24,3 +24,8 @@ results. Latest portal/guardian/assessment module: fourteen integration tests pa
 | Twelve-domain closure | Source missing | Recover the exact approved list and map requirements/evidence; do not invent substitute domains. |
 
 No usage-limited, externally blocked or unperformed gate may be marked passed.
+
+Moodle grade-source discovery: two focused database tests pass. Contract tests
+exercise the installed report shape and cross-tenant/category/user rejection.
+Mock calls do not verify actual service capabilities or live grade delivery.
+Next implementation gate: mapping and reviewed normalization into Education.

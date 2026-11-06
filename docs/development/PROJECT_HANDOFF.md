@@ -39,8 +39,11 @@ focused tests cover account creation, isolation, explicit revocation and source
 relationship changes. The `/school` student/family view now connects weekly sessions, courses and
 official attendance; fourteen focused tests pass. Course links require matched
 tenant mappings and observed enrollment, and use normal Moodle login.
-Next: Moodle grade mapping/reconciliation and learning/session evidence while
-the external live gate remains blocked.
+Moodle grade discovery now runs through the existing queue with immutable,
+scoped source snapshots and native review UI. Two focused database tests pass;
+fourteen offline API contract tests pass, including tenant/course/user verification. Next: explicit
+grade-item mappings, normalization and reviewed Education draft imports. Live
+Moodle, learning/session evidence and final release gates remain open.
 Education remains authoritative; do not introduce fixed national formulas.
 The remaining learning views and broader role portals, learning-activity and
 PlugNmeet evidence integration, and Phase 11 release gates remain unfinished.

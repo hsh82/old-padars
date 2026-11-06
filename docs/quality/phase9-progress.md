@@ -81,3 +81,15 @@ scheduling/assessment tests pass after the guardian schema and narrow native
 permissions were applied on the disposable site. Verification/revocation,
 account creation and source relationship changes are covered. Full Phase 10
 portals and final browser/security gates remain open.
+
+Durable Moodle grade-source discovery now uses the existing queue and immutable
+student/offering snapshots. The installed Moodle API contract was inspected;
+scoped source review is connected to the offering and snapshot form. Two focused
+database tests passed for discovery, isolation, retry/failure and grade flags.
+Explicit mapping/normalization/import review remains unfinished. No live Moodle
+grade read has been verified. See the grade-discovery architecture document.
+
+The focused Moodle contract module also passed 14 offline tests, including the
+new per-user grade-report payload and cross-category/user negatives. The
+framework's unit-only category excludes these plain unittest cases; the module
+was actually executed with `--test-category all`, not counted from an empty run.

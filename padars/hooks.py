@@ -116,6 +116,7 @@ after_migrate = [
 ]
 
 permission_query_conditions = {
+	"Moodle Grade Snapshot": "padars.integrations.moodle.grades.query_conditions",
 	"Report Card Publication": "padars.publication.query_conditions",
 	"Data Import": "padars.import_permissions.query_conditions",
 	"File": "padars.file_security.permission_query_conditions",
@@ -144,6 +145,7 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	"Moodle Grade Snapshot": "padars.integrations.moodle.grades.has_permission",
 	"Report Card Publication": "padars.publication.has_permission",
 	"Data Import": "padars.import_permissions.has_permission",
 	"File": "padars.file_security.has_permission",

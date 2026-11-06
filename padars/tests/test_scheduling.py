@@ -561,6 +561,83 @@ class TestScheduling(IntegrationTestCase):
 			patch("padars.portal.frappe.db.exists", return_value=False):
 			self.assertEqual(_course_links(self.school.name, "STUDENT", ["OFFERING"]), {})
 
+	def test_moodle_grade_discovery_is_durable_scoped_and_immutable(self):
+		from padars.integrations.moodle.grades import request_grade_discovery, list_grade_snapshots
+		from padars.integrations.moodle.service import process_sync_operation, upsert_entity_mapping
+		learner = self._user("grade-source")
+		frappe.get_doc("User", learner).add_roles("Student")
+		with patch("education.education.doctype.student.student.Student.on_update"):
+			student = frappe.get_doc({"doctype": "Student", "first_name": "Grade learner",
+				"student_email_id": learner, "user": learner, "enabled": 1}).insert()
+		frappe.get_doc({"doctype": "Program Enrollment", "student": student.name,
+			"program": self.program.name, "academic_year": self.year.name,
+			"padars_school": self.school.name, "enrollment_date": "2020-01-01"}).insert().submit()
+		self.group.append("students", {"student": student.name, "active": 1})
+		self.group.save()
+		self.school.db_set("lms_enabled", 1)
+		context = f"grade-test:{self.school.name}"
+		for doctype, name, remote_type, remote_id in [("School", self.school.name, "Moodle Tenant", "7"),
+			("School Course Offering", self.offering.name, "Moodle Course", "14"), ("User", learner, "Moodle User", "9")]:
+			upsert_entity_mapping(doctype, name, self.school.name, {"remote_type": remote_type, "remote_id": remote_id, "remote_context": context})
+		state = frappe.get_doc({"doctype": "LMS Enrollment State", "school": self.school.name,
+			"course_offering": self.offering.name, "user": learner, "role": "Student",
+			"desired_state": "Enrolled", "remote_state": "Enrolled"}).insert()
+		manager = self._user("grade-manager")
+		frappe.get_doc("User", manager).add_roles("Padars School Manager")
+		frappe.set_user(manager)
+		with patch("frappe.enqueue") as enqueue:
+			first = request_grade_discovery(self.offering.name)
+			self.assertEqual(first, request_grade_discovery(self.offering.name))
+			self.assertTrue(enqueue.call_args.kwargs["enqueue_after_commit"])
+		from unittest.mock import Mock
+		adapter = Mock(name="grade-test-adapter")
+		adapter.name = "Grade test"
+		adapter.read_grade_items.return_value = [{"id": 25, "itemname": "<b>Quiz</b>", "itemtype": "mod",
+			"itemmodule": "quiz", "scaleid": 0, "graderaw": 16, "grademin": 0, "grademax": 20,
+			"feedback": "Private feedback must not be copied", "useridnumber": "sensitive"}]
+		processed = process_sync_operation(first["operation"], adapter)
+		self.assertEqual(processed.state, "Succeeded")
+		rows = list_grade_snapshots(self.offering.name)
+		self.assertEqual(len(rows), 1)
+		snapshot = frappe.get_doc("Moodle Grade Snapshot", rows[0].name)
+		self.assertEqual(frappe.parse_json(snapshot.items)[0]["graderaw"], "16")
+		self.assertNotIn("Private feedback", snapshot.items)
+		self.assertNotIn("useridnumber", snapshot.items)
+		self.assertEqual(process_sync_operation(first["operation"], adapter).state, "Succeeded")
+		self.assertEqual(adapter.read_grade_items.call_count, 1)
+		with self.assertRaises(frappe.PermissionError):
+			snapshot.save(ignore_permissions=True)
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		frappe.set_user(teacher)
+		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 1)
+		with self.assertRaises(frappe.PermissionError):
+			request_grade_discovery(self.offering.name)
+		frappe.set_user(learner)
+		self.assertFalse(frappe.has_permission("Moodle Grade Snapshot", "read", snapshot))
+		with self.assertRaises(frappe.PermissionError):
+			list_grade_snapshots(self.offering.name)
+		frappe.set_user(manager)
+		with patch("frappe.enqueue"):
+			second = request_grade_discovery(self.offering.name)
+		adapter.read_grade_items.side_effect = RuntimeError("Controlled remote outage")
+		self.assertEqual(process_sync_operation(second["operation"], adapter).state, "Failed")
+		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 1)
+		self.assertEqual(frappe.db.count("Assessment Result", {"student": student.name}), 0)
+
+	def test_moodle_grade_item_flags_do_not_convert_missing_to_zero(self):
+		from padars.integrations.moodle.grades import clean_items
+		items = clean_items([{"id": 1, "graderaw": None}, {"id": 2, "graderaw": 0, "grademin": 0, "grademax": 20},
+			{"id": 3, "graderaw": 9, "grademin": 0, "grademax": 10, "gradeishidden": True},
+			{"id": 4, "graderaw": 3, "scaleid": 1},
+			{"id": 5, "graderaw": 9, "grademin": 0, "grademax": 10, "gradeisoverridden": True}])
+		self.assertEqual([row["status"] for row in items], ["Missing", "Ready", "Unavailable", "Unsupported", "Review Required"])
+		self.assertIsNone(items[0]["graderaw"])
+		self.assertEqual(items[1]["graderaw"], "0")
+		with self.assertRaises(frappe.ValidationError):
+			clean_items([{"id": 1, "graderaw": "NaN"}])
+		with self.assertRaises(frappe.ValidationError):
+			clean_items([{"id": 1}, {"id": 1}])
+
 	def test_scheme_rejects_invalid_weights_and_allocates_versions(self):
 		plan = self._assessment_plan(self.group, self._monday(), examiner=self.instructor.name)
 		plan.submit()

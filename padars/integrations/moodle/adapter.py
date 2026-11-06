@@ -16,3 +16,6 @@ class MoodleAdapter(Protocol):
 	def sync_enrollment(self, enrollment_state, remote_user, remote_course):
 		"""Reconcile one desired enrollment state in the remote LMS."""
 
+
+	def read_grade_items(self, school, course_mapping, user_mapping):
+		"""Read one mapped user's grade items after verifying tenant context."""

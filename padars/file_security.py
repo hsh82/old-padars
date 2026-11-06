@@ -9,7 +9,7 @@ PRIVATE_PARENT_DOCTYPES = {
 	"School Course Offering", "LMS Entity Mapping", "LMS Enrollment State", "LMS Sync Operation",
 	"Student Registration Application", "Student Identity",
 	"School Assessment Scheme", "Report Card Publication",
-	"Verified Guardian Access",
+	"Verified Guardian Access", "Moodle Grade Snapshot",
 }
 
 

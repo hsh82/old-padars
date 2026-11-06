@@ -8,7 +8,7 @@
  "fields": [
   {"default": "PAD-SYNC-.YYYY.-", "fieldname": "naming_series", "fieldtype": "Select", "label": "Naming Series", "options": "PAD-SYNC-.YYYY.-"},
   {"fieldname": "school", "fieldtype": "Link", "in_list_view": 1, "label": "School", "options": "School", "reqd": 1},
-  {"fieldname": "operation_type", "fieldtype": "Select", "in_list_view": 1, "label": "Operation Type", "options": "Provision Tenant\nProvision User\nProvision Course\nSync Enrollment", "reqd": 1},
+  {"fieldname": "operation_type", "fieldtype": "Select", "in_list_view": 1, "label": "Operation Type", "options": "Provision Tenant\nProvision User\nProvision Course\nSync Enrollment\nRead Grades", "reqd": 1},
   {"fieldname": "target_doctype", "fieldtype": "Link", "label": "Target DocType", "options": "DocType", "reqd": 1},
   {"fieldname": "target_name", "fieldtype": "Dynamic Link", "label": "Target Record", "options": "target_doctype", "reqd": 1},
   {"fieldname": "idempotency_key", "fieldtype": "Data", "in_list_view": 1, "label": "Idempotency Key", "reqd": 1, "unique": 1},

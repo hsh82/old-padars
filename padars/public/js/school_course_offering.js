@@ -53,6 +53,15 @@ frappe.ui.form.on("School Course Offering", {
         course_offering: frm.doc.name,
       }), __("Assessments"));
     }
+    if (["Padars School Manager", "Padars Platform Administrator", "System Manager", "Padars Teacher", "Padars Academic Staff", "Padars Grade Entry Staff"].some((role) => frappe.user.has_role(role))) {
+      frm.add_custom_button(__("Moodle Grade Sources"), () => frappe.set_route("List", "Moodle Grade Snapshot", {course_offering: frm.doc.name}), __("Assessments"));
+    }
+    if (["Padars School Manager", "Padars Platform Administrator", "System Manager"].some((role) => frappe.user.has_role(role))) {
+      frm.add_custom_button(__("Fetch Moodle Grades"), () => frappe.call({
+        method: "padars.integrations.moodle.grades.request_grade_discovery",
+        args: {course_offering: frm.doc.name}, freeze: true,
+      }).then((response) => frappe.set_route("Form", "LMS Sync Operation", response.message.operation)), __("Assessments"));
+    }
     refreshSyncState(frm);
     const mappingRequestId = (frm.__padars_mapping_request_id || 0) + 1;
     frm.__padars_mapping_request_id = mappingRequestId;

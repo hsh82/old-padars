@@ -173,6 +173,33 @@ class TestLiveMoodleContracts(TestCase):
 			lms_tenant_idnumber="",
 		)
 
+	def test_grade_report_checks_tenant_course_and_user_before_returning_items(self):
+		from unittest.mock import Mock
+		identity = self.school.lms_installation_uuid
+		self.school.lms_tenant_idnumber = "padars" + identity
+		tenant = {"id": 7, "categoryid": 30, "idnumber": self.school.lms_tenant_idnumber,
+			"siteshortname": _site_fingerprint(self.school, identity)}
+		course = SimpleNamespace(remote_id="14", remote_context=self.adapter._tenant_context(7))
+		user = SimpleNamespace(remote_id="9", remote_context=course.remote_context)
+		item = {"id": 25, "graderaw": 16, "grademax": 20}
+		with patch.object(self.adapter, "_local_tenant", return_value=tenant):
+			self.client.call = Mock(side_effect=[{"courses": [{"id": 14, "categoryid": 30}]},
+				[{"id": 9, "tenantid": 7}], {"usergrades": [{"courseid": 14, "userid": 9, "gradeitems": [item]}]}])
+			self.assertEqual(self.adapter.read_grade_items(self.school, course, user), [item])
+			self.client.call.assert_called_with("gradereport_user_get_grade_items", {"courseid": 14, "userid": 9})
+			self.client.call = Mock(side_effect=[{"courses": [{"id": 14, "categoryid": 99}]}])
+			with self.assertRaises(frappe.ValidationError):
+				self.adapter.read_grade_items(self.school, course, user)
+			self.assertEqual(self.client.call.call_count, 1)
+			self.client.call = Mock(side_effect=[{"courses": [{"id": 14, "categoryid": 30}]},
+				[{"id": 9, "tenantid": 99}]])
+			with self.assertRaises(frappe.ValidationError):
+				self.adapter.read_grade_items(self.school, course, user)
+			self.client.call = Mock(side_effect=[{"courses": [{"id": 14, "categoryid": 30}]},
+				[{"id": 9, "tenantid": 7}], {"usergrades": [{"courseid": 14, "userid": 999, "gradeitems": [item]}]}])
+			with self.assertRaises(frappe.ValidationError):
+				self.adapter.read_grade_items(self.school, course, user)
+
 	def test_tenant_create_and_resource_verification_contract(self):
 		result = self.adapter.ensure_tenant(self.school)
 		create = next(params for function, params in self.client.calls if function == "tool_mutenancy_create_tenant")

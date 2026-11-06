@@ -306,6 +306,29 @@ class LiveMoodleAdapter:
 			"remote_state": enrollment_state.desired_state,
 		}
 
+	def read_grade_items(self, school, course_mapping, user_mapping):
+		if school.lms_origin_site != frappe.local.site:
+			frappe.throw(_("This cloned site's Moodle binding requires operator review."))
+		tenant = self._local_tenant(school)
+		self._validate_tenant_binding(school, tenant, school.lms_tenant_idnumber,
+			_site_fingerprint(school, _installation_identity(school)))
+		context = self._tenant_context(tenant["id"])
+		if course_mapping.remote_context != context or user_mapping.remote_context != context:
+			frappe.throw(_("Grade mappings do not match the verified Moodle tenant."))
+		course_id, user_id = int(course_mapping.remote_id), int(user_mapping.remote_id)
+		response = self.client.call("core_course_get_courses_by_field", {"field": "id", "value": str(course_id)}) or {}
+		courses = response.get("courses", [])
+		if len(courses) != 1 or int(courses[0]["id"]) != course_id or int(courses[0]["categoryid"]) != int(tenant["categoryid"]):
+			frappe.throw(_("The grade course is not in this School's tenant category."))
+		user = self._get_user(str(user_id), field="id")
+		if not user or int(user.get("tenantid") or 0) != int(tenant["id"]):
+			frappe.throw(_("The grade user is not a verified tenant member."))
+		response = self.client.call("gradereport_user_get_grade_items", {"courseid": course_id, "userid": user_id}) or {}
+		rows = response.get("usergrades", [])
+		if response.get("warnings") or len(rows) != 1 or int(rows[0].get("courseid") or 0) != course_id or int(rows[0].get("userid") or 0) != user_id:
+			frappe.throw(_("Moodle did not return an unambiguous grade report for the mapped user and course."))
+		return rows[0].get("gradeitems", [])
+
 
 def _installation_identity(school):
 	identity = re.sub(r"[^a-f0-9]", "", (school.lms_installation_uuid or "").lower())

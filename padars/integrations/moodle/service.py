@@ -282,6 +282,10 @@ def process_sync_operation(operation, adapter=None):
 
 
 def process_remote_operation(operation, adapter):
+	if operation.operation_type == "Read Grades":
+		from padars.integrations.moodle.grades import capture_grades
+		return capture_grades(operation, adapter), []
+
 	if operation.operation_type == "Provision Tenant":
 		school = frappe.get_doc("School", operation.target_name)
 		remote = adapter.ensure_tenant(school)

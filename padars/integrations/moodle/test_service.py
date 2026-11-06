@@ -420,6 +420,13 @@ class TestMoodleService(IntegrationTestCase):
 		self.school.db_set("lms_auto_enrollment", 0, update_modified=False)
 		with patch("frappe.enqueue"):
 			set_school_lms_enabled(self.school.name, 0)
+			original_user = frappe.session.user
+			try:
+				frappe.set_user(manager.name)
+				assign_teacher_to_offering(self.offering.name, None)
+			finally:
+				frappe.set_user(original_user)
+			self.assertEqual(frappe.db.get_value("LMS Enrollment State", new_state_name, "desired_state"), "Enrolled")
 			self.group.reload()
 			for row in self.group.students:
 				if row.student == students[1]:
@@ -434,6 +441,10 @@ class TestMoodleService(IntegrationTestCase):
 			result = process_sync_operation(tenant_operation, adapter=MockMoodleAdapter())
 		self.assertEqual(result.state, "Succeeded")
 		self.assertEqual(frappe.db.get_value("LMS Enrollment State", second_state, "desired_state"), "Not Enrolled")
+		self.assertEqual(frappe.db.get_value("LMS Enrollment State", new_state_name, "desired_state"), "Not Enrolled")
+		self.assertTrue(frappe.db.exists("LMS Sync Operation", {
+			"target_doctype": "LMS Enrollment State", "target_name": new_state_name, "state": "Queued",
+		}))
 		self.assertEqual(frappe.db.count("LMS Entity Mapping", {
 			"school": self.school.name, "local_doctype": "School", "local_name": self.school.name,
 		}), 1)

@@ -261,6 +261,7 @@ def process_sync_operation(operation, adapter=None):
 				queue_offering_student_enrollments(operation.target_name)
 		elif operation.operation_type == "Provision Tenant":
 			school = frappe.get_doc("School", operation.school)
+			queue_school_staff_reconciliation(school.name)
 			if school.lms_auto_enrollment:
 				queue_school_auto_enrollment(school.name)
 			else:
@@ -515,6 +516,22 @@ def queue_school_roster_withdrawals(school_name):
 		"status": "Active",
 	})}
 	return [sync_group_roster_after_update(frappe.get_doc("Student Group", group)) for group in groups]
+
+
+def queue_school_staff_reconciliation(school_name):
+	"""Reconcile teachers on already mapped courses after a tenant reconnect."""
+	offerings = frappe.get_all("School Course Offering", filters={
+		"school": school_name, "status": ["!=", "Archived"],
+	}, pluck="name")
+	queued = []
+	for offering in offerings:
+		if frappe.db.exists("LMS Entity Mapping", {
+			"school": school_name, "local_doctype": "School Course Offering", "local_name": offering,
+			"status": "Active",
+		}):
+			queue_offering_staff_enrollments(offering)
+			queued.append(offering)
+	return queued
 
 
 def _save_tenant_binding(school, remote):

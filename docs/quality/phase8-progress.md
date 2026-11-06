@@ -70,7 +70,9 @@ blocker, not evidence that a live Moodle deployment works.
   current teacher and withdraws former teacher states. A focused mock integration
   test processed both replacement operations and confirmed reuse of the course
   mapping; eight Moodle service and five staff tests passed on the disposable
-  site. Live replacement remains unverified and conflicting roles require review.
+  site. After tenant reconnect, mapped active offerings also reconcile teacher
+  changes made while LMS was disabled; the focused mock test covers unassignment.
+  Live replacement remains unverified and conflicting roles require review.
 - After a tenant reconnect, mapped rosters are reconciled even when automatic
   enrollment is disabled; with it enabled, full eligible rosters are reconciled.
   A mock test covers a group removal while LMS is disabled, re-enable, tenant

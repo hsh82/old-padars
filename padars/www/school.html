@@ -33,7 +33,7 @@
 <div>{{ _('Engagement only; this does not confirm class attendance.') }} {{ _('Observed') }} {{ activity.observed_at | e }}</div>
 </li>{% else %}<li>{{ _('No learning activities have been shared here yet.') }}</li>{% endfor %}</ul>
 <h3>{{ _('Official attendance this week') }}</h3>
-<ul>{% for record in overview.attendance %}<li>{{ record.date | e }} · {{ record.status | e }}</li>
+<ul>{% for record in overview.attendance %}<li>{{ record.date | e }} · {{ record.status | e }}{% if record.padars_late_minutes %} · {{ _('Late minutes') }}: {{ record.padars_late_minutes }}{% endif %}</li>
 {% else %}<li>{{ _('No confirmed attendance records this week. Missing records do not mean absence.') }}</li>{% endfor %}</ul>
 {% if overview.truncated %}<p role="status">{{ _('Some records exceed this view’s limit. Contact the school for the complete record.') }}</p>{% endif %}
 {% else %}<p>{{ _('Choose a verified child above. If no children appear, ask the school to verify your guardian access.') }}</p>{% endif %}

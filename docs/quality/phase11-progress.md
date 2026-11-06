@@ -28,3 +28,13 @@ that narrow installation-role adjustment; the affected guardian test passed
 after it. Fourteen offline Moodle adapter contracts passed. Full Padars tests,
 fresh current-build site installation, live integrations, browsers, concurrency,
 backup restore and product scenarios A–J remain open.
+
+Native form validation defect: Frappe's client mandatory checker runs before the
+server populates readonly version/binding/range fields. New Scheme, Moodle Grade
+Mapping and Session Attendance Policy forms now use conditional client mandatory
+rules for generated fields, retaining server reqd validation. The installed
+Frappe checker was executed against all three schemas in a small Node Desk-data
+harness: new forms pass, missing user inputs fail, and removing the fix reproduces
+the original failure. CI includes this check after Bench installation. This is
+not a DOM/browser test. Narrow academic-reference role access was also tested:
+manager configuration works while User/customization administration stays denied.

@@ -115,14 +115,15 @@ def capture_learning(operation, adapter):
 	catalog = clean_catalog(adapter.read_course_activities(school, course))
 	completions = {student: clean_completions(adapter.read_activity_completions(school, course, user), catalog)
 		for student, user in roster}
-	payload = json.dumps({"activities": catalog, "completions": completions}, sort_keys=True)
+	identities = {student: {"mapping": user.name, "remote_user": user.remote_id} for student, user in roster}
+	payload = json.dumps({"activities": catalog, "completions": completions, "identities": identities}, sort_keys=True)
 	old_flag = frappe.flags.get("padars_learning_capture")
 	frappe.flags.padars_learning_capture = True
 	try:
 		frappe.get_doc({"doctype": "Moodle Learning Snapshot", "school": school.name,
 			"course_offering": offering.name, "source_operation": operation.name,
 			"observed_at": now_datetime(), "remote_context": tenant.remote_context, "remote_course": course.remote_id,
-			"activities": json.dumps(catalog, sort_keys=True), "completions": json.dumps(completions, sort_keys=True),
+			"activities": json.dumps(catalog, sort_keys=True), "completions": json.dumps(completions, sort_keys=True), "identities": json.dumps(identities, sort_keys=True),
 			"payload_digest": hashlib.sha256(payload.encode()).hexdigest()}).insert(ignore_permissions=True)
 	finally:
 		frappe.flags.padars_learning_capture = old_flag

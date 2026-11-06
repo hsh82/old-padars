@@ -66,7 +66,7 @@ G6 has coverage-checked immutable publication, successor versions, student and v
 delivery and generated PDF. Twelve focused tests pass; browser/concurrency and
 release acceptance remain open. Controlled Education mark corrections now have
 focused implementation, including atomic rollback and protected audit metadata.
-Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Moodle discovery, mapping and reviewed draft import are connected; sixteen focused integration tests pass. Learning discovery/publication and completion are connected; next: session-specific evidence policies and review. Development
+Verified guardian delivery is implemented. Student/family academic views are connected; fourteen focused tests pass. Moodle discovery, mapping and reviewed draft import are connected; sixteen focused integration tests pass. Learning discovery/publication and completion are connected; asynchronous session policies, reviewed evidence confirmation and correction are implemented; live meeting analytics and final acceptance remain. Development
 changes are not promoted to staging.
 
 ## Work discipline and handoff

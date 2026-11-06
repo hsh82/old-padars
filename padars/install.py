@@ -39,6 +39,7 @@ def after_install():
 	ensure_assessment_tool_permissions()
 	ensure_assessment_approval_permissions()
 	ensure_guardian_management_permissions()
+	ensure_academic_reference_permissions()
 	ensure_registration_import_permissions()
 	validate_security_baseline()
 
@@ -245,3 +246,20 @@ def ensure_guardian_management_permissions():
 		for ptype in ("create", "write"):
 			update_permission_property("Guardian", role, 0, ptype, 1, validate=False)
 	frappe.clear_cache(doctype="Guardian")
+
+
+def ensure_academic_reference_permissions():
+	"""Native school-wide academic masters, without the broad Academics User role."""
+	from frappe.permissions import add_permission, update_permission_property
+
+	managers = {"Padars School Manager", "Padars Platform Administrator", "System Manager"}
+	readers = {"Padars Teacher", "Padars Academic Staff", "Padars Grade Entry Staff"}
+	for doctype in ("Academic Term", "Grading Scale", "Assessment Criteria", "Assessment Group", "Room"):
+		for role in sorted(managers | readers):
+			filters = {"parent": doctype, "role": role, "permlevel": 0, "if_owner": 0}
+			if not frappe.db.exists("Custom DocPerm", filters):
+				add_permission(doctype, role, 0, "read")
+			if role in managers:
+				for action in ("create", "write") + (("submit",) if doctype == "Grading Scale" else ()):
+					update_permission_property(doctype, role, 0, action, 1, validate=False)
+		frappe.clear_cache(doctype=doctype)

@@ -1,0 +1,176 @@
+{
+ "doctype": "DocType",
+ "name": "Attendance Evidence Review",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_schedule",
+  "course_offering",
+  "student",
+  "proposal",
+  "attendance",
+  "decision",
+  "previous_status",
+  "confirmed_status",
+  "reviewed_by",
+  "reviewed_at",
+  "reason",
+  "review_key",
+  "evidence",
+  "previous_late_minutes",
+  "confirmed_late_minutes"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School"
+  },
+  {
+   "fieldname": "course_schedule",
+   "fieldtype": "Link",
+   "label": "Course Schedule",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Course Schedule",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "fieldtype": "Link",
+   "label": "Course Offering",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering"
+  },
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "label": "Student",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Student",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "proposal",
+   "fieldtype": "Link",
+   "label": "Proposal",
+   "read_only": 1,
+   "reqd": 0,
+   "options": "Attendance Evidence Proposal"
+  },
+  {
+   "fieldname": "attendance",
+   "fieldtype": "Link",
+   "label": "Attendance",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Student Attendance"
+  },
+  {
+   "fieldname": "decision",
+   "fieldtype": "Select",
+   "label": "Decision",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Evidence Confirmed\nManual Override"
+  },
+  {
+   "fieldname": "previous_status",
+   "fieldtype": "Data",
+   "label": "Previous Status",
+   "read_only": 1,
+   "reqd": 0
+  },
+  {
+   "fieldname": "confirmed_status",
+   "fieldtype": "Data",
+   "label": "Confirmed Status",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "User"
+  },
+  {
+   "fieldname": "reviewed_at",
+   "fieldtype": "Datetime",
+   "label": "Reviewed At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Reason",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_key",
+   "fieldtype": "Data",
+   "label": "Review Key",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "evidence",
+   "fieldtype": "Table",
+   "label": "Evidence",
+   "read_only": 1,
+   "reqd": 0,
+   "options": "Attendance Evidence Use"
+  },
+  {
+   "fieldname": "previous_late_minutes",
+   "label": "Previous Late Minutes",
+   "fieldtype": "Int",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_late_minutes",
+   "label": "Confirmed Late Minutes",
+   "fieldtype": "Int",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ]
+}

@@ -1,0 +1,130 @@
+{
+ "doctype": "DocType",
+ "name": "Attendance Evidence Proposal",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_schedule",
+  "course_offering",
+  "student",
+  "policy",
+  "source_snapshot",
+  "evaluation_state",
+  "evaluated_at",
+  "provenance",
+  "proposal_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School"
+  },
+  {
+   "fieldname": "course_schedule",
+   "fieldtype": "Link",
+   "label": "Course Schedule",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Course Schedule",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "fieldtype": "Link",
+   "label": "Course Offering",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering"
+  },
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "label": "Student",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Student",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "policy",
+   "fieldtype": "Link",
+   "label": "Policy",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Session Attendance Policy"
+  },
+  {
+   "fieldname": "source_snapshot",
+   "fieldtype": "Link",
+   "label": "Source Snapshot",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Moodle Learning Snapshot"
+  },
+  {
+   "fieldname": "evaluation_state",
+   "fieldtype": "Select",
+   "label": "Evaluation State",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "Proposed Present\nPending Evidence\nEvidence Unavailable\nAlready Recorded",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "evaluated_at",
+   "fieldtype": "Datetime",
+   "label": "Evaluated At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "provenance",
+   "fieldtype": "Code",
+   "label": "Provenance",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "JSON"
+  },
+  {
+   "fieldname": "proposal_key",
+   "fieldtype": "Data",
+   "label": "Proposal Key",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1,
+   "hidden": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1
+  }
+ ]
+}

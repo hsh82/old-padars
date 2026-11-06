@@ -29,7 +29,8 @@
    "label": "School",
    "read_only": 1,
    "reqd": 1,
-   "options": "School"
+   "options": "School",
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "course_offering",
@@ -75,42 +76,48 @@
    "fieldtype": "Data",
    "label": "Item Title",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "remote_context",
    "fieldtype": "Data",
    "label": "Remote Context",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "remote_course",
    "fieldtype": "Data",
    "label": "Remote Course",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "source_minimum",
    "fieldtype": "Data",
    "label": "Source Minimum",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "source_maximum",
    "fieldtype": "Data",
    "label": "Source Maximum",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "target_maximum",
    "fieldtype": "Data",
    "label": "Target Maximum",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "decimal_places",
@@ -136,7 +143,8 @@
    "read_only": 1,
    "reqd": 1,
    "hidden": 1,
-   "unique": 1
+   "unique": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
   },
   {
    "fieldname": "retirement_reason",

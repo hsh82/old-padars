@@ -86,7 +86,7 @@ def get_academic_overview(student=None, week=None):
 	# Attendance history is owned by the student, including classes since left.
 	attendance = frappe.get_all("Student Attendance", filters={"student": student,
 		"padars_school": school, "docstatus": 1, "date": ["between", [start, end]]},
-		fields=["date", "status", "course_schedule"], order_by="date asc, name asc", limit_page_length=201)
+		fields=["date", "status", "course_schedule", "padars_late_minutes"], order_by="date asc, name asc", limit_page_length=201)
 	course_ids = sorted({row.course for row in [*courses, *sessions] if row.course})
 	teacher_ids = sorted({row.instructor for row in [*courses, *sessions] if row.instructor})
 	course_names = dict(frappe.get_all("Course", filters={"name": ["in", course_ids]},

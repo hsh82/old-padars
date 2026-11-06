@@ -47,8 +47,9 @@ including mixed manual/Moodle marks, stale reviews, rollback, mapping retirement
 changed ranges and manager-controlled result corrections. No live grade read or
 browser import is claimed. Teacher-published learning activities and per-child completion are now connected
 through the durable queue and family portal. Seventeen focused tests and fifteen
-offline adapter contracts pass; changed metadata is held for review. Next:
-session-specific attendance policies, evidence review and native attendance confirmation; Phase 8 live acceptance still needs an
+offline adapter contracts pass; changed metadata is held for review. Session-specific asynchronous activity policies, immutable proposals, teacher
+confirmation, cross-session consumption protection and reasoned manual correction
+are now implemented; live analytics, browser/concurrency and release gates remain. Phase 8 live acceptance still needs an
 authorized service/token/role configuration. Full Phase 9/10 and Phase 11 remain open.
 Education remains authoritative; do not introduce fixed national formulas.
 The remaining learning views and broader role portals, learning-activity and
@@ -77,3 +78,15 @@ per-child statuses are scoped; API failures become unavailable and empty
 publication removes activities. Live Moodle/PlugNmeet configuration remains an
 external acceptance gate. Continue with session-specific evidence policies; do
 not redo grade import, publication, guardian verification or academic portals.
+
+## Current next task
+
+The evidence milestone is verified: eighteen focused scheduling/assessment
+tests, five daily-operation tests and the native form metadata harness pass.
+Next verify fresh installation from this development checkout. Native new-form mandatory
+checks now defer generated readonly values on new documents while server reqd
+stays enforced. Narrow native academic-reference permissions allow manager
+configuration without a broad Academics User or System Manager role. Continue
+with verified PlugNmeet session analytics/combined policies only when its actual
+configuration/contracts are available; do not infer live attendance from module
+completion. The Stage 1 checkout remains protected.

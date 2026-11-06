@@ -1,0 +1,46 @@
+{
+ "doctype": "DocType",
+ "name": "Attendance Evidence Use",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "consumption_key",
+  "cmid",
+  "completion_timestamp",
+  "remote_context"
+ ],
+ "fields": [
+  {
+   "fieldname": "consumption_key",
+   "fieldtype": "Data",
+   "label": "Consumption Key",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "cmid",
+   "fieldtype": "Int",
+   "label": "Cmid",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "completion_timestamp",
+   "fieldtype": "Int",
+   "label": "Completion Timestamp",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remote_context",
+   "fieldtype": "Data",
+   "label": "Remote Context",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "permissions": [],
+ "istable": 1
+}

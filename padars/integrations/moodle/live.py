@@ -335,7 +335,7 @@ class LiveMoodleAdapter:
 		return rows[0].get("gradeitems", [])
 
 	def read_course_activities(self, school, course_mapping):
-		course_id, _ = self._verified_read_scope(school, course_mapping)
+		course_id, _user_id = self._verified_read_scope(school, course_mapping)
 		return self.client.call("core_course_get_contents", {"courseid": course_id,
 			"options": [{"name": "excludecontents", "value": "1"}]}) or []
 

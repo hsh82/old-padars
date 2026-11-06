@@ -1,0 +1,200 @@
+{
+ "doctype": "DocType",
+ "name": "Session Attendance Policy",
+ "module": "Padars",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "school",
+  "course_schedule",
+  "course_offering",
+  "version",
+  "source_snapshot",
+  "rule_mode",
+  "selected_activities",
+  "window_start",
+  "window_end",
+  "timezone",
+  "require_pass",
+  "approval_reason",
+  "approved_by",
+  "approved_at",
+  "version_key",
+  "activity_picker"
+ ],
+ "fields": [
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School",
+   "mandatory_depends_on": "eval: !doc.__islocal"
+  },
+  {
+   "fieldname": "course_schedule",
+   "fieldtype": "Link",
+   "label": "Course Schedule",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "Course Schedule",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "course_offering",
+   "fieldtype": "Link",
+   "label": "Course Offering",
+   "read_only": 1,
+   "reqd": 1,
+   "options": "School Course Offering",
+   "mandatory_depends_on": "eval: !doc.__islocal"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version",
+   "read_only": 1,
+   "reqd": 1,
+   "in_list_view": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
+  },
+  {
+   "fieldname": "source_snapshot",
+   "fieldtype": "Link",
+   "label": "Source Snapshot",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "Moodle Learning Snapshot"
+  },
+  {
+   "fieldname": "rule_mode",
+   "fieldtype": "Select",
+   "label": "Rule Mode",
+   "read_only": 0,
+   "reqd": 1,
+   "default": "All selected activities",
+   "options": "All selected activities\nAny selected activity"
+  },
+  {
+   "fieldname": "selected_activities",
+   "fieldtype": "Code",
+   "label": "Selected Activities",
+   "read_only": 0,
+   "reqd": 1,
+   "options": "JSON"
+  },
+  {
+   "fieldname": "window_start",
+   "fieldtype": "Datetime",
+   "label": "Window Start",
+   "read_only": 0,
+   "reqd": 1
+  },
+  {
+   "fieldname": "window_end",
+   "fieldtype": "Datetime",
+   "label": "Window End",
+   "read_only": 0,
+   "reqd": 1
+  },
+  {
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "read_only": 1,
+   "reqd": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
+  },
+  {
+   "fieldname": "require_pass",
+   "fieldtype": "Check",
+   "label": "Require Pass",
+   "read_only": 0,
+   "reqd": 0
+  },
+  {
+   "fieldname": "approval_reason",
+   "fieldtype": "Small Text",
+   "label": "Approval Reason",
+   "read_only": 0,
+   "reqd": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "read_only": 1,
+   "reqd": 0,
+   "options": "User"
+  },
+  {
+   "fieldname": "approved_at",
+   "fieldtype": "Datetime",
+   "label": "Approved At",
+   "read_only": 1,
+   "reqd": 0
+  },
+  {
+   "fieldname": "version_key",
+   "fieldtype": "Data",
+   "label": "Version Key",
+   "read_only": 1,
+   "reqd": 1,
+   "hidden": 1,
+   "unique": 1,
+   "mandatory_depends_on": "eval: !doc.__islocal"
+  },
+  {
+   "fieldname": "activity_picker",
+   "fieldtype": "HTML",
+   "label": "Selected Activities"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  },
+  {
+   "role": "Padars Platform Administrator",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  },
+  {
+   "role": "Padars School Manager",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  },
+  {
+   "role": "Padars Teacher",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  },
+  {
+   "role": "Padars Academic Staff",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  },
+  {
+   "role": "Padars Grade Entry Staff",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1
+  }
+ ],
+ "is_submittable": 1,
+ "track_changes": 1
+}

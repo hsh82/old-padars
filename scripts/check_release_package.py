@@ -24,6 +24,7 @@ CRITICAL_DOCTYPES = (
 	"school_assessment_scheme", "report_card_publication", "verified_guardian_access",
 	"moodle_grade_snapshot", "moodle_grade_mapping", "moodle_grade_review",
 	"moodle_learning_snapshot", "course_activity_selection",
+	"session_attendance_policy", "attendance_evidence_proposal", "attendance_evidence_review", "attendance_evidence_use",
 )
 
 

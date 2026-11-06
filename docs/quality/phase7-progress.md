@@ -39,3 +39,17 @@ and [permissions](../architecture/permissions.md).
   mode per group/date.
 - Browser interaction, accessibility, report export UX, and the full Education
   compatibility suite remain for the later integration/release phase.
+
+Asynchronous session evidence now extends the native session and attendance
+workflow: versioned activity policies, immutable proposals, reviewed confirmation,
+unique activity consumption and reasoned manual status/late corrections. Pending
+or unavailable sources never imply absence. The integrated journey passed,
+including rollback, timestamp-change reuse denial, teacher authority and approved
+leave cancellation. Existing daily operations passed five focused tests.
+PlugNmeet analytics and live/combined rules remain unfinished; no live or browser
+acceptance is claimed. See [attendance evidence](../architecture/attendance-evidence.md).
+
+Final evidence milestone: eighteen focused scheduling/assessment tests passed.
+The extended journey includes evidence-backed leave approval and cancellation.
+Native form mandatory checks reproduce the pre-fix generated-field failure and
+pass with the new rules. Full browser/concurrency and live acceptance remain open.

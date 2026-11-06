@@ -2,7 +2,7 @@
 
 This tracks unclosed gates. Earlier focused passes are evidence for the covered
 rules, not whole-product acceptance. See phase quality reports for commands and
-results. Latest portal/guardian/assessment/grade-import module: seventeen integration tests passed on the disposable development site.
+results. Latest portal/guardian/assessment/grade-import module: eighteen integration tests passed on the disposable development site.
 
 | Gate | Status | Required next evidence |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ results. Latest portal/guardian/assessment/grade-import module: seventeen integr
 | Assessment UI | Outstanding | Final renderer behavior, hostile text, stale edits, loading/error/retry states and manager review in a browser. |
 | Assessment concurrency | Outstanding | Competing draft creates/updates and identity claims; verify locking and stale revision rejection across connections. |
 | Grading scheme and publication | Focused implementation; release checks outstanding | Eleven focused tests now cover schemes, coverage, publication versions, own-student access and PDF. Browser journeys, concurrent publication, real approved school schemes and cross-connection correction checks remain. |
-| Learning and PlugNmeet evidence | Learning projection focused-tested; session evidence pending | Actual session-specific data, policy evaluation, unavailable sources, deduplication and authorized override. |
+| Learning and PlugNmeet evidence | Learning and asynchronous evidence focused-tested; live meeting evidence pending | Actual session-specific data, policy evaluation, unavailable sources, deduplication and authorized override. |
 | Guardian/student isolation | Focused report-access checks passed | Verified native links, account creation, list/read denial, revocation and source changes tested; weekly timetable/attendance/withdrawal and course-link contract tests passed; learning views, browser flow and final endpoint audit remain. |
 | Full endpoint/report audit | Outstanding | Customer restrictions, Files/DocShares, reports, RPCs, User administration and privileged customization denial. |
 | Fresh current-build installation | Outstanding; wheel artifact gate passed | G9 on a disposable site; optional integrations disabled must not block basic setup. |
@@ -33,4 +33,4 @@ Approved mappings, explicit normalization and reviewed Education draft imports n
 Learning source/publication: 17 focused integration tests and 15 offline adapter
 contracts passed. An extended focused journey verifies changed dates are held
 for teacher review. Live service/worker/browser evidence remains unperformed.
-Session policy/evidence evaluation and confirmed native attendance are next.
+Session-specific asynchronous policy/evidence evaluation and reviewed native attendance are implemented. Live/combined rules and final acceptance remain.

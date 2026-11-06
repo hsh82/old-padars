@@ -14,7 +14,8 @@
   "payload_digest",
   "activities",
   "completions",
-  "activity_preview"
+  "activity_preview",
+  "identities"
  ],
  "fields": [
   {
@@ -95,6 +96,15 @@
    "fieldname": "activity_preview",
    "fieldtype": "HTML",
    "label": "Activities"
+  },
+  {
+   "fieldname": "identities",
+   "fieldtype": "Code",
+   "options": "JSON",
+   "label": "Source Identity Mappings",
+   "read_only": 1,
+   "hidden": 1,
+   "reqd": 1
   }
  ],
  "permissions": [

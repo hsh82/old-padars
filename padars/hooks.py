@@ -113,10 +113,14 @@ after_migrate = [
 	"padars.install.ensure_assessment_tool_permissions",
 	"padars.install.ensure_assessment_approval_permissions",
 	"padars.install.ensure_guardian_management_permissions",
+	"padars.install.ensure_academic_reference_permissions",
 	"padars.install.ensure_registration_import_permissions", "padars.install.validate_security_baseline",
 ]
 
 permission_query_conditions = {
+	"Session Attendance Policy": "padars.attendance_evidence.policy_query_conditions",
+	"Attendance Evidence Proposal": "padars.attendance_evidence.proposal_query_conditions",
+	"Attendance Evidence Review": "padars.attendance_evidence.review_query_conditions",
 	"Moodle Learning Snapshot": "padars.integrations.moodle.learning.snapshot_query_conditions",
 	"Course Activity Selection": "padars.integrations.moodle.learning.selection_query_conditions",
 	"Moodle Grade Mapping": "padars.integrations.moodle.grade_import.mapping_query_conditions",
@@ -150,6 +154,9 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	"Session Attendance Policy": "padars.attendance_evidence.has_permission",
+	"Attendance Evidence Proposal": "padars.attendance_evidence.has_permission",
+	"Attendance Evidence Review": "padars.attendance_evidence.has_permission",
 	"Moodle Learning Snapshot": "padars.integrations.moodle.learning.has_permission",
 	"Course Activity Selection": "padars.integrations.moodle.learning.has_permission",
 	"Moodle Grade Mapping": "padars.integrations.moodle.grade_import.mapping_permission",
@@ -247,6 +254,7 @@ doc_events = {
 		],
 	},
 	"Student Attendance": {
+		"before_update_after_submit": "padars.attendance_evidence.protect_evidence_attendance",
 		"validate": [
 			"padars.education_hooks.validate_linked_education_context",
 			"padars.daily_operations.validate_student_attendance",

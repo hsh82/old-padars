@@ -350,5 +350,17 @@
   "read_only": 1,
   "hidden": 1,
   "insert_after": "amended_from"
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Course Schedule",
+  "fieldname": "padars_session_mode",
+  "fieldtype": "Select",
+  "label": "Session Mode",
+  "options": "Physical\nOnline\nHybrid\nAsynchronous",
+  "default": "Physical",
+  "module": "Padars",
+  "name": "Course Schedule-padars_session_mode",
+  "insert_after": "padars_course_offering"
  }
 ]

@@ -1,5 +1,6 @@
 from calendar import day_name
-from datetime import timedelta
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -76,14 +77,14 @@ class TestScheduling(IntegrationTestCase):
 		start = getdate(f"{year}-01-01")
 		return start + timedelta(days=(0 - start.weekday()) % 7)
 
-	def _schedule(self, group, date, from_time, to_time, room=None, offering=None, instructor=None):
+	def _schedule(self, group, date, from_time, to_time, room=None, offering=None, instructor=None, mode="Physical"):
 		return frappe.get_doc({
 			"doctype": "Course Schedule", "student_group": group.name,
 			"course": group.course or self.course.name, "program": group.program,
 			"instructor": instructor or self.instructor.name,
 			"room": (room or self.room).name, "schedule_date": date,
 			"from_time": from_time, "to_time": to_time,
-			"padars_course_offering": offering,
+			"padars_course_offering": offering, "padars_session_mode": mode,
 		}).insert()
 
 	def _other_group(self):
@@ -733,9 +734,13 @@ class TestScheduling(IntegrationTestCase):
 			{"id": 101, "name": "<b>Published lesson</b>", "modname": "lesson", "instance": 13,
 				"completion": 2, "visible": 1, "dates": [{"label": "Due", "timestamp": 1893456000}],
 				"description": "Private course content", "completiondata": {"state": 3}},
-			{"id": 102, "name": "Hidden quiz", "modname": "quiz", "instance": 14, "completion": 2, "visible": 0}]}]
+			{"id": 102, "name": "Hidden quiz", "modname": "quiz", "instance": 14, "completion": 2, "visible": 0},
+			{"id": 103, "name": "Aggregate live activity", "modname": "plugnmeet", "instance": 15, "completion": 2, "visible": 1}]}]
+		from frappe.utils import get_system_timezone
+		evidence_date = getdate(today()) - timedelta(days=getdate(today()).weekday())
+		evidence_epoch = int(datetime.combine(evidence_date, datetime.min.time()).replace(hour=12, tzinfo=ZoneInfo(get_system_timezone())).timestamp())
 		adapter.read_activity_completions.side_effect = lambda school, course, user: [{"cmid": 101,
-			"state": 2 if user.remote_id == "9" else 0, "tracking": 2, "modname": "lesson", "instance": 13, "timecompleted": 1893456000}]
+			"state": 2 if user.remote_id == "9" else 0, "tracking": 2, "modname": "lesson", "instance": 13, "timecompleted": evidence_epoch if user.remote_id == "9" else 0}]
 		self.assertEqual(process_sync_operation(learning_op["operation"], adapter).state, "Succeeded")
 		learning_snapshot = frappe.db.get_value("Moodle Learning Snapshot", {"source_operation": learning_op["operation"]}, "name")
 		with self.assertRaises(frappe.ValidationError):
@@ -770,11 +775,98 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(publish_activity_selection(new_learning_snapshot, [101], "Reviewed changed activity deadline")["version"], 2)
 		frappe.set_user(learner)
 		self.assertFalse(get_academic_overview()["learning"][0]["metadata_changed"])
+		# Completion proposes attendance for exactly one reviewed asynchronous session.
+		from padars.attendance_evidence import evaluate_attendance_evidence, confirm_attendance_evidence, override_evidence_attendance
+		frappe.set_user("Administrator")
+		lesson = self._schedule(self.group, evidence_date, "09:00:00", "10:00:00", offering=self.offering.name, mode="Asynchronous")
+		second_lesson = self._schedule(self.group, evidence_date, "13:00:00", "14:00:00", offering=self.offering.name, mode="Asynchronous")
+		frappe.set_user(teacher)
+		def evidence_policy(session):
+			policy = frappe.get_doc({"doctype": "Session Attendance Policy", "school": self.school.name,
+				"course_schedule": session.name, "source_snapshot": new_learning_snapshot,
+				"rule_mode": "All selected activities", "selected_activities": "[101]",
+				"window_start": f"{evidence_date} 00:00:00", "window_end": f"{evidence_date} 23:59:59",
+				"require_pass": 1, "approval_reason": "This lesson activity qualifies for the asynchronous meeting"}).insert()
+			policy.submit()
+			return policy
+		policy = evidence_policy(lesson)
+		unsupported = frappe.copy_doc(policy)
+		unsupported.selected_activities = "[103]"
+		with self.assertRaises(frappe.ValidationError):
+			unsupported.insert()
+		invalid_window = frappe.copy_doc(policy)
+		invalid_window.window_end = invalid_window.window_start
+		with self.assertRaises(frappe.ValidationError):
+			invalid_window.insert()
+		pending = evaluate_attendance_evidence(policy.name, other_student.name, new_learning_snapshot)
+		self.assertEqual(pending["state"], "Pending Evidence")
+		proposal = evaluate_attendance_evidence(policy.name, student.name, new_learning_snapshot)
+		self.assertEqual(proposal["state"], "Proposed Present")
+		self.assertEqual(proposal, evaluate_attendance_evidence(policy.name, student.name, new_learning_snapshot))
+		with patch("padars.attendance_evidence.AttendanceEvidenceReview.insert", side_effect=frappe.ValidationError("Controlled evidence audit failure")):
+			with self.assertRaises(frappe.ValidationError):
+				confirm_attendance_evidence(proposal["name"], "Reviewed asynchronous completion")
+		self.assertFalse(frappe.db.exists("Student Attendance", {"student": student.name, "course_schedule": lesson.name}))
+		confirmed = confirm_attendance_evidence(proposal["name"], "Reviewed asynchronous completion")
+		self.assertEqual(confirmed, confirm_attendance_evidence(proposal["name"], "Retry"))
+		consumption = frappe.get_doc("Attendance Evidence Use", frappe.db.get_value("Attendance Evidence Use", {"parent": confirmed["review"]}, "name"))
+		with self.assertRaises(frappe.PermissionError):
+			consumption.save(ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value("Student Attendance", confirmed["attendance"], "status"), "Present")
+		other_policy = evidence_policy(second_lesson)
+		consumed = evaluate_attendance_evidence(other_policy.name, student.name, new_learning_snapshot)
+		self.assertEqual(consumed["state"], "Pending Evidence")
+		with self.assertRaises(frappe.ValidationError):
+			confirm_attendance_evidence(consumed["name"], "Attempt to count the same homework twice")
+		self.assertEqual(frappe.db.count("Student Attendance", {"student": student.name, "course_schedule": second_lesson.name}), 0)
+		with patch("frappe.enqueue"):
+			changed_completion = request_learning_discovery(self.offering.name)
+		adapter.read_activity_completions.side_effect = lambda school, course, user: [{"cmid": 101,
+			"state": 2 if user.remote_id == "9" else 0, "tracking": 2, "modname": "lesson", "instance": 13,
+			"timecompleted": evidence_epoch + 300 if user.remote_id == "9" else 0}]
+		self.assertEqual(process_sync_operation(changed_completion["operation"], adapter).state, "Succeeded")
+		later_snapshot = frappe.db.get_value("Moodle Learning Snapshot", {"source_operation": changed_completion["operation"]}, "name")
+		self.assertEqual(evaluate_attendance_evidence(other_policy.name, student.name, later_snapshot)["state"], "Pending Evidence")
+		attendance = frappe.get_doc("Student Attendance", confirmed["attendance"])
+		attendance.status = "Absent"
+		with self.assertRaises(frappe.PermissionError):
+			attendance.save()
+		override_evidence_attendance(confirmed["attendance"], "Absent", "Teacher corrected the evidence interpretation")
+		self.assertEqual(frappe.db.get_value("Student Attendance", confirmed["attendance"], "status"), "Absent")
+		with self.assertRaises(frappe.ValidationError):
+			confirm_attendance_evidence(proposal["name"], "Cannot undo a manual correction by retry")
+		self.assertEqual(frappe.db.count("Attendance Evidence Review", {"attendance": confirmed["attendance"]}), 2)
+		override_evidence_attendance(confirmed["attendance"], "Present", "Verified late participation correction", late_minutes=5)
+		self.assertEqual(frappe.db.get_value("Student Attendance", confirmed["attendance"], "padars_late_minutes"), 5)
+		self.assertEqual(frappe.db.count("Attendance Evidence Review", {"attendance": confirmed["attendance"]}), 3)
+		override_evidence_attendance(confirmed["attendance"], "Absent", "School verified an approved absence")
+		leave = frappe.get_doc({"doctype": "Student Leave Application", "student": student.name,
+			"attendance_based_on": "Course Schedule", "student_group": self.group.name, "course_schedule": lesson.name,
+			"from_date": evidence_date, "to_date": evidence_date, "reason": "School-approved leave"}).insert()
+		leave.submit()
+		self.assertEqual(frappe.db.get_value("Student Attendance", confirmed["attendance"], "status"), "Leave")
+		leave.cancel()
+		self.assertEqual(frappe.db.get_value("Student Attendance", confirmed["attendance"], "status"), "Absent")
+		override_evidence_attendance(confirmed["attendance"], "Present", "School reviewed the cancelled leave", late_minutes=5)
+		frappe.set_user("Administrator")
+		assignment = frappe.db.get_value("Academic Assignment", {"user": teacher, "scope_type": "School Course Offering", "scope_name": self.offering.name, "status": "Active"}, "name")
+		frappe.db.set_value("Academic Assignment", assignment, "can_manage_attendance", 0)
+		frappe.set_user(teacher)
+		with self.assertRaises(frappe.PermissionError):
+			override_evidence_attendance(confirmed["attendance"], "Absent", "Read-only attendance scope")
+		frappe.set_user("Administrator")
+		frappe.db.set_value("Academic Assignment", assignment, "can_manage_attendance", 1)
+		frappe.set_user(teacher)
+		frappe.set_user(learner)
+		with self.assertRaises(frappe.PermissionError):
+			evaluate_attendance_evidence(policy.name, student.name, new_learning_snapshot)
 		frappe.set_user(teacher)
 		with patch("frappe.enqueue"):
 			unavailable = request_learning_discovery(self.offering.name)
 		adapter.read_course_activities.side_effect = RuntimeError("Controlled learning outage")
 		self.assertEqual(process_sync_operation(unavailable["operation"], adapter).state, "Failed")
+		self.assertEqual(evaluate_attendance_evidence(policy.name, other_student.name, later_snapshot)["state"], "Evidence Unavailable")
+		self.assertFalse(frappe.db.exists("Student Attendance", {"student": other_student.name, "course_schedule": lesson.name}))
 		frappe.set_user(learner)
 		self.assertIsNone(get_academic_overview()["learning"][0]["state"])
 		frappe.set_user(teacher)
@@ -789,6 +881,27 @@ class TestScheduling(IntegrationTestCase):
 		self.assertEqual(process_sync_operation(second["operation"], adapter).state, "Failed")
 		self.assertEqual(len(list_grade_snapshots(self.offering.name)), 2)
 		self.assertEqual(frappe.db.get_value("Assessment Result", replacement["result"], "total_score"), 110)
+
+	def test_manager_can_configure_native_academic_references_without_system_roles(self):
+		manager = self._user("reference-manager")
+		frappe.get_doc("User", manager).add_roles("Padars School Manager")
+		frappe.set_user(manager)
+		criterion = frappe.get_doc({"doctype": "Assessment Criteria", "assessment_criteria": f"Manager criterion-{self.key}"}).insert()
+		scale = frappe.get_doc({"doctype": "Grading Scale", "grading_scale_name": f"Manager scale-{self.key}",
+			"intervals": [{"grade_code": "F", "threshold": 0}, {"grade_code": "P", "threshold": 50}]}).insert()
+		scale.submit()
+		self.assertEqual(scale.docstatus, 1)
+		for doctype in ("Academic Term", "Grading Scale", "Assessment Criteria", "Assessment Group", "Room"):
+			self.assertTrue(frappe.has_permission(doctype, "read"))
+			self.assertTrue(frappe.has_permission(doctype, "create"))
+		self.assertNotIn("System Manager", frappe.get_roles())
+		self.assertFalse(frappe.has_permission("Custom Field", "create"))
+		teacher = frappe.db.get_value("Instructor", self.instructor.name, "padars_user")
+		self.assertFalse(frappe.has_permission("User", "write", frappe.get_doc("User", teacher)))
+		frappe.set_user(teacher)
+		self.assertTrue(frappe.has_permission("Grading Scale", "read", scale))
+		self.assertFalse(frappe.has_permission("Grading Scale", "submit", scale))
+		self.assertFalse(frappe.has_permission("Assessment Criteria", "write", criterion))
 
 	def test_activity_catalog_and_completion_keep_source_identity(self):
 		from padars.integrations.moodle.learning import clean_catalog, clean_completions

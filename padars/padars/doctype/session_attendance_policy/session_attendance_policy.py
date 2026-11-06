@@ -1,0 +1,1 @@
+from padars.attendance_evidence import SessionAttendancePolicy

@@ -99,3 +99,14 @@ Verified guardian report access is a narrow service/permission-hook extension;
 see [guardian access](guardian-access.md). A native relationship alone grants
 nothing. School Managers maintain Guardian records, verify/revoke grants, and
 cannot administer arbitrary Users through this service.
+
+Attendance policies/proposals/reviews require the offering's teaching read scope;
+creation, evaluation and confirmation also require native session/student
+manage_attendance authority. Evidence-backed changes require reasoned review;
+validated leave workflows retain their existing approval audit.
+
+School-wide native Academic Term, Grading Scale, Assessment Criteria, Assessment
+Group and Room references have narrow Padars role permissions. Managers can
+configure them and submit grading scales; teaching/grade staff can read them.
+This does not grant Academics User, User administration or customization roles.
+The independent-school database is the master-data boundary.

@@ -17,7 +17,7 @@ development. Live Moodle acceptance remains blocked by service configuration.
   mappings, retry recovery, and provisioning status.
 - Focused offline tests for REST encoding/security, tenant retries and clone
   rejection, user ownership/tenant allocation, course category/idempotency,
-  role-scoped enrollment, and the existing mock service lifecycle.
+  configured enrollment roles, and the existing mock service lifecycle.
 - Backfill-before-unique migration patch for existing School, mapping, and
   enrollment records.
 - Moodle/MuTMS setup runbook and source-verified API architecture notes.
@@ -53,6 +53,10 @@ blocker, not evidence that a live Moodle deployment works.
   student states and queues withdrawal after commit. Changes to Program Enrollment
   or user eligibility alone do not yet trigger reconciliation; automatic enrollment
   disabled, teacher replacement, and live unenrollment need further work.
+- The installed Moodle 5.2 manual unenrollment API removes the manual course
+  enrollment rather than a specific role. Padars blocks withdrawal when another
+  local role still needs or reports access, but cannot detect independent Moodle
+  role assignments; operator reconciliation and live verification remain needed.
 
 - An authorized company operator must enable the Moodle REST service, create a
   restricted service user/token, configure target role IDs and the Frappe host

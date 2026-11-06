@@ -307,6 +307,12 @@ def process_remote_operation(operation, adapter):
 		offering = frappe.get_doc("School Course Offering", state.course_offering)
 		school = frappe.get_doc("School", state.school)
 		if state.desired_state == "Not Enrolled":
+			other_states = frappe.get_all("LMS Enrollment State", filters={
+				"school": state.school, "course_offering": state.course_offering,
+				"user": state.user, "name": ["!=", state.name],
+			}, fields=["desired_state", "remote_state"])
+			if any(row.desired_state == "Enrolled" or row.remote_state == "Enrolled" for row in other_states):
+				frappe.throw(_("Moodle manual unenrollment removes course access for all roles; another enrollment requires operator review."))
 			# Never create or modify a remote account or course while removing access.
 			mappings = []
 			for doctype, name in (("School", school.name), ("School Course Offering", offering.name), ("User", state.user)):

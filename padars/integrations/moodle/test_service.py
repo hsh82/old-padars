@@ -295,6 +295,10 @@ class TestMoodleService(IntegrationTestCase):
 			"target_name": state.name, "target_doctype": "LMS Enrollment State", "state": "Queued",
 		}, "name")
 		self.assertTrue(operation_name)
+		from padars.integrations.moodle.service import process_remote_operation
+		with patch("frappe.get_all", return_value=[frappe._dict(desired_state="Enrolled", remote_state="Enrolled")]):
+			with self.assertRaises(frappe.ValidationError):
+				process_remote_operation(frappe.get_doc("LMS Sync Operation", operation_name), MockMoodleAdapter())
 		adapter = MockMoodleAdapter()
 		with patch("frappe.enqueue"), patch.object(adapter, "ensure_user", side_effect=AssertionError("unexpected user provisioning")), \
 			patch.object(adapter, "create_course", side_effect=AssertionError("unexpected course provisioning")):

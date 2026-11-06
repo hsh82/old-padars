@@ -84,6 +84,12 @@ stable external identifiers and verify remote state after writes. Remote
 tenant provisioning is automatic; course and student enrollment requests are
 available to the school's manager. Optional group-roster synchronization can
 queue currently eligible students when enabled on the School by company support.
+Moodle's manual unenrollment endpoint removes the user's manual course
+enrollment as a whole; it does not accept a role ID. Padars blocks withdrawal
+when another local enrollment state still requires or reports access. This guard
+does not discover roles or enrollments assigned independently in Moodle; operators
+must reconcile those before withdrawal. Missing mappings and conflicting local
+states fail for operator review rather than creating records during removal.
 Keep Padars courses under the MuTMS tenant category. MuTMS tenant members can
 access standard non-tenant courses by default, so the Moodle operator must
 restrict those categories when that access is not intended.

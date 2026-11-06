@@ -289,7 +289,7 @@ class LiveMoodleAdapter:
 			}]})
 		else:
 			self.client.call("enrol_manual_unenrol_users", {"enrolments": [{
-				"userid": user_id, "courseid": course_id, "roleid": role_id,
+				"userid": user_id, "courseid": course_id,
 			}]})
 		courses = self.client.call("core_enrol_get_users_courses", {
 			"userid": user_id, "returnusercount": 0,

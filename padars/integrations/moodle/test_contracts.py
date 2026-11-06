@@ -285,12 +285,12 @@ class TestLiveMoodleContracts(TestCase):
 		self.assertEqual(result["remote_state"], "Enrolled")
 		self.assertIn("core_enrol_get_users_courses", [function for function, _ in self.client.calls])
 
-	def test_unenrollment_is_limited_to_configured_role(self):
+	def test_unenrollment_uses_moodle_user_and_course_contract(self):
 		state = SimpleNamespace(role="Student", desired_state="Not Enrolled")
 		course = {"remote_id": "88", "remote_context": "tenant:21", "remote_url": ""}
 		result = self.adapter.sync_enrollment(state, {"remote_id": "77"}, course)
 		_, params = next(call for call in self.client.calls if call[0] == "enrol_manual_unenrol_users")
-		self.assertEqual(params["enrolments"], [{"userid": 77, "courseid": 88, "roleid": 5}])
+		self.assertEqual(params["enrolments"], [{"userid": 77, "courseid": 88}])
 		self.assertEqual(result["remote_state"], "Not Enrolled")
 
 	def test_missing_role_id_fails_closed_before_remote_write(self):
